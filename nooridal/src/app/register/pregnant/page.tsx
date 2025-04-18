@@ -177,12 +177,12 @@ export default function PregnantSignup() {
         {/* 이메일 인증 모달 */}
         {showEmailVerificationModal && (
           <>
-            <div className="w-96 h-[874px] left-0 top-0 absolute bg-neutral-400/50" />
-            <div className="w-80 h-52 left-[29px] top-[303px] absolute bg-white rounded-[20px]">
-              <div className="w-80 h-20 left-[7px] top-[22px] absolute text-center text-black text-lg font-['Do_Hyeon'] leading-[50px]">
+            <div className="w-96 h-[874px] left-0 top-0 absolute bg-neutral-400/50 z-20" />
+            <div className="w-80 h-52 left-[29px] top-[303px] absolute bg-white rounded-[20px] z-30">
+              <div className="w-80 h-20 left-0 top-[30px] absolute text-center text-black text-lg font-['Do_Hyeon'] leading-[50px] z-10">
                 이메일로 받은 인증번호를 입력하세요:
               </div>
-              <div className="w-80 h-10 left-[18px] top-[72.85px] absolute">
+              <div className="w-72 h-10 left-[16px] top-[85px] absolute z-10">
                 <input
                   type="text"
                   value={verificationCode}
@@ -191,18 +191,22 @@ export default function PregnantSignup() {
                   className="w-full h-full px-4 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
                 />
               </div>
-              <div className="flex justify-between px-5 mt-24">
+              <div className="flex justify-between w-full px-8 absolute bottom-4 z-10">
                 <button
                   onClick={handleVerificationSubmit}
-                  className="w-36 h-9 bg-yellow-200 rounded-[10px] text-black text-sm font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+                  className="w-32 h-9 bg-yellow-200 rounded-[10px]"
                 >
-                  확인
+                  <div className="w-full text-center text-black text-sm font-['Do_Hyeon'] leading-[36px]">
+                    확인
+                  </div>
                 </button>
                 <button
                   onClick={() => setShowEmailVerificationModal(false)}
-                  className="w-36 h-9 bg-yellow-200 rounded-[10px] text-black text-sm font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+                  className="w-32 h-9 bg-yellow-200 rounded-[10px]"
                 >
-                  취소
+                  <div className="w-full text-center text-black text-sm font-['Do_Hyeon'] leading-[36px]">
+                    취소
+                  </div>
                 </button>
               </div>
             </div>
@@ -210,14 +214,14 @@ export default function PregnantSignup() {
         )}
 
         {/* 회원가입 버튼 */}
-        <button className="w-72 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px]">
+        <button className="w-72 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px] z-10">
           <div className="w-52 h-7 left-[45px] top-[-2px] absolute text-black text-base font-['Do_Hyeon'] leading-[50px]">
             회원가입
           </div>
         </button>
 
         {/* 로그인으로 돌아가기 */}
-        <div className="w-60 h-9 left-[79px] top-[758px] absolute text-center">
+        <div className="w-60 h-9 left-[79px] top-[758px] absolute text-center z-10">
           <span className="text-black text-sm font-['Do_Hyeon'] leading-[50px]">이미 계정이 있으신가요? </span>
           <button
             onClick={() => router.push('/login')}
