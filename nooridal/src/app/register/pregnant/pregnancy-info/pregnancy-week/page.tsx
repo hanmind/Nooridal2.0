@@ -33,8 +33,8 @@ export default function PregnancyWeek() {
 
   // 모든 정보가 입력되었는지 확인
   const isFormValid = () => {
-    // 임신 주차와 출산 예정일이 모두 입력되었거나, 정보 없음이 체크되었는지 확인
-    const isInfoValid = (pregnancyWeek.trim() !== "" && dueDate.trim() !== "") || noInfo;
+    // 임신 주차 또는 출산 예정일 중 하나만 입력되어도 유효
+    const isInfoValid = pregnancyWeek.trim() !== "" || dueDate.trim() !== "" || noInfo;
     
     // 마지막 생리 시작일 모달이 열려있고 계산된 정보가 있는 경우도 유효
     const isCalculatedInfoValid = calculatedPregnancyWeek !== null && calculatedDueDate !== null;
@@ -168,6 +168,18 @@ export default function PregnancyWeek() {
 
         {/* 메인 카드 */}
         <div className="absolute top-[180px] w-80 bg-white rounded-[30px] shadow-lg p-6 z-10">
+          {/* 뒤로가기 버튼 */}
+          <div className="absolute top-0 left-0 p-2">
+            <button
+              onClick={handlePrevious}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+            </button>
+          </div>
+          
           {/* 달 아이콘 */}
           <div className="flex justify-center mb-4">
             <div className="w-14 h-14 relative">
@@ -635,19 +647,13 @@ export default function PregnancyWeek() {
           )}
 
           {/* 버튼 */}
-          <div className="flex justify-between">
-            <button
-              onClick={handlePrevious}
-              className="w-16 h-8 bg-white rounded-2xl border border-neutral-400"
-            >
-              <span className="text-black text-xs font-['Do_Hyeon']">이전</span>
-            </button>
+          <div className="flex justify-end">
             <button
               onClick={handleNext}
               className={`w-16 h-8 rounded-2xl ${isFormValid() ? 'bg-[#FFE999]' : 'bg-gray-300 cursor-not-allowed'}`}
               disabled={!isFormValid()}
             >
-              <span className="text-black text-xs font-['Do_Hyeon']">다음</span>
+              <span className="text-black text-xs font-['Do_Hyeon']">확인</span>
             </button>
           </div>
         </div>
