@@ -51,8 +51,8 @@ export default function PregnantSignup() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-yellow-100 flex justify-center items-center">
-      <div className="w-96 h-[874px] relative bg-yellow-100 overflow-hidden">
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
+      <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
         <div className="w-80 h-[745px] left-[28px] top-[70px] absolute bg-white rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />
         
         {/* 누리달 로고 */}
@@ -191,10 +191,10 @@ export default function PregnantSignup() {
                   className="w-full h-full px-4 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
                 />
               </div>
-              <div className="flex justify-between w-full px-8 absolute bottom-4 z-10">
+              <div className="flex justify-between w-full px-6 absolute bottom-4 z-10">
                 <button
                   onClick={handleVerificationSubmit}
-                  className="w-32 h-9 bg-yellow-200 rounded-[10px]"
+                  className="w-30 h-9 bg-yellow-200 rounded-[10px]"
                 >
                   <div className="w-full text-center text-black text-sm font-['Do_Hyeon'] leading-[36px]">
                     확인
@@ -202,7 +202,7 @@ export default function PregnantSignup() {
                 </button>
                 <button
                   onClick={() => setShowEmailVerificationModal(false)}
-                  className="w-32 h-9 bg-yellow-200 rounded-[10px]"
+                  className="w-30 h-9 bg-yellow-200 rounded-[10px]"
                 >
                   <div className="w-full text-center text-black text-sm font-['Do_Hyeon'] leading-[36px]">
                     취소
@@ -214,7 +214,10 @@ export default function PregnantSignup() {
         )}
 
         {/* 회원가입 버튼 */}
-        <button className="w-72 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px] z-10">
+        <button 
+          onClick={() => router.push('/register/pregnant/pregnancy-info')}
+          className="w-72 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px] z-10"
+        >
           <div className="w-52 h-7 left-[45px] top-[-2px] absolute text-black text-base font-['Do_Hyeon'] leading-[50px]">
             회원가입
           </div>
