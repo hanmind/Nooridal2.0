@@ -107,7 +107,7 @@ export default function PregnancyInfo() {
               className={`w-20 h-10 rounded-2xl text-sm font-['Do_Hyeon'] ${isFormValid() ? 'bg-[#FFE999]' : 'bg-gray-300 cursor-not-allowed'}`}
               disabled={!isFormValid()}
             >
-              다음
+              확인
             </button>
           </div>
         </div>
