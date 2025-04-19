@@ -18,6 +18,8 @@ export default function Register() {
           priority
         />
         
+        <div className="w-80 h-[450px] left-[28px] top-[70px] absolute bg-white rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] z-10" />
+        
         {/* 누리달 로고 */}
         <Image
           className="w-32 h-14 left-[135px] top-[109px] absolute z-20"
@@ -27,8 +29,8 @@ export default function Register() {
           height={55}
         />
 
-        <div className="w-full flex flex-col items-center absolute top-[250px] z-20">
-          <div className="text-2xl font-['Do_Hyeon'] mb-10">회원가입</div>
+        <div className="w-full flex flex-col items-center absolute top-[180px] z-20">
+          <div className="text-2xl font-['Do_Hyeon'] mb-8">회원가입</div>
           <button
             onClick={() => router.push('/register/pregnant')}
             className="w-72 h-16 mb-6 bg-[#B7E5FF] rounded-[30px] shadow-lg hover:bg-[#A3D9F9] hover:scale-105 transition-all"

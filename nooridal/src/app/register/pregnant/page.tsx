@@ -191,10 +191,10 @@ export default function PregnantSignup() {
                   className="w-full h-full px-4 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
                 />
               </div>
-              <div className="flex justify-between w-full px-6 absolute bottom-4 z-10">
+              <div className="flex justify-between w-full px-4 absolute bottom-4 z-10">
                 <button
                   onClick={handleVerificationSubmit}
-                  className="w-30 h-9 bg-yellow-200 rounded-[10px]"
+                  className="w-32 h-9 bg-[#FFE999] rounded-[10px] hover:bg-[#FFE080] transition-colors"
                 >
                   <div className="w-full text-center text-black text-sm font-['Do_Hyeon'] leading-[36px]">
                     확인
@@ -202,7 +202,7 @@ export default function PregnantSignup() {
                 </button>
                 <button
                   onClick={() => setShowEmailVerificationModal(false)}
-                  className="w-30 h-9 bg-yellow-200 rounded-[10px]"
+                  className="w-32 h-9 bg-[#FFE999] rounded-[10px] hover:bg-[#FFE080] transition-colors"
                 >
                   <div className="w-full text-center text-black text-sm font-['Do_Hyeon'] leading-[36px]">
                     취소
@@ -216,7 +216,7 @@ export default function PregnantSignup() {
         {/* 회원가입 버튼 */}
         <button 
           onClick={() => router.push('/register/pregnant/pregnancy-info')}
-          className="w-72 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px] z-10"
+          className="w-72 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px] z-10 hover:bg-yellow-300 transition-colors"
         >
           <div className="w-52 h-7 left-[45px] top-[-2px] absolute text-black text-base font-['Do_Hyeon'] leading-[50px]">
             회원가입
