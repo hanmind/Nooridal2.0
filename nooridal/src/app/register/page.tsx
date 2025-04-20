@@ -6,6 +6,10 @@ import { useRouter } from "next/navigation";
 export default function Register() {
   const router = useRouter();
 
+  const handleGuardianClick = () => {
+    router.push('/register/guardian/invitation');
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
@@ -38,6 +42,7 @@ export default function Register() {
             <span className="text-black text-xl font-['Do_Hyeon']">임산부</span>
           </button>
           <button
+            onClick={handleGuardianClick}
             className="w-72 h-16 mb-6 bg-[#B7E5FF] rounded-[30px] shadow-lg hover:bg-[#A3D9F9] hover:scale-105 transition-all"
           >
             <span className="text-black text-xl font-['Do_Hyeon']">보호자</span>
