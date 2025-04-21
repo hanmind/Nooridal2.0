@@ -45,42 +45,7 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-yellow-100">
-      {/* 채팅 컨테이너 */}
-      <div className="w-96 h-[874px] relative bg-yellow-100 overflow-hidden">
-        {/* 장식 요소 */}
-        <div className="w-32 h-20 left-[-63px] top-[1px] absolute bg-white rounded-full blur-[2px]" />
-        <div className="w-32 h-20 left-[-52px] top-[-10px] absolute bg-white rounded-full blur-[2px]" />
-        <div className="w-28 h-16 left-[-120px] top-[24.58px] absolute bg-white rounded-full blur-[2px]" />
-        <div className="w-28 h-14 left-[-96px] top-[54.05px] absolute bg-white rounded-full blur-[2px]" />
-        <div className="w-24 h-14 left-[-10px] top-[46px] absolute bg-white rounded-full blur-[2px]" />
-        <div className="w-28 h-16 left-0 top-[21px] absolute bg-white rounded-full blur-[2px]" />
-        <div className="w-full text-center text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px] absolute top-[40px] z-10">채팅</div>
-        <div className="w-24 h-14 left-[260.61px] top-[229px] absolute rounded-full blur-[2px]" />
-        <div className="w-24 h-14 left-[208px] top-[241.80px] absolute rounded-full blur-[2px]" />
-        <div className="w-24 h-14 left-[267.63px] top-[255.94px] absolute rounded-full blur-[2px]" />
-        <div className="w-24 h-14 left-[298.49px] top-[237.75px] absolute rounded-full blur-[2px]" />
-        <div className="w-12 h-7 left-[333.57px] top-[274.12px] absolute rounded-full blur-[2px]" />
-        <div className="w-12 h-7 left-[333.57px] top-[274.12px] absolute rounded-full blur-[2px]" />
-        <div className="w-16 h-14 left-[235.36px] top-[252.57px] absolute rounded-full blur-[2px]" />
-        <div className="w-16 h-14 left-[232.55px] top-[233.04px] absolute rounded-full blur-[2px]" />
-        {/* 채팅 입력창 */}
-        <div className="w-80 h-11 left-[17px] top-[648px] absolute bg-white rounded-[10px] border border-zinc-300" />
-        <div className="w-64 h-6 left-[29px] top-[662px] absolute justify-start text-neutral-400 text-base font-normal font-['Do_Hyeon']">임신과 출산에 관한 질문을 입력하세요</div>
-        <div className="w-11 h-11 left-[344px] top-[651px] absolute bg-yellow-400 rounded-full" />
-        <div className="w-9 h-9 left-[352px] top-[653.50px] absolute justify-start text-white text-3xl font-medium font-['Inter']">➤</div>
-        {/* 메시지 표시 영역 */}
-        <div className="p-4 h-64 overflow-y-auto">
-          {messages.map((message, index) => (
-            <div key={index} className="mb-2">
-              <div className={`p-2 rounded-lg ${message.sender === 'system' ? 'bg-sky-100' : 'bg-white'} text-right font-['Do_Hyeon'] relative z-20`}>
-                <div>{message.text}</div>
-                <div className="text-xs text-gray-500 mt-1 absolute right-2 bottom-2">{message.time}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* Enhanced Footer with Full Width, Padding, and Safe Area Consideration */}
+      {/* Footer remains, chat screen content removed */}
       <div className="w-full h-20 fixed bottom-0 flex justify-around items-center bg-white shadow-md rounded-t-lg px-4" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {['chat', 'calendar', 'location', 'mypage'].map((tab, index) => (
           <div key={tab} className="flex flex-col items-center cursor-pointer" onClick={() => handleTabClick(tab)}>

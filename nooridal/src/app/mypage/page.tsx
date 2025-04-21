@@ -295,42 +295,7 @@ export default function MyPage() {
           </div>
         )}
 
-        {/* 채팅 창 */}
-        {activeTab === 'chat' && (
-          <div className="w-96 h-[874px] relative bg-yellow-100 overflow-hidden">
-            <div className="w-32 h-20 left-[-63px] top-[1px] absolute bg-white rounded-full blur-[2px]" />
-            <div className="w-32 h-20 left-[-52px] top-[-10px] absolute bg-white rounded-full blur-[2px]" />
-            <div className="w-28 h-16 left-[-120px] top-[24.58px] absolute bg-white rounded-full blur-[2px]" />
-            <div className="w-28 h-14 left-[-96px] top-[54.05px] absolute bg-white rounded-full blur-[2px]" />
-            <div className="w-24 h-14 left-[-10px] top-[46px] absolute bg-white rounded-full blur-[2px]" />
-            <div className="w-28 h-16 left-0 top-[21px] absolute bg-white rounded-full blur-[2px]" />
-            <div className="w-9 h-12 left-[183px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">채팅</div>
-            <div className="w-24 h-14 left-[260.61px] top-[229px] absolute rounded-full blur-[2px]" />
-            <div className="w-24 h-14 left-[208px] top-[241.80px] absolute rounded-full blur-[2px]" />
-            <div className="w-24 h-14 left-[267.63px] top-[255.94px] absolute rounded-full blur-[2px]" />
-            <div className="w-24 h-14 left-[298.49px] top-[237.75px] absolute rounded-full blur-[2px]" />
-            <div className="w-12 h-7 left-[333.57px] top-[274.12px] absolute rounded-full blur-[2px]" />
-            <div className="w-12 h-7 left-[333.57px] top-[274.12px] absolute rounded-full blur-[2px]" />
-            <div className="w-16 h-14 left-[235.36px] top-[252.57px] absolute rounded-full blur-[2px]" />
-            <div className="w-16 h-14 left-[232.55px] top-[233.04px] absolute rounded-full blur-[2px]" />
-            <div className="w-80 h-11 left-[17px] bottom-[20px] absolute bg-white rounded-[10px] border border-zinc-300" />
-            <div className="w-64 h-6 left-[29px] bottom-[34px] absolute justify-start text-neutral-400 text-base font-normal font-['Do_Hyeon']">임신과 출산에 관한 질문을 입력하세요</div>
-            <div className="w-11 h-11 left-[344px] bottom-[3px] absolute bg-yellow-400 rounded-full" />
-            <div className="w-9 h-9 left-[352px] bottom-[1.5px] absolute justify-start text-white text-3xl font-medium font-['Inter']">➤</div>
-            <div className="w-72 h-40 left-[30px] top-[161px] absolute bg-blue-100 rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />
-            <div className="w-64 h-14 left-[126px] top-[364px] absolute bg-white rounded-[20px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />
-            <div className="w-64 h-7 left-[47px] top-[177px] absolute justify-start text-sky-950 text-base font-normal font-['Do_Hyeon'] leading-snug">안녕하세요. AI에이전트 플로렌스 입니다.   나이팅게일의 풀네임은 플로렌스 나이팅게일이라고 하네요. 그분의 정신을 닮아 성심성의껏 도움을 드리겠습니다.   아기는 현재 *주차이시군요 !   임신과 출산에 관한 궁금한 점을 물어보세요!</div>
-            <div className="w-20 h-6 left-[306px] top-[283px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">10:00</div>
-            <div className="w-20 h-6 left-[64px] top-[391px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">10:01</div>
-            <div className="w-8 h-7 left-[33.56px] top-[44px] absolute bg-white rounded-full border-2 border-zinc-500" />
-            <div className="w-2.5 h-1.5 left-[40.24px] top-[74.33px] absolute origin-top-left rotate-[-141.02deg] bg-white rounded-[0.50px] border-2 border-zinc-500" />
-            <div className="w-1.5 h-1.5 left-[41.30px] top-[70.90px] absolute origin-top-left rotate-[-141.02deg] bg-white rounded-[0.50px]" />
-            <div className="w-3 h-0.5 left-[43px] top-[53px] absolute bg-zinc-500" />
-            <div className="w-3 h-0.5 left-[43px] top-[56px] absolute bg-zinc-500" />
-            <div className="w-3 h-0.5 left-[43px] top-[59px] absolute bg-zinc-500" />
-            <div className="left-[148px] top-[369px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">현재 우리 아기 크기가 얼마나 될까?</div>
-          </div>
-        )}
+        
       </div>
     </div>
   );
