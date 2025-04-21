@@ -56,6 +56,12 @@ export default function MyPage() {
     setActiveTab(tabName);
     if (tabName === 'chat') {
       router.push('/chat');
+    } else if (tabName === 'calendar') {
+      router.push('/calendar');
+    } else if (tabName === 'location') {
+      router.push('/location');
+    } else if (tabName === 'mypage') {
+      router.push('/mypage');
     }
   };
 

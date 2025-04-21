@@ -33,8 +33,13 @@ export default function ChatPage() {
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
     if (tab === 'mypage') {
-      // Navigate to MyPage
       window.location.href = '/mypage';
+    } else if (tab === 'calendar') {
+      window.location.href = '/calendar';
+    } else if (tab === 'location') {
+      window.location.href = '/location';
+    } else if (tab === 'chat') {
+      window.location.href = '/chat';
     }
   };
 

@@ -241,40 +241,7 @@ const Calendar: React.FC = () => {
       <div className="w-6 h-1 left-[23px] top-[57.31px] absolute bg-zinc-500" />
       <div className="w-6 h-1 left-[23px] top-[64.62px] absolute bg-zinc-500" />
       
-      {/* 배경 장식 요소 */}
-      <div className="w-32 h-20 left-[-63px] top-[1px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-32 h-20 left-[-52px] top-[-10px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-28 h-16 left-[-100px] top-[24.58px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-28 h-14 left-[-80px] top-[54.05px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-24 h-14 left-[-30px] top-[46px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-28 h-16 left-0 top-[21px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-6 h-1 left-[23px] top-[50px] absolute bg-zinc-500" />
-      <div className="w-6 h-1 left-[23px] top-[57.31px] absolute bg-zinc-500" />
-      <div className="w-6 h-1 left-[23px] top-[64.62px] absolute bg-zinc-500" />
-      <div className="w-44 h-44 left-[-24px] top-[742px] absolute bg-white rounded-full" />
-      <div className="w-44 h-44 left-[109px] top-[742px] absolute bg-white rounded-full" />
-      <div className="w-44 h-44 left-[250px] top-[742px] absolute bg-white rounded-full" />
-      <div className="w-44 h-44 left-[-28px] top-[723px] absolute bg-white/40 rounded-full" />
-      <div className="w-44 h-44 left-[105px] top-[723px] absolute bg-white/40 rounded-full" />
-      <div className="w-44 h-44 left-[246px] top-[723px] absolute bg-white/40 rounded-full" />
-      <div className="w-8 h-7 left-[140.75px] top-[787.34px] absolute bg-white rounded-[5px] border-[3px] border-yellow-400" />
-      <div className="w-7 h-0 left-[142.49px] top-[796.10px] absolute outline outline-[3px] outline-offset-[-1.50px] outline-yellow-400"></div>
-      <div className="w-1 h-0 left-[146.83px] top-[784px] absolute origin-top-left rotate-90 outline outline-[3px] outline-offset-[-1.50px] outline-yellow-400"></div>
-      <div className="w-1 h-0 left-[162.90px] top-[784px] absolute origin-top-left rotate-90 outline outline-[3px] outline-offset-[-1.50px] outline-yellow-400"></div>
-      <div className="w-8 h-7 left-[52.71px] top-[786px] absolute bg-white rounded-full border-[3px] border-neutral-400" />
-      <div className="w-2.5 h-1.5 left-[59.40px] top-[816.33px] absolute origin-top-left rotate-[-141.02deg] bg-white rounded-[0.50px] border-[3px] border-neutral-400" />
-      <div className="w-1.5 h-1.5 left-[60.46px] top-[812.90px] absolute origin-top-left rotate-[-141.02deg] bg-white rounded-[0.50px] border-2 border-yellow-400/0" />
-      <div className="w-20 h-16 left-[25px] top-[803px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">채팅</div>
-      <div className="w-9 h-8 left-[138px] top-[803px] absolute text-center justify-start text-yellow-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">캘린더</div>
-      <div className="w-20 h-10 left-[293px] top-[802.60px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">마이페이지</div>
-      <div className="w-4 h-4 left-[323.75px] top-[787px] absolute bg-white rounded-full border-[3px] border-neutral-400" />
-      <div className="w-9 h-3.5 left-[314.40px] top-[803.78px] absolute bg-white rounded-[5px] border-[3px] border-neutral-400" />
-      <div className="w-10 h-1 left-[310.68px] top-[813.46px] absolute bg-white" />
-      
-      <div className="w-20 h-10 left-[201px] top-[802.60px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">위치</div>
-      <div className="w-8 h-8 left-[222px] top-[784px] absolute overflow-hidden">
-        <div className="w-5 h-7 left-[6.88px] top-[2.75px] absolute bg-neutral-400" />
-      </div>
+     
 
       {/* DatePopup */}
       <DatePopup
