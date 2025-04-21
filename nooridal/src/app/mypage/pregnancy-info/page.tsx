@@ -107,8 +107,12 @@ export default function PregnancyInfo() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: API 호출하여 임신 정보 업데이트
+    // Save the updated pregnancy information
+    // This could involve an API call to update the server-side data
+    // For now, we'll simulate saving by updating local state or context
+    // Example: updatePregnancyInfo(formData);
     setIsEditing(false);
+    router.push('/mypage'); // Navigate back to my page after saving
   };
 
   const handleCancel = () => {
@@ -603,7 +607,7 @@ export default function PregnancyInfo() {
                 <div className="flex justify-center gap-4 mt-8">
                   <button
                     type="submit"
-                    className="bg-[#FFD600] text-white px-6 py-2 rounded-lg font-['Do_Hyeon'] hover:bg-[#E6C200] transition-colors"
+                    className="bg-sky-200 text-black px-6 py-2 rounded-lg font-['Do_Hyeon'] hover:bg-[#E6C200] transition-colors"
                   >
                     저장
                   </button>
@@ -648,7 +652,7 @@ export default function PregnancyInfo() {
                 </div>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="w-12 h-12 absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-[#FFD600] rounded-full text-white font-['Do_Hyeon'] hover:bg-[#E6C200] transition-colors flex items-center justify-center"
+                  className="w-40 h-10 left-[50%] transform -translate-x-1/2 top-[470px] absolute bg-sky-200 rounded-full flex items-center justify-center text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
                 >
                   수정
                 </button>
@@ -662,7 +666,7 @@ export default function PregnancyInfo() {
         </div>
         <button 
           onClick={() => router.back()}
-          className="left-[24px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]"
+          className="left-[24px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
         >
           &lt;
         </button>

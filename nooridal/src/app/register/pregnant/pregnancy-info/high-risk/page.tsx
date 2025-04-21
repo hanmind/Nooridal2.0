@@ -10,7 +10,7 @@ export default function HighRisk() {
   const [showHighRiskModal, setShowHighRiskModal] = useState(false);
 
   const handleNext = () => {
-    router.push('/register/pregnant/pregnancy-info/complete');
+    router.push('/mypage');
   };
 
   const handlePrevious = () => {
