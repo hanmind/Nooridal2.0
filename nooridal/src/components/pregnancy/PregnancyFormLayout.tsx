@@ -110,7 +110,7 @@ export default function PregnancyFormLayout({
               }`}
               disabled={isNextDisabled}
             >
-              <span className="text-black text-xs font-['Do_Hyeon']">다음</span>
+              <span className="text-black text-xs font-['Do_Hyeon']">완료</span>
             </button>
           </div>
         </div>

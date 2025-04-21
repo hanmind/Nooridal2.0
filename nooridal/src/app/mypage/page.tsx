@@ -225,13 +225,13 @@ export default function MyPage() {
         </button>
 
         {/* 풋바 */}
-        <div className="w-[462px] h-52 absolute bottom-0 left-1/2 transform -translate-x-1/2">
-          <div className="w-44 h-44 left-[4px] top-[19px] absolute bg-white rounded-full" />
-          <div className="w-44 h-44 left-[137px] top-[19px] absolute bg-white rounded-full" />
-          <div className="w-44 h-44 left-[278px] top-[19px] absolute bg-white rounded-full" />
-          <div className="w-44 h-44 left-0 top-0 absolute bg-white/40 rounded-full" />
-          <div className="w-44 h-44 left-[133px] top-0 absolute bg-white/40 rounded-full" />
-          <div className="w-44 h-44 left-[274px] top-0 absolute bg-white/40 rounded-full" />
+        <div className="w-[462px] h-52 absolute bottom-[-30px] left-1/2 transform -translate-x-1/2">
+          <div className="w-44 h-44 left-[4px] top-[29px] absolute bg-white rounded-full" />
+          <div className="w-44 h-44 left-[137px] top-[29px] absolute bg-white rounded-full" />
+          <div className="w-44 h-44 left-[278px] top-[29px] absolute bg-white rounded-full" />
+          <div className="w-44 h-44 left-0 top-[10px] absolute bg-white/40 rounded-full" />
+          <div className="w-44 h-44 left-[133px] top-[10px] absolute bg-white/40 rounded-full" />
+          <div className="w-44 h-44 left-[274px] top-[10px] absolute bg-white/40 rounded-full" />
           
           {/* 채팅 아이콘 */}
           <svg className="w-8 h-8 left-[80px] top-[63px] absolute" fill="none" stroke="#979595" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
