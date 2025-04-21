@@ -268,6 +268,8 @@ export default function Login() {
                       <button 
                         className="w-full h-12 bg-[#FFE999] rounded-[15px] hover:bg-[#FFD966] transition-colors flex items-center justify-center"
                         onClick={() => {
+                          // 비밀번호 변경 후 마이페이지로 이동
+                          router.push('/mypage');
                           setShowPwFindModal(false);
                           setEmail("");
                           setShowVerificationCode(false);
