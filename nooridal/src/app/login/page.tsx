@@ -1,13 +1,33 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+
+declare global {
+  interface Window {
+    daum: {
+      Postcode: new (config: {
+        oncomplete: (data: {
+          address: string;
+          addressType: string;
+          bname: string;
+          buildingName: string;
+          zonecode: string;
+        }) => void;
+      }) => {
+        open: () => void;
+      };
+    };
+  }
+}
 
 export default function Login() {
   const [showIdFindModal, setShowIdFindModal] = useState(false);
   const [showPwFindModal, setShowPwFindModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
+  const [showPregnantSignup, setShowPregnantSignup] = useState(false);
+  const [showGuardianSignup, setShowGuardianSignup] = useState(false);
   const [nickname, setNickname] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [foundId, setFoundId] = useState("");
@@ -17,6 +37,15 @@ export default function Login() {
   const [showPwReset, setShowPwReset] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [userId, setUserId] = useState("");
+  const [userPhone, setUserPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
+  const [isIdChecked, setIsIdChecked] = useState(false);
+  const [isPhoneChecked, setIsPhoneChecked] = useState(false);
+  const [isIdAvailable, setIsIdAvailable] = useState(false);
+  const [isPhoneAvailable, setIsPhoneAvailable] = useState(false);
   const router = useRouter();
 
   const handleLogin = () => {
@@ -33,441 +62,705 @@ export default function Login() {
   };
 
   const handlePwFindRequest = () => {
-    // 실제로는 서버에 이메일 전송 요청을 보내는 로직이 들어갈 것입니다.
+    // 테스트를 위해 입력값 검증 없이 바로 인증번호 입력 화면으로 전환
     setShowVerificationCode(true);
   };
 
-  return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
-        <Image
-          className="w-40 h-20 left-[-686px] top-[354px] absolute"
-          src="/images/logo/누리달.png"
-          alt="누리달 로고"
-          width={163}
-          height={84}
-        />
-        
-        {/* 흰색 배경 카드 */}
-        <div className="w-96 h-[507px] left-[23px] top-[229px] absolute bg-white rounded-[20px] blur-[2px]" />
-        
-        {/* 로그인 버튼 */}
-        <div 
-          className="w-80 h-9 left-[51px] top-[430px] absolute bg-yellow-200 rounded-[20px] cursor-pointer"
-          onClick={handleLogin}
-        >
-          <div className="w-64 h-10 left-[23px] top-[-4px] absolute text-center text-neutral-700 text-lg font-['Do_Hyeon'] leading-[50px]">로그인</div>
-        </div>
+  const handleVerificationSubmit = () => {
+    // 테스트를 위해 입력값 검증 없이 바로 비밀번호 재설정 화면으로 전환
+    setShowPwReset(true);
+  };
 
-        {/* 입력 필드 레이블 */}
-        <div className="w-14 h-8 left-[50px] top-[245.65px] absolute text-black/70 text-lg font-['Do_Hyeon'] leading-[50px]">아이디</div>
-        <div className="w-20 h-9 left-[43px] top-[323px] absolute text-black/70 text-lg font-['Do_Hyeon'] leading-[50px]">비밀번호</div>
+  const handlePwReset = () => {
+    // 테스트를 위해 입력값 검증 없이 바로 마이페이지로 이동
+    router.push('/mypage');
+  };
 
-        {/* 입력 필드 */}
-        <div className="w-80 h-8 left-[50px] top-[288px] absolute bg-white rounded-[20px] border border-zinc-300">
-          <input 
-            type="text"
-            placeholder="아이디를 입력하세요"
-            className="w-full h-full px-4 text-neutral-400 text-base font-['Do_Hyeon'] rounded-[20px] focus:outline-none"
+  // 아이디 중복 확인
+  const checkIdDuplicate = async () => {
+    // 실제로는 서버에 중복 확인 요청을 보내야 합니다.
+    const isDuplicate = Math.random() > 0.5;
+    setIsIdChecked(true);
+    setIsIdAvailable(!isDuplicate);
+  };
+
+  // 전화번호 중복 확인
+  const checkPhoneDuplicate = async () => {
+    // 실제로는 서버에 중복 확인 요청을 보내야 합니다.
+    const isDuplicate = Math.random() > 0.5;
+    setIsPhoneChecked(true);
+    setIsPhoneAvailable(!isDuplicate);
+  };
+
+  // 회원가입 폼 컴포넌트
+  const SignupForm = ({ type }: { type: "pregnant" | "guardian" }) => {
+    const [isPostcodeScriptLoaded, setIsPostcodeScriptLoaded] = useState(false);
+    const [formData, setFormData] = useState({
+      userId: "",
+      userPhone: "",
+      address: "",
+      detailAddress: "",
+      isIdChecked: false,
+      isPhoneChecked: false,
+      isIdAvailable: false,
+      isPhoneAvailable: false
+    });
+
+    // Daum 우편번호 서비스 스크립트 로드
+    useEffect(() => {
+      const script = document.createElement('script');
+      script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+      script.async = true;
+      script.onload = () => setIsPostcodeScriptLoaded(true);
+      document.head.appendChild(script);
+
+      return () => {
+        document.head.removeChild(script);
+      };
+    }, []);
+
+    // 아이디 중복 확인
+    const handleIdCheck = async () => {
+      if (!formData.userId) {
+        alert("아이디를 입력해주세요.");
+        return;
+      }
+      // 실제로는 서버에 중복 확인 요청을 보내야 합니다.
+      const isDuplicate = Math.random() > 0.5;
+      setFormData(prev => ({
+        ...prev,
+        isIdChecked: true,
+        isIdAvailable: !isDuplicate
+      }));
+      alert(isDuplicate ? "이미 사용 중인 아이디입니다." : "사용 가능한 아이디입니다.");
+    };
+
+    // 전화번호 중복 확인
+    const handlePhoneCheck = async () => {
+      if (!formData.userPhone) {
+        alert("전화번호를 입력해주세요.");
+        return;
+      }
+      // 실제로는 서버에 중복 확인 요청을 보내야 합니다.
+      const isDuplicate = Math.random() > 0.5;
+      setFormData(prev => ({
+        ...prev,
+        isPhoneChecked: true,
+        isPhoneAvailable: !isDuplicate
+      }));
+      alert(isDuplicate ? "이미 등록된 전화번호입니다." : "사용 가능한 전화번호입니다.");
+    };
+
+    // 주소 검색
+    const handleAddressSearch = () => {
+      if (!isPostcodeScriptLoaded) {
+        alert("주소 검색 서비스를 불러오는 중입니다. 잠시만 기다려주세요.");
+        return;
+      }
+      
+      new window.daum.Postcode({
+        oncomplete: function(data) {
+          setFormData(prev => ({
+            ...prev,
+            address: data.address
+          }));
+        }
+      }).open();
+    };
+
+    // 입력창 스타일 결정
+    const getInputStyle = (isChecked: boolean, isAvailable: boolean) => {
+      if (!isChecked) return "bg-[#F8F8F8]";
+      return isAvailable ? "bg-[#E8F5E9]" : "bg-[#FFEBEE]";
+    };
+
+    // 회원가입 버튼 클릭 핸들러
+    const handleSignupClick = () => {
+      router.push('/register');
+    };
+
+    return (
+      <div className="fixed inset-0 flex items-center justify-center z-50">
+        <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
+          {/* 배경 이미지 */}
+          <Image
+            className="w-full h-full object-cover absolute"
+            src="/images/logo/아이디찾기 배경.png"
+            alt={`${type === "pregnant" ? "임산부" : "보호자"} 회원가입 배경`}
+            width={384}
+            height={874}
           />
-        </div>
-        <div className="w-80 h-8 left-[51px] top-[367px] absolute bg-white rounded-[20px] border border-zinc-300">
-          <input 
-            type="password"
-            placeholder="비밀번호를 입력하세요"
-            className="w-full h-full px-4 text-neutral-400 text-base font-['Do_Hyeon'] rounded-[20px] focus:outline-none"
-          />
-        </div>
 
-        {/* 로그인 유지 체크박스 */}
-        <div className="flex items-center gap-2 absolute left-[59px] top-[489px]">
-          <input type="checkbox" className="w-4 h-4 rounded-[3px] border border-neutral-700" />
-          <span className="text-black text-sm font-['Do_Hyeon']">로그인 유지</span>
-        </div>
+          {/* 상단 구름 효과 */}
+          <div className="w-40 h-14 left-[122px] top-[86.85px] absolute bg-white rounded-full" />
+          <div className="w-32 h-14 left-[200px] top-[97.63px] absolute bg-white rounded-full" />
+          <div className="w-32 h-14 left-[101px] top-[79px] absolute bg-white rounded-full" />
+          <div className="w-32 h-14 left-[164px] top-[79px] absolute bg-white rounded-full" />
+          <div className="w-32 h-14 left-[175px] top-[116.27px] absolute bg-white rounded-full" />
+          <div className="w-28 h-14 left-[68px] top-[97.63px] absolute bg-white rounded-full" />
+          <div className="w-28 h-14 left-[135px] top-[121.17px] absolute bg-white rounded-full" />
+          <div className="w-28 h-14 left-[83px] top-[116.27px] absolute bg-white rounded-full" />
 
-        {/* 간편 로그인 섹션 */}
-        <div className="w-full absolute top-[585px]">
-          <div className="relative flex items-center justify-center">
-            <div className="w-24 h-0.5 bg-zinc-300"></div>
-            <div className="px-4 text-stone-500 text-base font-['Do_Hyeon']">간편 로그인</div>
-            <div className="w-24 h-0.5 bg-zinc-300"></div>
+          {/* 제목 */}
+          <div className="absolute w-full top-[90px] text-center">
+            <h2 className="text-2xl font-['Do_Hyeon'] text-[#333333]">{type === "pregnant" ? "임산부" : "보호자"} 회원가입</h2>
+            <p className="text-sm font-['Do_Hyeon'] text-[#666666] mt-2">회원 정보를 입력해주세요</p>
           </div>
-          
-          {/* 소셜 로그인 버튼들 */}
-          <div className="flex justify-center items-center gap-8 mt-8">
-            <button className="w-12 h-12 flex items-center justify-center">
-              <Image
-                src="/images/logo/구글.png"
-                alt="구글 로그인"
-                width={47}
-                height={47}
-                className="cursor-pointer hover:opacity-80 transition-opacity"
-              />
-            </button>
-            <button className="w-12 h-12 flex items-center justify-center">
-              <Image
-                src="/images/logo/카카오.png"
-                alt="카카오 로그인"
-                width={47}
-                height={47}
-                className="cursor-pointer hover:opacity-80 transition-opacity"
-              />
-            </button>
-            <button className="w-12 h-12 flex items-center justify-center">
-              <Image
-                src="/images/logo/네이버.png"
-                alt="네이버 로그인"
-                width={47}
-                height={47}
-                className="cursor-pointer hover:opacity-80 transition-opacity"
-              />
-            </button>
-          </div>
-        </div>
 
-        {/* 하단 링크들 */}
-        <div className="absolute w-full flex justify-center items-center gap-4 top-[522px]">
-          <button 
-            onClick={() => setShowIdFindModal(true)}
-            className="text-black text-base font-['Do_Hyeon']"
-          >
-            ID 찾기
-          </button>
-          <div className="w-0.5 h-5 bg-neutral-400"></div>
-          <button 
-            onClick={() => setShowPwFindModal(true)}
-            className="text-black text-base font-['Do_Hyeon']"
-          >
-            PW 찾기
-          </button>
-          <div className="w-0.5 h-5 bg-neutral-400"></div>
-          <button 
-            onClick={() => router.push('/register')}
-            className="text-yellow-400 text-base font-['Do_Hyeon']"
-          >
-            회원가입
-          </button>
-        </div>
+          {/* 회원가입 입력 영역 */}
+          <div className="w-96 h-[500px] left-0 top-[305px] absolute">
+            <div className="w-full h-full bg-white rounded-t-[30px] rounded-b-[30px] px-8 pt-8 relative overflow-y-auto">
+              <div className="flex flex-col gap-4">
+                {/* 아이디 입력 */}
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="block text-[#333333] text-lg font-['Do_Hyeon'] mb-2">아이디</label>
+                    <input
+                      type="text"
+                      value={formData.userId}
+                      onChange={(e) => setFormData(prev => ({ ...prev, userId: e.target.value, isIdChecked: false }))}
+                      placeholder="아이디를 입력하세요"
+                      className={`w-full h-12 px-4 rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none ${getInputStyle(formData.isIdChecked, formData.isIdAvailable)}`}
+                    />
+                  </div>
+                  <button
+                    onClick={handleIdCheck}
+                    className="h-12 px-4 mt-8 bg-[#FFE999] rounded-2xl text-base font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transition-all duration-300"
+                  >
+                    중복확인
+                  </button>
+                </div>
 
-        {/* ID 찾기 모달 */}
-        {showIdFindModal && (
-          <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden flex justify-center items-center">
-              <Image
-                className="w-full h-full object-cover absolute"
-                src="/images/logo/아이디찾기 배경.png"
-                alt="ID 찾기 배경"
-                width={384}
-                height={874}
-              />
-              <div className="w-32 h-14 left-[132px] top-[86.85px] absolute bg-white rounded-full" />
-              <div className="w-24 h-14 left-[210px] top-[97.63px] absolute bg-white rounded-full" />
-              <div className="w-24 h-14 left-[111px] top-[79px] absolute bg-white rounded-full" />
-              <div className="w-24 h-14 left-[174px] top-[79px] absolute bg-white rounded-full" />
-              <div className="w-24 h-14 left-[185px] top-[116.27px] absolute bg-white rounded-full" />
-              <div className="w-20 h-14 left-[78px] top-[97.63px] absolute bg-white rounded-full" />
-              <div className="w-20 h-14 left-[145px] top-[121.17px] absolute bg-white rounded-full" />
-              <div className="w-20 h-14 left-[93px] top-[116.27px] absolute bg-white rounded-full" />
-              <div className="w-24 h-12 left-[147px] top-[107.44px] absolute text-center justify-start text-black text-lg font-normal font-['Do_Hyeon'] leading-[50px]">아이디 찾기</div>
-              <div className="w-96 h-80 left-[0px] top-[305px] absolute bg-white rounded-[20px] border-[3px] border-neutral-400" />
-              <div className="w-14 h-9 left-[42px] top-[326px] absolute text-center justify-start text-black text-xl font-normal font-['Do_Hyeon'] leading-[50px]">닉네임</div>
-              <div className="w-80 h-9 left-[41px] top-[368.68px] absolute bg-white rounded-[20px] border border-neutral-400" />
-              <div className="w-36 h-9 left-[37px] top-[363px] absolute text-center justify-start text-neutral-400 text-base font-normal font-['Do_Hyeon'] leading-[50px]">닉네임을 입력하세요</div>
-              <div className="w-20 h-9 left-[42px] top-[417px] absolute text-center justify-start text-black text-xl font-normal font-['Do_Hyeon'] leading-[50px]">전화번호</div>
-              <div className="w-80 h-9 left-[41px] top-[458.68px] absolute bg-white rounded-[20px] border border-neutral-400" />
-              <div className="w-72 h-9 left-[32px] top-[454px] absolute text-center justify-start text-neutral-400 text-base font-normal font-['Do_Hyeon'] leading-[50px]">전화번호를 입력하세요 (예:01012345678)</div>
+                {/* 전화번호 입력 */}
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="block text-[#333333] text-lg font-['Do_Hyeon'] mb-2">전화번호</label>
+                    <input
+                      type="tel"
+                      value={formData.userPhone}
+                      onChange={(e) => setFormData(prev => ({ ...prev, userPhone: e.target.value, isPhoneChecked: false }))}
+                      placeholder="전화번호를 입력하세요"
+                      className={`w-full h-12 px-4 rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none ${getInputStyle(formData.isPhoneChecked, formData.isPhoneAvailable)}`}
+                    />
+                  </div>
+                  <button
+                    onClick={handlePhoneCheck}
+                    className="h-12 px-4 mt-8 bg-[#FFE999] rounded-2xl text-base font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transition-all duration-300"
+                  >
+                    중복확인
+                  </button>
+                </div>
 
-              {/* 아이디 찾기 버튼 */}
-              <div className="w-[300px] h-12 left-[42px] top-[540px] absolute">
-                <button 
-                  onClick={handleIdFind}
-                  className="w-full h-full bg-[#FFE999] rounded-[15px] hover:bg-[#FFD966] transition-colors flex items-center justify-center"
+                {/* 주소 입력 */}
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="block text-[#333333] text-lg font-['Do_Hyeon'] mb-2">주소</label>
+                    <input
+                      type="text"
+                      value={formData.address}
+                      readOnly
+                      placeholder="주소를 검색하세요"
+                      className="w-full h-12 px-4 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none cursor-pointer"
+                      onClick={handleAddressSearch}
+                    />
+                  </div>
+                  <button
+                    onClick={handleAddressSearch}
+                    className="h-12 px-4 mt-8 bg-[#FFE999] rounded-2xl text-base font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transition-all duration-300"
+                  >
+                    주소검색
+                  </button>
+                </div>
+
+                {/* 상세주소 입력 */}
+                {formData.address && (
+                  <div>
+                    <label className="block text-[#333333] text-lg font-['Do_Hyeon'] mb-2">상세주소</label>
+                    <input
+                      type="text"
+                      value={formData.detailAddress}
+                      onChange={(e) => setFormData(prev => ({ ...prev, detailAddress: e.target.value }))}
+                      placeholder="상세주소를 입력하세요"
+                      className="w-full h-12 px-4 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none"
+                    />
+                  </div>
+                )}
+
+                {/* 회원가입 버튼 */}
+                <button
+                  className="w-full h-12 mt-4 bg-[#FFE999] rounded-2xl text-lg font-['Do_Hyeon'] text-[#333333] shadow-md hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300"
                 >
-                  <div className="text-black text-lg font-['Do_Hyeon']">아이디 찾기</div>
+                  회원가입
+                </button>
+
+                {/* 뒤로가기 버튼 */}
+                <button
+                  onClick={() => {
+                    type === "pregnant" ? setShowPregnantSignup(false) : setShowGuardianSignup(false);
+                    setShowSignupModal(true);
+                  }}
+                  className="w-full text-center mt-2 text-[#666666] text-base font-['Do_Hyeon'] hover:text-[#333333] transition-colors duration-300"
+                >
+                  이전으로
                 </button>
               </div>
-
-              {/* 아이디 찾기 결과 */}
-              {showFoundId && (
-                <div className="w-[350px] h-[100px] left-[17px] top-[200px] absolute bg-[#FFE999] rounded-[30px] flex flex-col items-center justify-center shadow-md">
-                  <div className="text-center">
-                    <span className="text-black text-lg font-['Do_Hyeon']">아이디</span>
-                    <br />
-                    <span className="text-black text-2xl font-['Do_Hyeon']">
-                      {foundId.substring(0, 2) + '*'.repeat(foundId.length - 2)}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* 로그인으로 돌아가기 버튼 */}
-              <button
-                onClick={() => {
-                  setShowIdFindModal(false);
-                  setNickname("");
-                  setPhoneNumber("");
-                  setFoundId("");
-                  setShowFoundId(false);
-                }}
-                className="w-[300px] text-center left-[42px] top-[600px] absolute text-neutral-700 text-base font-['Do_Hyeon'] hover:text-neutral-900 cursor-pointer"
-              >
-                로그인으로 돌아가기
-              </button>
             </div>
           </div>
-        )}
+        </div>
+      </div>
+    );
+  };
 
-        {/* 비밀번호 찾기 모달 */}
-        {showPwFindModal && (
+  // 회원가입 버튼 클릭 핸들러
+  const handleSignupClick = () => {
+    router.push('/register');
+  };
+
+  return (
+    <div className="min-h-screen w-full bg-gradient-to-b from-[#FFF4BB] to-[#FFE999] flex flex-col">
+      {/* 메인 컨텐츠 영역 */}
+      <div className="flex-1 w-full flex flex-col items-center justify-center px-4">
+        {/* 로고 */}
+        <div className="mb-6">
+          <Image
+            src="/images/logo/로고 구름.png"
+            alt="누리달 로고"
+            width={180}
+            height={72}
+            className="drop-shadow-md"
+          />
+        </div>
+
+        {/* 로그인 컨테이너 */}
+        <div className="w-full max-w-[360px] h-[550px] relative bg-white rounded-[30px] shadow-2xl overflow-hidden mb-8">
+          {/* 배경 이미지 */}
+          <div className="absolute inset-0 bg-[#FFF4BB] opacity-20 z-0"></div>
+          
+          {/* 로그인 폼 */}
+          <div className="absolute top-[20px] left-0 right-0 px-8 z-20">
+            <h2 className="text-2xl font-['Do_Hyeon'] text-[#333333] text-center mb-6">로그인</h2>
+            
+            {/* 입력 필드 */}
+            <div className="space-y-5">
+              <div>
+                <label className="block text-[#333333] text-base font-['Do_Hyeon'] mb-2">아이디</label>
+                <div className="relative">
+                  <input 
+                    type="text"
+                    placeholder="아이디를 입력하세요"
+                    className="w-full h-12 px-5 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none"
+                  />
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-[#333333] text-base font-['Do_Hyeon'] mb-2">비밀번호</label>
+                <div className="relative">
+                  <input 
+                    type="password"
+                    placeholder="비밀번호를 입력하세요"
+                    className="w-full h-12 px-5 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none"
+                  />
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* 로그인 유지 체크박스 */}
+            <div className="flex items-center gap-2 mt-4">
+              <input type="checkbox" className="w-5 h-5 rounded-md border-2 border-[#FFE999] text-[#FFE999] focus:ring-[#FFE999]" />
+              <span className="text-[#666666] text-sm font-['Do_Hyeon']">로그인 유지</span>
+            </div>
+            
+            {/* 로그인 버튼 */}
+            <button className="w-full h-12 mt-6 bg-[#FFE999] rounded-2xl text-lg font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
+              로그인
+            </button>
+            
+            {/* 하단 링크들 */}
+            <div className="flex justify-center items-center gap-4 mt-5">
+              <button 
+                onClick={() => setShowIdFindModal(true)}
+                className="text-[#666666] text-sm font-['Do_Hyeon'] hover:text-[#333333] transition-colors duration-300"
+              >
+                ID 찾기
+              </button>
+              <div className="w-0.5 h-4 bg-[#DDDDDD]"></div>
+              <button 
+                onClick={() => setShowPwFindModal(true)}
+                className="text-[#666666] text-sm font-['Do_Hyeon'] hover:text-[#333333] transition-colors duration-300"
+              >
+                PW 찾기
+              </button>
+              <div className="w-0.5 h-4 bg-[#DDDDDD]"></div>
+              <button 
+                onClick={handleSignupClick}
+                className="text-[#FFB800] text-sm font-['Do_Hyeon'] hover:text-[#FFA000] transition-colors duration-300"
+              >
+                회원가입
+              </button>
+            </div>
+            
+            {/* 간편 로그인 섹션 */}
+            <div className="mt-8">
+              <div className="relative flex items-center justify-center">
+                <div className="w-20 h-0.5 bg-[#EEEEEE]"></div>
+                <div className="px-3 text-[#999999] text-sm font-['Do_Hyeon']">간편 로그인</div>
+                <div className="w-20 h-0.5 bg-[#EEEEEE]"></div>
+              </div>
+              
+              {/* 소셜 로그인 버튼들 */}
+              <div className="flex justify-center items-center gap-6 mt-6">
+                {/* Google */}
+                <button className="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                  <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                </button>
+                {/* Kakao */}
+                <button className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                  <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="#000000" d="M12 4C7.03 4 3 7.03 3 10.82C3 13.27 4.56 15.41 6.94 16.58V19.58C6.94 19.97 7.4 20.19 7.7 19.94L10.73 17.72C11.14 17.78 11.56 17.82 12 17.82C16.97 17.82 21 14.79 21 10.82C21 7.03 16.97 4 12 4Z"/>
+                  </svg>
+                </button>
+                {/* Naver */}
+                <button className="w-12 h-12 flex items-center justify-center bg-[#03C75A] rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                  <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="#FFFFFF" d="M15.5 12.5L8.5 3H3v18h5.5v-8.5L16 22h5.5V4H15.5z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 아이디 찾기 모달 */}
+      {showIdFindModal && (
           <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
+          {/* 반투명 배경 오버레이 */}
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowIdFindModal(false)} />
+          
+          {/* 모달 컨테이너 */}
+          <div className="w-[360px] h-[500px] relative z-10">
+            {/* 배경 이미지 */}
               <Image
-                className="w-full h-full object-cover absolute"
+              className="w-full h-full object-cover absolute rounded-[30px]"
                 src="/images/logo/아이디찾기 배경.png"
-                alt="비밀번호 찾기 배경"
-                width={384}
-                height={874}
-              />
+              alt="아이디 찾기 배경"
+              width={360}
+              height={500}
+            />
 
-              {/* 상단 로고 배경 효과들 */}
-              <div className="w-32 h-14 left-[132px] top-[86.85px] absolute bg-white rounded-full" />
-              <div className="w-24 h-14 left-[210px] top-[97.63px] absolute bg-white rounded-full" />
-              <div className="w-24 h-14 left-[111px] top-[79px] absolute bg-white rounded-full" />
-              <div className="w-24 h-14 left-[174px] top-[79px] absolute bg-white rounded-full" />
-              <div className="w-24 h-14 left-[185px] top-[116.27px] absolute bg-white rounded-full" />
-              <div className="w-20 h-14 left-[78px] top-[97.63px] absolute bg-white rounded-full" />
-              <div className="w-20 h-14 left-[145px] top-[121.17px] absolute bg-white rounded-full" />
-              <div className="w-20 h-14 left-[93px] top-[116.27px] absolute bg-white rounded-full" />
-              <div className="w-32 h-12 left-[126px] top-[107px] absolute text-center justify-start text-black text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">비밀번호 찾기</div>
+            {/* 아이디 찾기 폼 */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-8 z-20">
+              {/* 제목과 설명 */}
+              <div className="bg-white/90 rounded-t-[20px] px-6 py-4 w-full">
+                <h2 className="text-xl font-['Do_Hyeon'] text-[#333333] text-center">아이디 찾기</h2>
+                <p className="text-sm font-['Do_Hyeon'] text-[#666666] mt-2 text-center">
+                  회원정보에 등록한 정보로<br/>아이디를 찾아보세요
+                </p>
+                    </div>
 
-              {/* 비밀번호 재설정 영역 */}
-              {showPwReset && (
-                <>
-                  <div className="w-96 h-[350px] left-0 top-[250px] absolute bg-white rounded-[20px] border-[3px] border-neutral-400" />
-                  
-                  <div className="w-full flex flex-col items-center absolute top-[250px]">
-                    <div className="w-full px-12 mt-8">
-                      <div className="text-black text-xl font-['Do_Hyeon'] mb-2">새 비밀번호</div>
-                      <div className="w-full">
+              {/* 폼 컨테이너 */}
+              <div className="bg-white/90 rounded-b-[20px] p-6 shadow-lg w-full">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">닉네임</label>
+                    <div className="relative">
                         <input
-                          type="password"
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          placeholder="새 비밀번호를 입력하세요"
-                          className="w-full h-10 px-4 text-neutral-400 text-base font-['Do_Hyeon'] rounded-[20px] border border-neutral-400 focus:outline-none"
-                        />
+                        type="text"
+                        value={nickname}
+                        onChange={(e) => setNickname(e.target.value)}
+                        placeholder="닉네임을 입력하세요"
+                        className="w-full h-12 px-4 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-sm font-['Do_Hyeon'] outline-none"
+                      />
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">전화번호</label>
+                    <div className="relative">
+                        <input
+                        type="tel"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="전화번호를 입력하세요"
+                        className="w-full h-12 px-4 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-sm font-['Do_Hyeon'] outline-none"
+                      />
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                      </div>
                       </div>
                     </div>
 
-                    <div className="w-full px-12 mt-6">
-                      <div className="text-black text-xl font-['Do_Hyeon'] mb-2">새 비밀번호 확인</div>
-                      <div className="w-full">
-                        <input
-                          type="password"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="새 비밀번호를 한 번 더 입력해주세요"
-                          className="w-full h-10 px-4 text-neutral-400 text-base font-['Do_Hyeon'] rounded-[20px] border border-neutral-400 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="w-[300px] mt-6">
+                  <div className="pt-4">
                       <button 
-                        className="w-full h-12 bg-[#FFE999] rounded-[15px] hover:bg-[#FFD966] transition-colors flex items-center justify-center"
-                        onClick={() => {
-                          setShowPwFindModal(false);
-                          setEmail("");
-                          setShowVerificationCode(false);
-                          setShowPwReset(false);
-                          setNewPassword("");
-                          setConfirmPassword("");
-                        }}
+                      onClick={handleIdFind}
+                      className="w-full h-12 bg-[#FFE999] rounded-2xl text-base font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300"
                       >
-                        <div className="text-black text-lg font-['Do_Hyeon']">비밀번호 변경</div>
+                      아이디 찾기
                       </button>
                       <button
-                        onClick={() => {
-                          setShowPwReset(false);
-                          setNewPassword("");
-                          setConfirmPassword("");
-                        }}
-                        className="w-full text-center mt-4 text-neutral-700 text-base font-['Do_Hyeon'] hover:text-neutral-900 cursor-pointer"
-                      >
-                        이전으로
+                      onClick={() => setShowIdFindModal(false)}
+                      className="w-full text-center mt-3 text-[#666666] text-sm font-['Do_Hyeon'] hover:text-[#333333] transition-colors duration-300"
+                    >
+                      돌아가기
                       </button>
                     </div>
                   </div>
-                </>
-              )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-              {/* 인증번호 입력 영역 */}
-              {showVerificationCode && !showPwReset && (
-                <>
-                  <div className="w-96 h-[250px] left-0 top-[250px] absolute bg-white rounded-[20px] border-[3px] border-neutral-400" />
-                  
-                  <div className="w-full flex flex-col items-center absolute top-[250px]">
-                    <div className="w-full px-12 mt-8">
-                      <div className="text-black text-xl font-['Do_Hyeon'] mb-2">인증번호</div>
-                      <div className="w-full">
-                        <input
-                          type="text"
-                          placeholder="인증번호를 입력하세요"
-                          className="w-full h-10 px-4 text-neutral-400 text-base font-['Do_Hyeon'] rounded-[20px] border border-neutral-400 focus:outline-none"
-                        />
-                      </div>
-                    </div>
+      {/* 비밀번호 찾기 모달 */}
+      {showPwFindModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          {/* 반투명 배경 오버레이 */}
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowPwFindModal(false)} />
+          
+          {/* 모달 컨테이너 */}
+          <div className="w-[360px] h-[500px] relative z-10">
+            {/* 배경 이미지 */}
+            <Image
+              className="w-full h-full object-cover absolute rounded-[30px]"
+              src="/images/logo/아이디찾기 배경.png"
+              alt="비밀번호 찾기 배경"
+              width={360}
+              height={500}
+            />
 
-                    <div className="w-[300px] mt-6">
-                      <button 
-                        onClick={() => setShowPwReset(true)}
-                        className="w-full h-12 bg-[#FFE999] rounded-[15px] hover:bg-[#FFD966] transition-colors flex items-center justify-center"
-                      >
-                        <div className="text-black text-lg font-['Do_Hyeon']">확인</div>
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowVerificationCode(false);
-                        }}
-                        className="w-full text-center mt-4 text-neutral-700 text-base font-['Do_Hyeon'] hover:text-neutral-900 cursor-pointer"
-                      >
-                        이전으로
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
+            {/* 비밀번호 찾기 폼 */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-8 z-20">
+              {/* 제목과 설명 */}
+              <div className="bg-white/90 rounded-t-[20px] px-6 py-4 w-full">
+                <h2 className="text-xl font-['Do_Hyeon'] text-[#333333] text-center">비밀번호 찾기</h2>
+                <p className="text-sm font-['Do_Hyeon'] text-[#666666] mt-2 text-center">
+                  가입한 이메일로 인증번호를 받아보세요
+                </p>
+              </div>
 
-              {/* 이메일 입력 영역 */}
-              {!showVerificationCode && !showPwReset && (
-                <>
-                  <div className="w-96 h-[250px] left-0 top-[250px] absolute bg-white rounded-[20px] border-[3px] border-neutral-400" />
-                  
-                  <div className="w-full flex flex-col items-center absolute top-[250px]">
-                    <div className="w-full px-12 mt-8">
-                      <div className="text-black text-xl font-['Do_Hyeon'] mb-2">이메일</div>
-                      <div className="w-full">
+              {/* 폼 컨테이너 */}
+              <div className="bg-white/90 rounded-b-[20px] p-6 shadow-lg w-full">
+                <div className="space-y-4">
+                  {!showVerificationCode && !showPwReset && (
+                    <div>
+                      <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">이메일</label>
+                      <div className="relative">
                         <input
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="이메일을 입력하세요"
-                          className="w-full h-10 px-4 text-neutral-400 text-base font-['Do_Hyeon'] rounded-[20px] border border-neutral-400 focus:outline-none"
+                          className="w-full h-12 px-4 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-sm font-['Do_Hyeon'] outline-none"
                         />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
+                  )}
 
-                    <div className="w-[300px] mt-6">
+                  {showVerificationCode && !showPwReset && (
+                    <div>
+                      <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">인증번호</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={verificationCode}
+                          onChange={(e) => setVerificationCode(e.target.value)}
+                          placeholder="인증번호를 입력하세요"
+                          className="w-full h-12 px-4 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-sm font-['Do_Hyeon'] outline-none"
+                        />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {showPwReset && (
+                    <>
+                      <div>
+                        <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">새 비밀번호</label>
+                        <div className="relative">
+                          <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="새 비밀번호를 입력하세요"
+                            className="w-full h-12 px-4 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-sm font-['Do_Hyeon'] outline-none"
+                          />
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">새 비밀번호 확인</label>
+                        <div className="relative">
+                          <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="새 비밀번호를 다시 입력하세요"
+                            className="w-full h-12 px-4 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-sm font-['Do_Hyeon'] outline-none"
+                          />
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="pt-4">
+                    {!showVerificationCode && !showPwReset && (
                       <button 
                         onClick={handlePwFindRequest}
-                        className="w-full h-12 bg-[#FFE999] rounded-[15px] hover:bg-[#FFD966] transition-colors flex items-center justify-center"
+                        className="w-full h-12 bg-[#FFE999] rounded-2xl text-base font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300"
                       >
-                        <div className="text-black text-lg font-['Do_Hyeon']">인증요청</div>
+                        인증번호 받기
                       </button>
-                      <button
-                        onClick={() => {
-                          setShowPwFindModal(false);
-                          setEmail("");
-                          setShowVerificationCode(false);
-                          setShowPwReset(false);
-                        }}
-                        className="w-full text-center mt-4 text-neutral-700 text-base font-['Do_Hyeon'] hover:text-neutral-900 cursor-pointer"
+                    )}
+                    {showVerificationCode && !showPwReset && (
+                      <button 
+                        onClick={handleVerificationSubmit}
+                        className="w-full h-12 bg-[#FFE999] rounded-2xl text-base font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300"
                       >
-                        로그인으로 돌아가기
+                        인증확인
                       </button>
-                    </div>
+                    )}
+                    {showPwReset && (
+                      <button 
+                        onClick={handlePwReset}
+                        className="w-full h-12 bg-[#FFE999] rounded-2xl text-base font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300"
+                      >
+                        비밀번호 재설정
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        setShowPwFindModal(false);
+                        setShowVerificationCode(false);
+                        setShowPwReset(false);
+                        setEmail("");
+                        setVerificationCode("");
+                        setNewPassword("");
+                        setConfirmPassword("");
+                      }}
+                      className="w-full text-center mt-3 text-[#666666] text-sm font-['Do_Hyeon'] hover:text-[#333333] transition-colors duration-300"
+                    >
+                      돌아가기
+                    </button>
                   </div>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* 회원가입 분기 모달 */}
-        {showSignupModal && (
-          <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
-              <Image
-                className="w-full h-full object-cover absolute"
-                src="/images/logo/아이디찾기 배경.png"
-                alt="회원가입 배경"
-                width={384}
-                height={874}
-              />
-
-              {/* 흰색 원형 배경 효과들 */}
-              <div className="w-32 h-16 left-[135px] top-[96px] absolute bg-white rounded-full blur-[2px]" />
-              <div className="w-24 h-16 left-[213px] top-[107px] absolute bg-white rounded-full blur-[2px]" />
-              <div className="w-24 h-16 left-[114px] top-[88px] absolute bg-white rounded-full blur-[2px]" />
-              <div className="w-24 h-16 left-[177px] top-[88px] absolute bg-white rounded-full blur-[2px]" />
-              <div className="w-24 h-16 left-[188px] top-[126px] absolute bg-white rounded-full blur-[2px]" />
-              <div className="w-20 h-16 left-[81px] top-[107px] absolute bg-white rounded-full blur-[2px]" />
-              <div className="w-20 h-16 left-[148px] top-[131px] absolute bg-white rounded-full blur-[2px]" />
-              <div className="w-20 h-16 left-[96px] top-[126px] absolute bg-white rounded-full blur-[2px]" />
-              
-              {/* 누리달 로고 */}
-              <Image
-                className="w-32 h-14 left-[135px] top-[109px] absolute"
-                src="/images/logo/누리달.png"
-                alt="누리달 로고"
-                width={134}
-                height={55}
-              />
-
-              {/* 회원가입 선택 버튼들 */}
-              <div className="w-full flex flex-col items-center absolute top-[300px] gap-8">
-                <button 
-                  onClick={() => {
-                    setShowSignupModal(false);
-                    // 임산부 회원가입 페이지로 이동하는 로직 추가
-                  }}
-                  className="w-[300px] h-16 bg-[#B7E5FF] rounded-[30px] hover:bg-[#A3D9F9] transition-all flex items-center justify-center shadow-lg"
-                >
-                  <div className="text-black text-xl font-['Do_Hyeon']">임산부</div>
-                </button>
-
-                <button 
-                  onClick={() => {
-                    setShowSignupModal(false);
-                    // 보호자 회원가입 페이지로 이동하는 로직 추가
-                  }}
-                  className="w-[300px] h-16 bg-[#B7E5FF] rounded-[30px] hover:bg-[#A3D9F9] transition-all flex items-center justify-center shadow-lg"
-                >
-                  <div className="text-black text-xl font-['Do_Hyeon']">보호자</div>
-                </button>
-
-                <button
-                  onClick={() => setShowSignupModal(false)}
-                  className="mt-4 text-neutral-700 text-base font-['Do_Hyeon'] hover:text-neutral-900 cursor-pointer"
-                >
-                  로그인으로 돌아가기
-                </button>
+                </div>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* 상단 로고 배경 효과 */}
-        <div className="absolute top-[88px] left-[81px] w-[200px]">
-          <div className="relative">
-            <div className="absolute w-32 h-16 bg-white rounded-full blur-[2px]" style={{left: '54px', top: '8px'}} />
-            <div className="absolute w-24 h-16 bg-white rounded-full blur-[2px]" style={{left: '132px', top: '19px'}} />
-            <div className="absolute w-24 h-16 bg-white rounded-full blur-[2px]" style={{left: '33px', top: '0px'}} />
-            <div className="absolute w-24 h-16 bg-white rounded-full blur-[2px]" style={{left: '96px', top: '0px'}} />
-            <div className="absolute w-24 h-16 bg-white rounded-full blur-[2px]" style={{left: '107px', top: '38px'}} />
-            <div className="absolute w-20 h-16 bg-white rounded-full blur-[2px]" style={{left: '0px', top: '19px'}} />
-            <div className="absolute w-20 h-16 bg-white rounded-full blur-[2px]" style={{left: '67px', top: '43px'}} />
-            <div className="absolute w-20 h-16 bg-white rounded-full blur-[2px]" style={{left: '15px', top: '38px'}} />
+      {showSignupModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="w-96 h-[600px] relative bg-[#FFF4BB] overflow-hidden">
+            {/* 배경 이미지 */}
             <Image
-              className="absolute w-32 h-14"
-              style={{left: '54px', top: '21px'}}
-              src="/images/logo/누리달.png"
-              alt="누리달 로고"
-              width={134}
-              height={55}
+              className="w-full h-full object-cover absolute"
+              src="/images/logo/아이디찾기 배경.png"
+              alt="회원가입 배경"
+              width={384}
+              height={600}
             />
+
+            {/* 상단 구름 효과 */}
+            <div className="w-40 h-14 left-[122px] top-[86.85px] absolute bg-white rounded-full" />
+            <div className="w-32 h-14 left-[200px] top-[97.63px] absolute bg-white rounded-full" />
+            <div className="w-32 h-14 left-[101px] top-[79px] absolute bg-white rounded-full" />
+            <div className="w-32 h-14 left-[164px] top-[79px] absolute bg-white rounded-full" />
+            <div className="w-32 h-14 left-[175px] top-[116.27px] absolute bg-white rounded-full" />
+            <div className="w-28 h-14 left-[68px] top-[97.63px] absolute bg-white rounded-full" />
+            <div className="w-28 h-14 left-[135px] top-[121.17px] absolute bg-white rounded-full" />
+            <div className="w-28 h-14 left-[83px] top-[116.27px] absolute bg-white rounded-full" />
+
+            {/* 회원가입 선택 폼 */}
+            <div className="absolute w-full top-[90px] text-center">
+              <h2 className="text-2xl font-['Do_Hyeon'] text-[#333333]">회원가입</h2>
+              <p className="text-sm font-['Do_Hyeon'] text-[#666666] mt-2">회원 유형을 선택해주세요</p>
+            </div>
+
+            <div className="w-96 h-[400px] left-0 top-[200px] absolute">
+              <div className="w-full h-full bg-white rounded-t-[30px] rounded-b-[30px] px-8 pt-8">
+                <div className="flex flex-col gap-4">
+                <button 
+                  onClick={() => {
+                    setShowSignupModal(false);
+                      setShowPregnantSignup(true);
+                  }}
+                    className="w-full h-12 bg-[#FFE999] rounded-2xl text-lg font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300"
+                >
+                    임산부 회원가입
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowSignupModal(false);
+                      setShowGuardianSignup(true);
+                  }}
+                    className="w-full h-12 bg-[#FFE999] rounded-2xl text-lg font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300"
+                >
+                    보호자 회원가입
+                </button>
+                <button
+                  onClick={() => setShowSignupModal(false)}
+                    className="w-full text-center mt-2 text-[#666666] text-base font-['Do_Hyeon'] hover:text-[#333333] transition-colors duration-300"
+                >
+                    돌아가기
+                </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      )}
+
+      {/* 임산부 회원가입 모달 */}
+      {showPregnantSignup && <SignupForm type="pregnant" />}
+
+      {/* 보호자 회원가입 모달 */}
+      {showGuardianSignup && <SignupForm type="guardian" />}
+
+      {/* 풋바 */}
+      <div className="w-full h-[60px] flex items-center justify-center mt-auto">
+        <p className="text-sm text-[#666666] font-['Do_Hyeon']">© 2024 누리달. All rights reserved.</p>
       </div>
     </div>
   );
