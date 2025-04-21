@@ -19,6 +19,11 @@ export default function Login() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const router = useRouter();
 
+  const handleLogin = () => {
+    // 로그인 버튼 클릭 시 캘린더 화면으로 이동
+    router.push('/calendar');
+  };
+
   const handleIdFind = () => {
     // 실제로는 서버에서 아이디를 조회하는 로직이 들어갈 것입니다.
     // 여기서는 예시로 "test123"이라는 아이디를 찾았다고 가정합니다.
@@ -47,7 +52,10 @@ export default function Login() {
         <div className="w-96 h-[507px] left-[23px] top-[229px] absolute bg-white rounded-[20px] blur-[2px]" />
         
         {/* 로그인 버튼 */}
-        <div className="w-80 h-9 left-[51px] top-[430px] absolute bg-yellow-200 rounded-[20px]">
+        <div 
+          className="w-80 h-9 left-[51px] top-[430px] absolute bg-yellow-200 rounded-[20px] cursor-pointer"
+          onClick={handleLogin}
+        >
           <div className="w-64 h-10 left-[23px] top-[-4px] absolute text-center text-neutral-700 text-lg font-['Do_Hyeon'] leading-[50px]">로그인</div>
         </div>
 

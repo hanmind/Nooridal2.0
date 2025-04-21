@@ -10,7 +10,8 @@ export default function PregnancyInfo() {
   const [isPregnant, setIsPregnant] = useState(false);
 
   const handleNext = () => {
-    router.push('/register/pregnant/pregnancy-info/baby-name');
+    // 임신 정보 입력 후 캘린더 화면으로 이동
+    router.push('/calendar');
   };
 
   // 모든 정보가 입력되었는지 확인
