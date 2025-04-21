@@ -3,13 +3,18 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useProfile } from "@/app/context/ProfileContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function MyPage() {
   const router = useRouter();
   const { profileImage } = useProfile();
   const [showImageModal, setShowImageModal] = useState(false);
   const [hasPregnancyInfo, setHasPregnancyInfo] = useState(false);
+  const [activeTab, setActiveTab] = useState('mypage');
+
+  useEffect(() => {
+    setActiveTab('mypage');
+  }, []);
 
   const handleLogout = () => {
     // 로그아웃 처리 로직
@@ -45,6 +50,13 @@ export default function MyPage() {
 
   const closeImageModal = () => {
     setShowImageModal(false);
+  };
+
+  const handleTabClick = (tabName: string) => {
+    setActiveTab(tabName);
+    if (tabName === 'chat') {
+      router.push('/chat');
+    }
   };
 
   return (
@@ -219,46 +231,32 @@ export default function MyPage() {
         {/* 로그아웃 버튼 */}
         <button 
           onClick={handleLogout}
-          className="absolute left-1/2 transform -translate-x-1/2 top-[780px] text-center text-red-600 text-base font-normal font-['Do_Hyeon'] leading-[50px]"
+          className="absolute left-1/2 transform -translate-x-1/2 top-[690px] text-center text-gray-500 text-base font-normal font-['Do_Hyeon'] leading-[50px]"
         >
           로그아웃
         </button>
 
-        {/* 풋바 */}
-        <div className="w-[462px] h-52 absolute bottom-[-30px] left-1/2 transform -translate-x-1/2">
-          <div className="w-44 h-44 left-[4px] top-[29px] absolute bg-white rounded-full" />
-          <div className="w-44 h-44 left-[137px] top-[29px] absolute bg-white rounded-full" />
-          <div className="w-44 h-44 left-[278px] top-[29px] absolute bg-white rounded-full" />
-          <div className="w-44 h-44 left-0 top-[10px] absolute bg-white/40 rounded-full" />
-          <div className="w-44 h-44 left-[133px] top-[10px] absolute bg-white/40 rounded-full" />
-          <div className="w-44 h-44 left-[274px] top-[10px] absolute bg-white/40 rounded-full" />
-          
-          {/* 채팅 아이콘 */}
-          <svg className="w-8 h-8 left-[80px] top-[63px] absolute" fill="none" stroke="#979595" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-          
-          {/* 캘린더 아이콘 */}
-          <svg className="w-8 h-8 left-[165px] top-[63px] absolute" fill="none" stroke="#979595" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          
-          {/* 위치 아이콘 */}
-          <svg className="w-8 h-8 left-[248px] top-[63px] absolute" fill="none" stroke="#979595" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          
-          {/* 마이페이지 아이콘 */}
-          <svg className="w-8 h-8 left-[340px] top-[63px] absolute" fill="none" stroke="#FDB813" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-          
-          {/* 텍스트 라벨 */}
-          <div className="w-20 h-16 left-[53px] top-[80px] absolute text-center justify-start text-[#979595] text-xs font-normal font-['Do_Hyeon'] leading-[50px]">채팅</div>
-          <div className="w-9 h-8 left-[166px] top-[80px] absolute text-center justify-start text-[#979595] text-xs font-normal font-['Do_Hyeon'] leading-[50px]">캘린더</div>
-          <div className="w-20 h-10 left-[227px] top-[79.60px] absolute text-center justify-start text-[#979595] text-xs font-normal font-['Do_Hyeon'] leading-[50px]">위치</div>
-          <div className="w-20 h-10 left-[321px] top-[79.60px] absolute text-center justify-start text-yellow-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">마이페이지</div>
+        {/* Proportionally Fitting Footer for MyPage */}
+        <div className="w-full h-20 fixed bottom-0 left-0 flex justify-around items-center bg-white shadow-md rounded-t-lg px-4" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+          {['chat', 'calendar', 'location', 'mypage'].map((tab, index) => (
+            <div key={tab} className="flex flex-col items-center cursor-pointer" onClick={() => handleTabClick(tab)}>
+              <div className={`w-10 h-10 flex items-center justify-center rounded-full ${activeTab === tab ? 'bg-[#FFD600]' : ''}`}>
+                <svg
+                  className={`w-6 h-6 ${activeTab === tab ? 'stroke-white' : 'stroke-[#979595]'}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {tab === 'chat' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />}
+                  {tab === 'calendar' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />}
+                  {tab === 'location' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />}
+                  {tab === 'location' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />}
+                  {tab === 'mypage' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />}
+                </svg>
+              </div>
+              <div className={`text-xs font-normal font-['Do_Hyeon'] ${activeTab === tab ? 'text-[#FFD600]' : 'text-[#979595]'}`}>{tab === 'chat' ? '채팅' : tab === 'calendar' ? '캘린더' : tab === 'location' ? '위치' : '마이페이지'}</div>
+            </div>
+          ))}
         </div>
 
         {/* 이미지 모달 */}
@@ -288,6 +286,43 @@ export default function MyPage() {
                 </svg>
               </button>
             </div>
+          </div>
+        )}
+
+        {/* 채팅 창 */}
+        {activeTab === 'chat' && (
+          <div className="w-96 h-[874px] relative bg-yellow-100 overflow-hidden">
+            <div className="w-32 h-20 left-[-63px] top-[1px] absolute bg-white rounded-full blur-[2px]" />
+            <div className="w-32 h-20 left-[-52px] top-[-10px] absolute bg-white rounded-full blur-[2px]" />
+            <div className="w-28 h-16 left-[-120px] top-[24.58px] absolute bg-white rounded-full blur-[2px]" />
+            <div className="w-28 h-14 left-[-96px] top-[54.05px] absolute bg-white rounded-full blur-[2px]" />
+            <div className="w-24 h-14 left-[-10px] top-[46px] absolute bg-white rounded-full blur-[2px]" />
+            <div className="w-28 h-16 left-0 top-[21px] absolute bg-white rounded-full blur-[2px]" />
+            <div className="w-9 h-12 left-[183px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">채팅</div>
+            <div className="w-24 h-14 left-[260.61px] top-[229px] absolute rounded-full blur-[2px]" />
+            <div className="w-24 h-14 left-[208px] top-[241.80px] absolute rounded-full blur-[2px]" />
+            <div className="w-24 h-14 left-[267.63px] top-[255.94px] absolute rounded-full blur-[2px]" />
+            <div className="w-24 h-14 left-[298.49px] top-[237.75px] absolute rounded-full blur-[2px]" />
+            <div className="w-12 h-7 left-[333.57px] top-[274.12px] absolute rounded-full blur-[2px]" />
+            <div className="w-12 h-7 left-[333.57px] top-[274.12px] absolute rounded-full blur-[2px]" />
+            <div className="w-16 h-14 left-[235.36px] top-[252.57px] absolute rounded-full blur-[2px]" />
+            <div className="w-16 h-14 left-[232.55px] top-[233.04px] absolute rounded-full blur-[2px]" />
+            <div className="w-80 h-11 left-[17px] bottom-[20px] absolute bg-white rounded-[10px] border border-zinc-300" />
+            <div className="w-64 h-6 left-[29px] bottom-[34px] absolute justify-start text-neutral-400 text-base font-normal font-['Do_Hyeon']">임신과 출산에 관한 질문을 입력하세요</div>
+            <div className="w-11 h-11 left-[344px] bottom-[3px] absolute bg-yellow-400 rounded-full" />
+            <div className="w-9 h-9 left-[352px] bottom-[1.5px] absolute justify-start text-white text-3xl font-medium font-['Inter']">➤</div>
+            <div className="w-72 h-40 left-[30px] top-[161px] absolute bg-blue-100 rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />
+            <div className="w-64 h-14 left-[126px] top-[364px] absolute bg-white rounded-[20px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />
+            <div className="w-64 h-7 left-[47px] top-[177px] absolute justify-start text-sky-950 text-base font-normal font-['Do_Hyeon'] leading-snug">안녕하세요. AI에이전트 플로렌스 입니다.   나이팅게일의 풀네임은 플로렌스 나이팅게일이라고 하네요. 그분의 정신을 닮아 성심성의껏 도움을 드리겠습니다.   아기는 현재 *주차이시군요 !   임신과 출산에 관한 궁금한 점을 물어보세요!</div>
+            <div className="w-20 h-6 left-[306px] top-[283px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">10:00</div>
+            <div className="w-20 h-6 left-[64px] top-[391px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">10:01</div>
+            <div className="w-8 h-7 left-[33.56px] top-[44px] absolute bg-white rounded-full border-2 border-zinc-500" />
+            <div className="w-2.5 h-1.5 left-[40.24px] top-[74.33px] absolute origin-top-left rotate-[-141.02deg] bg-white rounded-[0.50px] border-2 border-zinc-500" />
+            <div className="w-1.5 h-1.5 left-[41.30px] top-[70.90px] absolute origin-top-left rotate-[-141.02deg] bg-white rounded-[0.50px]" />
+            <div className="w-3 h-0.5 left-[43px] top-[53px] absolute bg-zinc-500" />
+            <div className="w-3 h-0.5 left-[43px] top-[56px] absolute bg-zinc-500" />
+            <div className="w-3 h-0.5 left-[43px] top-[59px] absolute bg-zinc-500" />
+            <div className="left-[148px] top-[369px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">현재 우리 아기 크기가 얼마나 될까?</div>
           </div>
         )}
       </div>
