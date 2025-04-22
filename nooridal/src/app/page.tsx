@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from 'react';
@@ -37,13 +39,10 @@ export default function Home() {
           />
           {currentLocation ? (
             <div className="absolute inset-0 flex flex-col justify-center items-center">
-              <h2 className="text-2xl font-bold mb-4">Your Current Location:</h2>
-              <p className="text-base">Latitude: {currentLocation.lat}</p>
-              <p className="text-base">Longitude: {currentLocation.lng}</p>
-            </div>
+              </div>
           ) : (
             <div className="absolute inset-0 flex flex-col justify-center items-center">
-              <p className="text-base">Click the map square to find your current location.</p>
+        
             </div>
           )}
         </div>
@@ -59,8 +58,8 @@ export default function Home() {
           />
         </Link>
       </main>
-      {/* Footer */}
-      <div className="w-full h-28 fixed bottom-0 flex justify-around items-center bg-white shadow-md rounded-t-lg px-4" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      {/* Remove Footer */}
+      {/* <div className="w-full h-28 fixed bottom-0 flex justify-around items-center bg-white shadow-md rounded-t-lg px-4" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {['chat', 'calendar', 'location', 'mypage'].map((tab, index) => (
           <div key={tab} className="flex flex-col items-center cursor-pointer">
             <div className={`w-10 h-10 flex items-center justify-center rounded-full`}>
@@ -80,7 +79,7 @@ export default function Home() {
             <div className={`text-xs font-normal font-['Do_Hyeon'] text-[#979595]`}>{tab === 'chat' ? '채팅' : tab === 'calendar' ? '캘린더' : tab === 'location' ? '위치' : '마이페이지'}</div>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

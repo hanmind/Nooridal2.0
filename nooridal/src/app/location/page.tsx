@@ -13,21 +13,21 @@ export default function LocationPage() {
     setActiveTab('location');
   }, []);
 
-  const handleTabClick = (tabName: string) => {
-    setActiveTab(tabName);
-    if (tabName === 'chat') {
-      router.push('/chat');
-    } else if (tabName === 'calendar') {
-      router.push('/calendar');
-    } else if (tabName === 'location') {
-      router.push('/location');
-    } else if (tabName === 'mypage') {
-      router.push('/mypage');
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === 'chat') {
+      window.location.href = '/chat';
+    } else if (tab === 'calendar') {
+      window.location.href = '/calendar';
+    } else if (tab === 'location') {
+      window.location.href = '/location';
+    } else if (tab === 'mypage') {
+      window.location.href = '/mypage';
     }
   };
 
   const handleMapClick = () => {
-    router.push('/map');
+    router.push('/location');
   };
 
   return (
@@ -71,10 +71,10 @@ export default function LocationPage() {
         {/* Menu Grid */}
         <div className="grid grid-cols-2 gap-4 w-[360px] mx-auto mt-6">
           {[
-            { icon: '🏥', title: '산부인과', link: '/obstetrics' },
-            { icon: '🏪', title: '편의시설', link: '/facilities' },
-            { icon: '🚎', title: '교통약자\n이동 지원 센터', link: '/transport' },
-            { icon: '📍', title: '지도', link: '/map' }
+            { icon: '🏥', title: '산부인과', link: '/location/obstetrics' },
+            { icon: '🏪', title: '편의시설', link: '/location/facilities' },
+            { icon: '🚙', title: '교통약자\n이동 지원 센터', link: '/location/transport' },
+            { icon: '📍', title: '지도', link: '/location/map' }
           ].map((item, index) => (
             <div key={index} className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => router.push(item.link)}>
               <div className="text-3xl mb-2">{item.icon}</div>
