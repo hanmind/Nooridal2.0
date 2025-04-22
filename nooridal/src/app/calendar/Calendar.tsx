@@ -35,7 +35,7 @@ const Calendar: React.FC = () => {
   const startLeft = 20; // 시작 위치
   
   return (
-    <div className="w-96 h-[874px] relative bg-yellow-100 overflow-hidden">
+    <div className="w-96 h-[874px] relative overflow-hidden" style={{ backgroundColor: '#FFF4BB' }}>
       <div className="w-32 h-20 left-[-63px] top-[1px] absolute bg-white rounded-full blur-[2px]" />
       <div className="w-32 h-20 right-[-52px] top-[-10px] absolute bg-white rounded-full blur-[2px]" />
       <div className="w-28 h-16 right-[-100px] top-[24.58px] absolute bg-white rounded-full blur-[2px]" />

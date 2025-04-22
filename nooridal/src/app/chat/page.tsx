@@ -1,35 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function ChatPage() {
-  // 메시지, 입력 값, 활성 탭을 관리하는 상태
-  const [messages, setMessages] = useState<{ text: string; sender: string; time: string }[]>([]);
-  const [inputValue, setInputValue] = useState('');
   const [activeTab, setActiveTab] = useState('chat');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // 하루에 한 번 환영 메시지를 설정하는 효과
-  useEffect(() => {
-    const today = new Date().toDateString();
-    const lastVisit = localStorage.getItem('lastVisit');
-    if (lastVisit !== today) {
-      const welcomeMessage = "안녕하세요. AI에이전트 플로렌스 입니다.\n나이팅게일의 풀네임은 플로렌스 나이팅게일이라고 하네요. 그분의 정신을 닮아 성심성의껏 도움을 드리겠습니다.\n아기는 현재 *주차이시군요 !\n임신과 출산에 관한 궁금한 점을 물어보세요!";
-      const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      setMessages((prevMessages) => [...prevMessages, { text: welcomeMessage, sender: 'system', time: currentTime }]);
-      localStorage.setItem('lastVisit', today);
-    }
-  }, []);
-
-  // 메시지 전송을 처리하는 함수
-  const handleSendMessage = () => {
-    if (inputValue.trim()) {
-      const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      setMessages([...messages, { text: inputValue, sender: 'user', time: currentTime }]);
-      setInputValue('');
-    }
-  };
-
-  // 탭 클릭을 처리하고 활성 탭을 설정하는 함수
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
     if (tab === 'mypage') {
@@ -43,13 +19,67 @@ export default function ChatPage() {
     }
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-yellow-100">
-      {/* Footer remains, chat screen content removed */}
-      <div className="w-full h-20 fixed bottom-0 flex justify-around items-center bg-white shadow-md rounded-t-lg px-4" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <div className="min-h-screen flex flex-col justify-center items-center" style={{ backgroundColor: '#FFF4BB' }} onClick={closeSidebar}>
+      {/* 채팅 화면 배경 및 요소 */}
+      <div className="w-96 h-[874px] relative overflow-hidden flex flex-col items-center justify-center" style={{ backgroundColor: '#FFF4BB' }} onClick={(e) => e.stopPropagation()}>
+        <div>
+          <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+          </svg>
+        </div>
+        <div className="w-full text-center text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px] absolute" style={{ top: '43px' }}>
+          채팅
+        </div>
+        <svg className="w-6 h-6 text-gray-500 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" style={{ marginLeft: '-280px', position: 'absolute', top: '55px' }} onClick={toggleSidebar}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.5 19.5l19-7-19-7v7l13 0-13 0v7z" />
+        </svg>
+        <div className="w-24 h-14 absolute rounded-full blur-[2px]" style={{ top: '229px', left: '260.61px' }} />
+        <div className="w-24 h-14 absolute rounded-full blur-[2px]" style={{ top: '241.80px', left: '208px' }} />
+        <div className="w-24 h-14 absolute rounded-full blur-[2px]" style={{ top: '255.94px', left: '267.63px' }} />
+        <div className="w-24 h-14 absolute rounded-full blur-[2px]" style={{ top: '237.75px', left: '298.49px' }} />
+        <div className="w-12 h-7 absolute rounded-full blur-[2px]" style={{ top: '274.12px', left: '333.57px' }} />
+        <div className="w-12 h-7 absolute rounded-full blur-[2px]" style={{ top: '274.12px', left: '333.57px' }} />
+        <div className="w-16 h-14 absolute rounded-full blur-[2px]" style={{ top: '252.57px', left: '235.36px' }} />
+        <div className="w-16 h-14 absolute rounded-full blur-[2px]" style={{ top: '233.04px', left: '232.55px' }} />
+        {/* 메시지 입력창 */}
+        <div className="w-80 h-11 absolute bg-white rounded-[10px] border border-yellow-400" style={{ top: '700px', left: '10px' }}>
+          <input type="text" className="w-full h-full px-4 py-2 text-neutral-600 text-base font-normal font-['Do_Hyeon']" placeholder="임신과 출산에 관한 질문을 입력하세요" />
+        </div>
+        
+        <div className="w-11 h-11 absolute bg-yellow-400 rounded-full flex items-center justify-center" style={{ top: '700px', left: '337px' }}>
+          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.5 19.5l19-7-19-7v7l13 0-13 0v7z" />
+          </svg>
+        </div>
+        {isSidebarOpen && (
+          <div className="w-64 h-full bg-white shadow-lg fixed left-0 top-0 z-50 rounded-r-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="p-8 mt-8">
+              <svg className="w-6 h-6 text-gray-500 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.5 19.5l19-7-19-7v7l13 0-13 0v7z" />
+              </svg>
+              <p className="text-blue-500 mt-20 font-['Do_Hyeon']">250422 화</p>
+            </div>
+            <div className="absolute bottom-4 right-4" onClick={closeSidebar}>
+              <svg className="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14m-7-7l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        )}
+      </div>
+      {/* 풋터 */}
+      <div className="w-full h-28 fixed bottom-0 flex justify-around items-center bg-white shadow-md rounded-t-lg px-4" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {['chat', 'calendar', 'location', 'mypage'].map((tab, index) => (
           <div key={tab} className="flex flex-col items-center cursor-pointer" onClick={() => handleTabClick(tab)}>
-            <div className={`w-10 h-10 flex items-center justify-center rounded-full ${activeTab === tab ? 'bg-[#FFD600]' : ''}`}>
+            <div className={`w-10 h-10 flex items-center justify-center rounded-full ${activeTab === tab ? 'bg-[#FFD600]' : ''}`} style={{ marginBottom: '4px' }}>
               <svg
                 className={`w-6 h-6 ${activeTab === tab ? 'stroke-white' : 'stroke-[#979595]'}`}
                 fill="none"

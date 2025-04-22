@@ -242,11 +242,11 @@ export default function MyPage() {
           로그아웃
         </button>
 
-        {/* Proportionally Fitting Footer for MyPage */}
-        <div className="w-full h-20 fixed bottom-0 left-0 flex justify-around items-center bg-white shadow-md rounded-t-lg px-4" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-          {['chat', 'calendar', 'location', 'mypage'].map((tab, index) => (
+        {/* Footer */}
+        <div className="w-full h-28 fixed bottom-0 flex justify-around items-center bg-white shadow-md rounded-t-lg px-4" style={{ paddingBottom: 'env(safe-area-inset-bottom)', left: '0px' }}>
+          {['chat', 'calendar', 'location', 'mypage'].map((tab) => (
             <div key={tab} className="flex flex-col items-center cursor-pointer" onClick={() => handleTabClick(tab)}>
-              <div className={`w-10 h-10 flex items-center justify-center rounded-full ${activeTab === tab ? 'bg-[#FFD600]' : ''}`}>
+              <div className={`w-10 h-10 flex items-center justify-center rounded-full ${activeTab === tab ? 'bg-[#FFD600]' : ''}`} style={{ marginBottom: '4px' }}>
                 <svg
                   className={`w-6 h-6 ${activeTab === tab ? 'stroke-white' : 'stroke-[#979595]'}`}
                   fill="none"
