@@ -74,18 +74,18 @@ export default function GuardianSignup() {
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
-        <div className="w-80 h-[745px] left-[28px] top-[70px] absolute bg-white rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />
+        <div className="w-80 h-[745px] left-[28px] top-[67px] absolute bg-white rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />
         
         {/* 누리달 로고 */}
         <img
-          className="w-32 h-14 left-[135px] top-[109px] absolute"
+          className="w-32 h-14 left-[135px] top-[105px] absolute"
           src="/images/logo/누리달.png"
           alt="누리달 로고"
         />
 
         {/* 아이디 입력 필드 */}
         <div className="w-20 h-9 left-[32px] top-[167px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">아이디</div>
-        <div className="w-72 h-8 left-[52px] top-[202px] absolute">
+        <div className="w-70 h-8 left-[52px] top-[202px] absolute">
           <input
             type="text"
             value={userId}
@@ -99,14 +99,14 @@ export default function GuardianSignup() {
         </div>
         <button 
           onClick={() => checkDuplication("id", userId)}
-          className="w-16 h-6 left-[275px] top-[207px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+          className="w-16 h-6 left-[264px] top-[206px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
         >
           중복확인
         </button>
 
         {/* 이름 입력 필드 */}
         <div className="w-12 h-9 left-[45px] top-[236px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">이름</div>
-        <div className="w-72 h-8 left-[52px] top-[271px] absolute">
+        <div className="w-70 h-8 left-[52px] top-[271px] absolute">
           <input
             type="text"
             value={name}
@@ -118,7 +118,7 @@ export default function GuardianSignup() {
 
         {/* 이메일 입력 필드 */}
         <div className="w-12 h-9 left-[49px] top-[305px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">이메일</div>
-        <div className="w-72 h-8 left-[52px] top-[340px] absolute">
+        <div className="w-70 h-8 left-[52px] top-[340px] absolute">
           <input
             type="email"
             value={email}
@@ -129,14 +129,14 @@ export default function GuardianSignup() {
         </div>
         <button 
           onClick={handleEmailVerification}
-          className="w-16 h-6 left-[275px] top-[344px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+          className="w-16 h-6 left-[264px] top-[344px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
         >
           인증요청
         </button>
 
         {/* 전화번호 입력 필드 */}
         <div className="w-20 h-9 left-[38px] top-[374px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">전화번호</div>
-        <div className="w-72 h-8 left-[52px] top-[415px] absolute">
+        <div className="w-70 h-8 left-[52px] top-[415px] absolute">
           <input
             type="tel"
             value={phoneNumber}
@@ -144,20 +144,20 @@ export default function GuardianSignup() {
               setPhoneNumber(e.target.value);
               setPhoneNumberStatus("default");
             }}
-            placeholder="휴대폰 번호는 '-'없이 숫자만 입력하셔도 됩니다"
+            placeholder="'-'없이 숫자만 입력하셔도 됩니다"
             className={`w-full h-full px-4 text-neutral-400 text-xs font-['Do_Hyeon'] rounded-[10px] border ${getBorderColor(phoneNumberStatus)} focus:outline-none`}
           />
         </div>
         <button 
           onClick={() => checkDuplication("phone", phoneNumber)}
-          className="w-16 h-6 left-[275px] top-[420px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+          className="w-16 h-6 left-[264px] top-[419px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
         >
           중복확인
         </button>
 
         {/* 비밀번호 입력 필드 */}
         <div className="w-32 h-9 left-[15px] top-[449px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">비밀번호</div>
-        <div className="w-72 h-8 left-[52px] top-[487px] absolute">
+        <div className="w-70 h-8 left-[52px] top-[487px] absolute">
           <input
             type="password"
             value={password}
@@ -169,7 +169,7 @@ export default function GuardianSignup() {
 
         {/* 비밀번호 확인 입력 필드 */}
         <div className="w-32 h-9 left-[28px] top-[531px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">비밀번호 확인</div>
-        <div className="w-72 h-8 left-[51px] top-[569px] absolute">
+        <div className="w-70 h-8 left-[51px] top-[569px] absolute">
           <input
             type="password"
             value={confirmPassword}
@@ -181,7 +181,7 @@ export default function GuardianSignup() {
 
         {/* 주소 입력 필드 */}
         <div className="w-20 h-9 left-[31px] top-[606px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">주소</div>
-        <div className="w-72 h-8 left-[52px] top-[643px] absolute">
+        <div className="w-70 h-8 left-[52px] top-[643px] absolute">
           <input
             type="text"
             value={address}
@@ -191,7 +191,7 @@ export default function GuardianSignup() {
             readOnly
           />
         </div>
-        <button className="w-16 h-6 left-[275px] top-[647px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors">
+        <button className="w-16 h-6 left-[264px] top-[647px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors">
           검색
         </button>
 
@@ -200,10 +200,10 @@ export default function GuardianSignup() {
           <>
             <div className="w-96 h-[874px] left-0 top-0 absolute bg-neutral-400/50 z-20" />
             <div className="w-80 h-52 left-[29px] top-[303px] absolute bg-white rounded-[20px] z-30">
-              <div className="w-80 h-20 left-0 top-[30px] absolute text-center text-black text-lg font-['Do_Hyeon'] leading-[50px] z-10">
-                이메일로 받은 인증번호를 입력하세요:
+              <div className="w-80 h-20 left-0 top-[28px] absolute text-center text-black text-lg font-['Do_Hyeon'] leading-[50px] z-10">
+                이메일로 받은 인증번호를 입력하세요
               </div>
-              <div className="w-72 h-10 left-[16px] top-[85px] absolute z-10">
+              <div className="w-64 h-10 left-[33px] top-[85px] absolute z-10">
                 <input
                   type="text"
                   value={verificationCode}
@@ -212,10 +212,10 @@ export default function GuardianSignup() {
                   className="w-full h-full px-4 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
                 />
               </div>
-              <div className="flex justify-between w-full px-4 absolute bottom-4 z-10">
+              <div className="flex justify-between w-full px-8 absolute bottom-6 z-10">
                 <button
                   onClick={handleVerificationSubmit}
-                  className="w-32 h-9 bg-[#FFE999] rounded-[10px] hover:bg-[#FFE080] transition-colors"
+                  className="w-30 h-9 bg-[#FFED90] rounded-[10px] hover:bg-[#FFE080] transition-colors"
                 >
                   <div className="w-full text-center text-black text-sm font-['Do_Hyeon'] leading-[36px]">
                     확인
@@ -223,7 +223,7 @@ export default function GuardianSignup() {
                 </button>
                 <button
                   onClick={() => setShowEmailVerificationModal(false)}
-                  className="w-32 h-9 bg-[#FFE999] rounded-[10px] hover:bg-[#FFE080] transition-colors"
+                  className="w-30 h-9 bg-[#FFED90] rounded-[10px] hover:bg-[#FFE080] transition-colors"
                 >
                   <div className="w-full text-center text-black text-sm font-['Do_Hyeon'] leading-[36px]">
                     취소
@@ -236,10 +236,10 @@ export default function GuardianSignup() {
 
         {/* 회원가입 버튼 */}
         <button 
-          onClick={handleSignup}
-          className="w-72 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px] z-10 hover:bg-yellow-300 transition-colors"
+          onClick={() => router.push('/register/pregnant/pregnancy-info')}
+          className="w-70 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px] z-10 hover:bg-yellow-300 transition-colors"
         >
-          <div className="w-52 h-7 left-[45px] top-[-2px] absolute text-black text-base font-['Do_Hyeon'] leading-[50px]">
+          <div className="w-50 h-7 left-[45px] top-[-5px] absolute text-black text-base font-['Do_Hyeon'] leading-[50px]">
             회원가입
           </div>
         </button>

@@ -179,7 +179,7 @@ export default function Login() {
       router.push('/register');
     };
 
-    return (
+    return ( 
       <div className="fixed inset-0 flex items-center justify-center z-50">
         <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
           {/* 배경 이미지 */}
@@ -332,12 +332,12 @@ export default function Login() {
         </div>
 
         {/* 로그인 컨테이너 */}
-        <div className="w-full max-w-[360px] h-[550px] relative bg-white rounded-[30px] shadow-2xl overflow-hidden mb-8">
+        <div className="w-full max-w-[360px] h-[560px] relative bg-white rounded-[30px] shadow-2xl overflow-hidden mb-8">
           {/* 배경 이미지 */}
-          <div className="absolute inset-0 bg-[#FFF4BB] opacity-20 z-0"></div>
+          <div className="absolute inset-0 bg-white z-0"></div>
           
           {/* 로그인 폼 */}
-          <div className="absolute top-[20px] left-0 right-0 px-8 z-20">
+          <div className="absolute top-[30px] left-0 right-0 px-8 z-20">
             <h2 className="text-2xl font-['Do_Hyeon'] text-[#333333] text-center mb-6">로그인</h2>
             
             {/* 입력 필드 */}
@@ -377,17 +377,17 @@ export default function Login() {
             
             {/* 로그인 유지 체크박스 */}
             <div className="flex items-center gap-2 mt-4">
-              <input type="checkbox" className="w-5 h-5 rounded-md border-2 border-[#FFE999] text-[#FFE999] focus:ring-[#FFE999]" />
+              <input type="checkbox" className="w-5 h-5 rounded-[10px] border-2 border-[#FFE999] text-[#FFE999] focus:ring-[#FFE999]" />
               <span className="text-[#666666] text-sm font-['Do_Hyeon']">로그인 유지</span>
             </div>
             
             {/* 로그인 버튼 */}
-            <button className="w-full h-12 mt-6 bg-[#FFE999] rounded-2xl text-lg font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
+            <button className="w-full h-12 mt-6 bg-[#FFED90] rounded-2xl text-lg font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
               로그인
             </button>
             
             {/* 하단 링크들 */}
-            <div className="flex justify-center items-center gap-4 mt-5">
+            <div className="flex justify-center items-center gap-4 mt-4">
               <button 
                 onClick={() => setShowIdFindModal(true)}
                 className="text-[#666666] text-sm font-['Do_Hyeon'] hover:text-[#333333] transition-colors duration-300"
@@ -419,7 +419,7 @@ export default function Login() {
               </div>
               
               {/* 소셜 로그인 버튼들 */}
-              <div className="flex justify-center items-center gap-6 mt-6">
+              <div className="flex justify-center items-center gap-6 mt-4">
                 {/* Google */}
                 <button className="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
                   <svg width="24" height="24" viewBox="0 0 24 24">
