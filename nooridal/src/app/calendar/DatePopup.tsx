@@ -6,20 +6,28 @@ interface DiaryEntry {
   id: string;
   title: string;
   content: string;
-  date: Date;
+  date: string;  // Date 객체 대신 문자열로 저장
 }
 
 interface DatePopupProps {
   date: Date;
   isOpen: boolean;
   onClose: () => void;
+  initialTab?: 'schedule' | 'diary' | 'today';
 }
 
-const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState<'schedule' | 'diary'>('schedule');
+const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab }) => {
+  const [activeTab, setActiveTab] = useState<'schedule' | 'diary' | 'today'>(initialTab || 'schedule');
   const [isSchedulePopupOpen, setIsSchedulePopupOpen] = useState(false);
   const [isDiaryPopupOpen, setIsDiaryPopupOpen] = useState(false);
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
+  const [selectedDiary, setSelectedDiary] = useState<DiaryEntry | null>(null);
+
+  // 팝업이 닫힐 때 상태 초기화
+  const handleClose = () => {
+    setSelectedDiary(null);
+    setIsDiaryPopupOpen(false);
+  };
 
   if (!isOpen) return null;
 
@@ -28,8 +36,25 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose }) => {
   };
 
   const handleSaveDiary = (entry: DiaryEntry) => {
-    setDiaryEntries([...diaryEntries, entry]);
+    const formattedDate = formatDate(date);
+    const newEntry = { ...entry, date: formattedDate };
+    setDiaryEntries(prevEntries => [...prevEntries, newEntry]);
+    handleClose();
   };
+
+  const handleEditDiary = (entry: DiaryEntry) => {
+    setDiaryEntries(prevEntries => 
+      prevEntries.map(e => e.id === entry.id ? entry : e)
+    );
+    handleClose();
+  };
+
+  const handleDeleteDiary = (id: string) => {
+    setDiaryEntries(prevEntries => prevEntries.filter(e => e.id !== id));
+    handleClose();
+  };
+
+  const currentDateEntries = diaryEntries.filter(entry => entry.date === formatDate(date));
 
   return (
     <>
@@ -40,7 +65,7 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose }) => {
       />
       
       {/* 팝업 */}
-      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[400px] bg-white z-40 shadow-lg rounded-[20px] p-6">
+      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] h-[500px] bg-white z-40 shadow-lg rounded-[20px] p-6">
         {/* 날짜 */}
         <div className="text-xl font-['Do_Hyeon'] text-center">
           {formatDate(date)}
@@ -50,9 +75,9 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose }) => {
         <div className="w-full h-[2px] bg-neutral-200 my-4" />
 
         {/* 탭 */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex gap-4 mb-8">
           <button
-            className={`flex-1 pb-2 font-['Do_Hyeon'] text-lg transition-colors ${
+            className={`flex-1 pb-2 font-['Do_Hyeon'] text-l transition-colors ${
               activeTab === 'schedule'
                 ? 'text-yellow-400 border-b-2 border-yellow-400'
                 : 'text-neutral-400'
@@ -61,8 +86,20 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose }) => {
           >
             일정 등록
           </button>
+          
           <button
-            className={`flex-1 pb-2 font-['Do_Hyeon'] text-lg transition-colors ${
+            className={`flex-1 pb-2 font-['Do_Hyeon'] text-l transition-colors ${
+              activeTab === 'today'
+                ? 'text-yellow-400 border-b-2 border-yellow-400'
+                : 'text-neutral-400'
+            }`}
+            onClick={() => setActiveTab('today')}
+          >
+            오늘의 하루
+          </button>
+
+          <button
+            className={`flex-1 pb-2 font-['Do_Hyeon'] text-l transition-colors ${
               activeTab === 'diary'
                 ? 'text-yellow-400 border-b-2 border-yellow-400'
                 : 'text-neutral-400'
@@ -75,50 +112,57 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose }) => {
 
         {/* 컨텐츠 */}
         {activeTab === 'schedule' ? (
-          <div className="flex justify-center mt-[30px]">
+          <div className="flex justify-center mt-[62px]">
             <button 
-              className="w-1/2 bg-yellow-300 text-gray font-['Do_Hyeon'] py-2 rounded-[20px] hover:bg-yellow-500 transition-colors"
+              className="w-1/2 bg-yellow-200 text-gray font-['Do_Hyeon'] py-2 rounded-[20px] hover:bg-yellow-500 transition-colors"
               onClick={() => setIsSchedulePopupOpen(true)}
             >
               일정 등록
             </button>
           </div>
+        ) : activeTab === 'today' ? (
+          <div className="flex justify-center mt-[30px]">
+            <div className="w-full h-[160px] bg-white border-2 border-neutral-200 rounded-[15px]">
+            </div>
+          </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {diaryEntries.length > 0 ? (
+            {currentDateEntries.length > 0 ? (
               <div className="flex flex-col gap-4">
-                {diaryEntries.map((entry) => (
-                  <div 
-                    key={entry.id}
-                    className="bg-white rounded-[20px] shadow p-4"
-                  >
-                    <div className="flex items-center justify-between mb-2">
+                {currentDateEntries.map((entry) => (
+                  <div key={entry.id} className="w-full">
+                    <div className="flex items-center justify-between bg-white border border-neutral-200 rounded-full px-6 py-3">
                       <div className="font-['Do_Hyeon']">{entry.title}</div>
-                      <button className="text-neutral-400 text-sm">
-                        수정하기
+                      <button 
+                        className="text-neutral-400 text-sm font-['Do_Hyeon']"
+                        onClick={() => {
+                          setSelectedDiary(entry);
+                          setIsDiaryPopupOpen(true);
+                        }}
+                      >
+                        전체보기
                       </button>
                     </div>
                   </div>
                 ))}
-                <div className="flex justify-center mt-[30px]">
-                  <button 
-                    className="w-1/2 bg-yellow-300 text-gray font-['Do_Hyeon'] py-2 rounded-[20px] hover:bg-yellow-500 transition-colors"
-                    onClick={() => setIsDiaryPopupOpen(true)}
-                  >
-                    일기 작성
-                  </button>
-                </div>
               </div>
             ) : (
               <div className="flex justify-center mt-[30px]">
                 <button 
-                  className="w-1/2 bg-yellow-300 text-gray font-['Do_Hyeon'] py-2 rounded-[20px] hover:bg-yellow-500 transition-colors"
+                  className="w-1/2 bg-yellow-200 text-gray font-['Do_Hyeon'] py-2 rounded-[20px] hover:bg-yellow-500 transition-colors"
                   onClick={() => setIsDiaryPopupOpen(true)}
                 >
                   일기 작성
                 </button>
               </div>
             )}
+            <div className="flex justify-center mt-4">
+              <button 
+                className="w-1/2 bg-[#C7E6B9] text-gray font-['Do_Hyeon'] py-2 rounded-[20px]"
+              >
+                사진 첨부
+              </button>
+            </div>
           </div>
         )}
 
@@ -143,9 +187,13 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose }) => {
       {/* 일기 작성 팝업 */}
       <DiaryPopup
         isOpen={isDiaryPopupOpen}
-        onClose={() => setIsDiaryPopupOpen(false)}
+        onClose={handleClose}
         date={date}
         onSave={handleSaveDiary}
+        mode={selectedDiary ? 'view' : 'create'}
+        initialData={selectedDiary || undefined}
+        onEdit={handleEditDiary}
+        onDelete={handleDeleteDiary}
       />
     </>
   );

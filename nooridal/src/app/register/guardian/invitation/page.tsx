@@ -29,7 +29,7 @@ export default function GuardianInvitation() {
         
         {/* 누리달 로고 */}
         <Image
-          className="w-32 h-14 left-[135px] top-[109px] absolute z-20"
+          className="w-32 h-14 left-[125px] top-[100px] absolute z-20"
           src="/images/logo/누리달.png"
           alt="누리달 로고"
           width={134}
@@ -47,7 +47,7 @@ export default function GuardianInvitation() {
                 value={invitationCode}
                 onChange={(e) => setInvitationCode(e.target.value)}
                 placeholder="임산부에게 받은 초대 코드를 입력해주세요"
-                className="w-full h-full px-4 text-center text-neutral-400 text-lg font-['Do_Hyeon'] focus:outline-none"
+                className="w-full h-full px-4 text-center text-neutral-400 text-l font-['Do_Hyeon'] focus:outline-none"
               />
             </div>
             
