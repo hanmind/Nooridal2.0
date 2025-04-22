@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import DatePopup from '@/app/calendar/DatePopup';
+import SchedulePopup from '@/app/calendar/SchedulePopup';
 
 const Calendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isMonthSelectorOpen, setIsMonthSelectorOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isSchedulePopupOpen, setIsSchedulePopupOpen] = useState(false);
+  const [initialTab, setInitialTab] = useState<'schedule' | 'diary' | 'today'>('schedule');
   
   const daysInMonth = new Date(
     currentDate.getFullYear(),
@@ -35,7 +39,8 @@ const Calendar: React.FC = () => {
   const startLeft = 20; // 시작 위치
   
   return (
-    <div className="w-96 h-[874px] relative bg-yellow-100 overflow-hidden">
+    <div className="w-96 h-[874px] relative bg-'#FFF4BB'  overflow-hidden">
+      {/* 배경 장식 요소 오른쪽 */}
       <div className="w-32 h-20 left-[-63px] top-[1px] absolute bg-white rounded-full blur-[2px]" />
       <div className="w-32 h-20 right-[-52px] top-[-10px] absolute bg-white rounded-full blur-[2px]" />
       <div className="w-28 h-16 right-[-100px] top-[24.58px] absolute bg-white rounded-full blur-[2px]" />
@@ -43,6 +48,7 @@ const Calendar: React.FC = () => {
       <div className="w-24 h-14 right-[-30px] top-[46px] absolute bg-white rounded-full blur-[2px]" />
       <div className="w-28 h-16 right-0 top-[21px] absolute bg-white rounded-full blur-[2px]" />
       <div className="absolute right-[18px] top-[42px]">
+        {/* 상단 알람 버튼 */}
         <div 
           className="material-symbols--notifications-outline-rounded bg-neutral-400 cursor-pointer hover:opacity-80 transition-opacity" 
           onClick={() => setIsNotificationOpen(!isNotificationOpen)}
@@ -61,7 +67,9 @@ const Calendar: React.FC = () => {
           } as React.CSSProperties}
         />
       </div>
+
       
+    
       {/* 알림 패널 오버레이 */}
       {isNotificationOpen && (
         <>
@@ -72,29 +80,21 @@ const Calendar: React.FC = () => {
           />
           
           {/* 알림 패널 */}
-          <div className="fixed right-0 top-0 w-[300px] h-full bg-white z-40 shadow-lg transform transition-transform duration-300 ease-in-out rounded-l-[20px]">
+          <div className="fixed right-0 top-0 w-[250px] h-full bg-white z-40 shadow-lg transform transition-transform duration-300 ease-in-out rounded-l-[20px]">
             {/* 헤더 */}
             <div className="flex items-center justify-between px-4 pt-8 pb-4 border-b border-gray-100 mt-[30px]">
               <div className="w-9 h-9 opacity-0">
                 {/* 빈 공간 유지를 위한 투명한 요소 */}
               </div>
               <div className="text-xl font-['Do_Hyeon'] flex-1 text-center">알림</div>
-              <div className="material-symbols--notifications-outline-rounded w-9 h-9" style={{
-                display: 'inline-block',
-                '--svg': 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath fill=\'%23000\' d=\'M5 19q-.425 0-.712-.288T4 18t.288-.712T5 17h1v-7q0-2.075 1.25-3.687T10.5 4.2v-.7q0-.625.438-1.062T12 2t1.063.438T13.5 3.5v.7q2 .5 3.25 2.113T18 10v7h1q.425 0 .713.288T20 18t-.288.713T19 19zm7 3q-.825 0-1.412-.587T10 20h4q0 .825-.587 1.413T12 22m-4-5h8v-7q0-1.65-1.175-2.825T12 6T9.175 7.175T8 10z\'/%3E%3C/svg%3E")',
-                backgroundColor: '#9CA3AF',
-                WebkitMaskImage: 'var(--svg)',
-                maskImage: 'var(--svg)',
-                WebkitMaskRepeat: 'no-repeat',
-                maskRepeat: 'no-repeat',
-                WebkitMaskSize: '100% 100%',
-                maskSize: '100% 100%'
-              } as React.CSSProperties} />
+              <div className="w-9 h-9 opacity-0">
+                {/* 빈 공간 유지를 위한 투명한 요소 */}
+              </div>
             </div>
             
             {/* Exit 아이콘 */}
             <div 
-              className="absolute bottom-6 right-6 w-10 h-10 cursor-pointer hover:opacity-80 transition-opacity"
+              className="absolute bottom-6 left-6 w-10 h-10 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => setIsNotificationOpen(false)}
             >
               <div style={{
@@ -136,6 +136,98 @@ const Calendar: React.FC = () => {
         </>
       )}
       
+      {/* 배경 장식 요소 왼쪽*/}
+      <div className="w-32 h-20 left-[-63px] top-[1px] absolute bg-white rounded-full blur-[2px]" />
+      <div className="w-32 h-20 left-[-52px] top-[-10px] absolute bg-white rounded-full blur-[2px]" />
+      <div className="w-28 h-16 left-[-100px] top-[24.58px] absolute bg-white rounded-full blur-[2px]" />
+      <div className="w-28 h-14 left-[-80px] top-[54.05px] absolute bg-white rounded-full blur-[2px]" />
+      <div className="w-24 h-14 left-[-30px] top-[46px] absolute bg-white rounded-full blur-[2px]" />
+      <div className="w-28 h-16 left-0 top-[21px] absolute bg-white rounded-full blur-[2px]" />
+      {/* 상단 메뉴 버튼 */}
+      <div 
+        className="cursor-pointer absolute left-[23px] top-[50px] z-10"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+      >
+        <div className="w-6 h-1 bg-zinc-500 mb-[6px]" />
+        <div className="w-6 h-1 bg-zinc-500 mb-[6px]" />
+        <div className="w-6 h-1 bg-zinc-500" />
+      </div>
+
+      {/* 메뉴 패널 오버레이 */}
+      {isMenuOpen && (
+        <>
+          {/* 반투명 배경 */}
+          <div 
+            className="fixed inset-0 bg-black/30 z-30"
+            onClick={() => setIsMenuOpen(false)}
+          />
+          
+          {/* 메뉴 패널 */}
+          <div className="fixed left-0 top-0 w-[250px] h-full bg-white z-40 shadow-lg transform transition-transform duration-300 ease-in-out rounded-r-[20px]">
+            {/* 헤더 */}
+            <div className="flex items-center justify-between px-4 pt-8 pb-4 border-b border-gray-100 mt-[30px]">
+              <div className="text-xl font-['Do_Hyeon'] flex-1 text-center">메뉴</div>
+            </div>
+            
+            {/* 메뉴 항목들 */}
+            <div className="p-4">
+              <div className="flex flex-col">
+                <div 
+                  className="py-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50"
+                  onClick={() => {
+                    setIsSchedulePopupOpen(true);
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <div className="text-base text-neutral-700 font-['Do_Hyeon']">일정</div>
+                </div>
+                <div 
+                  className="py-3 border-b border-gray-100"
+                  onClick={() => {
+                    setSelectedDate(new Date());
+                    setInitialTab('today');
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <div className="text-base text-neutral-700 font-['Do_Hyeon']">오늘의 하루</div>
+                </div>
+                <div 
+                  className="py-3 border-b border-gray-100"
+                  onClick={() => {
+                    setSelectedDate(new Date());
+                    setInitialTab('diary');
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <div className="text-base text-neutral-700 font-['Do_Hyeon']">아기와의 하루</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Exit 아이콘 */}
+            <div 
+              className="absolute bottom-6 right-6 w-10 h-10 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <div style={{
+                display: 'inline-block',
+                width: '100%',
+                height: '100%',
+                '--svg': 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath fill=\'%239CA3AF\' d=\'M5 21q-.825 0-1.413-.587Q3 19.825 3 19V5q0-.825.587-1.413Q4.175 3 5 3h7v2H5v14h7v2Zm11-4-1.375-1.45 2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5Z\'/%3E%3C/svg%3E")',
+                backgroundColor: 'currentColor',
+                WebkitMaskImage: 'var(--svg)',
+                maskImage: 'var(--svg)',
+                WebkitMaskRepeat: 'no-repeat',
+                maskRepeat: 'no-repeat',
+                WebkitMaskSize: '100% 100%',
+                maskSize: '100% 100%',
+                color: '#9CA3AF'
+              } as React.CSSProperties} />
+            </div>
+          </div>
+        </>
+      )}
+
       {/* 요일 헤더 */}
       {dayNames.map((day, index) => {
         const leftPosition = startLeft + (index * dayWidth);
@@ -236,18 +328,25 @@ const Calendar: React.FC = () => {
         );
       })}
       
-      {/* 상단 메뉴 버튼 */}
-      <div className="w-6 h-1 left-[23px] top-[50px] absolute bg-zinc-500" />
-      <div className="w-6 h-1 left-[23px] top-[57.31px] absolute bg-zinc-500" />
-      <div className="w-6 h-1 left-[23px] top-[64.62px] absolute bg-zinc-500" />
+    
       
-     
+  
 
       {/* DatePopup */}
-      <DatePopup
-        date={selectedDate || new Date()}
-        isOpen={selectedDate !== null}
-        onClose={() => setSelectedDate(null)}
+      {selectedDate && (
+        <DatePopup
+          date={selectedDate}
+          isOpen={true}
+          onClose={() => setSelectedDate(null)}
+          initialTab={initialTab}
+        />
+      )}
+
+      {/* SchedulePopup */}
+      <SchedulePopup
+        isOpen={isSchedulePopupOpen}
+        onClose={() => setIsSchedulePopupOpen(false)}
+        selectedDate={new Date()}
       />
     </div>
   );
