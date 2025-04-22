@@ -1,3 +1,4 @@
+// 위치 페이지
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -6,6 +7,7 @@ import { useState, useEffect } from "react";
 export default function LocationPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('location');
+  const [showBackground, setShowBackground] = useState(false);
 
   useEffect(() => {
     setActiveTab('location');
@@ -24,18 +26,23 @@ export default function LocationPage() {
     }
   };
 
+  const handleMapClick = () => {
+    router.push('/map');
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center relative overflow-hidden">
-      {/* Background Stars */}
-      <div className="absolute inset-0">
-        <div className="absolute top-[5%] left-[10%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
-        <div className="absolute top-[15%] right-[15%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
-        <div className="absolute top-[25%] left-[20%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
-        <div className="absolute bottom-[35%] right-[25%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
-        <div className="absolute bottom-[25%] left-[15%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
-      </div>
+      {showBackground && (
+        <div className="absolute inset-0">
+          <div className="absolute top-[5%] left-[10%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
+          <div className="absolute top-[15%] right-[15%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
+          <div className="absolute top-[25%] left-[20%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
+          <div className="absolute bottom-[35%] right-[25%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
+          <div className="absolute bottom-[25%] left-[15%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
+        </div>
+      )}
 
-      <div className="w-96 h-[900px] relative">
+      <div className="w-96 h-[900px] relative" onClick={handleMapClick} style={{ cursor: 'pointer' }}>
         {/* Header */}
         <div className="absolute left-1/2 top-[65px] -translate-x-1/2 text-center text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
           위치
@@ -64,12 +71,12 @@ export default function LocationPage() {
         {/* Menu Grid */}
         <div className="grid grid-cols-2 gap-4 w-[360px] mx-auto mt-6">
           {[
-            { icon: '🏥', title: '산부인과' },
-            { icon: '🏪', title: '편의시설' },
-            { icon: '🚎', title: '교통약자\n이동 지원 센터' },
-            { icon: '📍', title: '지도' }
+            { icon: '🏥', title: '산부인과', link: '/obstetrics' },
+            { icon: '🏪', title: '편의시설', link: '/facilities' },
+            { icon: '🚎', title: '교통약자\n이동 지원 센터', link: '/transport' },
+            { icon: '📍', title: '지도', link: '/map' }
           ].map((item, index) => (
-            <div key={index} className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+            <div key={index} className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => router.push(item.link)}>
               <div className="text-3xl mb-2">{item.icon}</div>
               <div className="text-center font-['Do_Hyeon'] whitespace-pre-line">{item.title}</div>
             </div>

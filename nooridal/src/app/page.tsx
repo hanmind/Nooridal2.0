@@ -1,12 +1,33 @@
 import Image from "next/image";
 import Link from "next/link";
+import React, { useState } from 'react';
 
 export default function Home() {
+  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  const handleMapSquareClick = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error('Error fetching location:', error);
+        }
+      );
+    } else {
+      console.error('Geolocation is not supported by this browser.');
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-white flex justify-center items-center">
       <main className="w-96 h-[874px] relative bg-white overflow-hidden">
         {/* 배경 이미지 */}
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full" onClick={handleMapSquareClick} style={{ cursor: 'pointer' }}>
           <Image
             src="/images/logo/Group 226.png"
             alt="누리달 배경"
@@ -14,6 +35,17 @@ export default function Home() {
             priority
             className="object-cover"
           />
+          {currentLocation ? (
+            <div className="absolute inset-0 flex flex-col justify-center items-center">
+              <h2 className="text-2xl font-bold mb-4">Your Current Location:</h2>
+              <p className="text-base">Latitude: {currentLocation.lat}</p>
+              <p className="text-base">Longitude: {currentLocation.lng}</p>
+            </div>
+          ) : (
+            <div className="absolute inset-0 flex flex-col justify-center items-center">
+              <p className="text-base">Click the map square to find your current location.</p>
+            </div>
+          )}
         </div>
 
         {/* 시작하기 버튼 */}
