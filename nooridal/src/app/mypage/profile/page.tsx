@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useProfile } from "@/app/context/ProfileContext";
+import { useAddress } from "@/app/context/AddressContext";
 
 declare global {
   interface Window {
@@ -28,7 +29,7 @@ export default function ProfileManagement() {
   const [idDuplicate, setIdDuplicate] = useState<boolean | null>(null);
   const [phoneDuplicate, setPhoneDuplicate] = useState<boolean | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
-  const [address, setAddress] = useState("경기도 땡땡시 땡땡구");
+  const { address, setAddress } = useAddress();
   const inviteCode = "fkdi38fshl12";
   const [showProfileOptions, setShowProfileOptions] = useState(false);
   const [showEditOptions, setShowEditOptions] = useState(false);

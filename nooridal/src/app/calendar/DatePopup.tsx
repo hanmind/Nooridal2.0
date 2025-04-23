@@ -122,7 +122,7 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
           </div>
         ) : activeTab === 'today' ? (
           <div className="flex justify-center mt-[30px]">
-            <div className="w-full h-[160px] bg-white border-2 border-neutral-200 rounded-[15px]">
+            <div className="w-full h-[240px] bg-white border-2 border-neutral-200 rounded-[15px]">
             </div>
           </div>
         ) : (
