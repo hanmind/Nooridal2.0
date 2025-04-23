@@ -2,8 +2,13 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../../utils/supabase";
+
+// 랜덤 인증코드 생성 함수 (6자리 숫자)
+const generateVerificationCode = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
 
 export default function GuardianSignup() {
   const router = useRouter();
@@ -11,6 +16,7 @@ export default function GuardianSignup() {
   const [userIdStatus, setUserIdStatus] = useState<"default" | "valid" | "invalid">("default");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [emailStatus, setEmailStatus] = useState<"default" | "valid" | "invalid">("default");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneNumberStatus, setPhoneNumberStatus] = useState<"default" | "valid" | "invalid">("default");
   const [password, setPassword] = useState("");
@@ -18,9 +24,13 @@ export default function GuardianSignup() {
   const [address, setAddress] = useState("");
   const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
+  const [actualVerificationCode, setActualVerificationCode] = useState(""); // 실제 생성된 인증코드 저장용
   const [invitationCode, setInvitationCode] = useState("");
   const [pregnantUserId, setPregnantUserId] = useState("");
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+
+  // 디바운스 타이머 참조
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 세션 스토리지에서 초대코드 정보 로드
   useEffect(() => {
@@ -39,28 +49,107 @@ export default function GuardianSignup() {
     }
   }, [router]);
 
-  // 실제로는 서버에 중복 확인 요청을 보내야 합니다.
-  const checkDuplication = async (type: "id" | "phone", value: string) => {
-    // 임시로 테스트용 중복 체크 로직 구현
-    if (type === "id") {
-      const isDuplicate = value === "test";
-      setUserIdStatus(isDuplicate ? "invalid" : "valid");
-    } else {
-      const isDuplicate = value === "01012345678";
-      setPhoneNumberStatus(isDuplicate ? "invalid" : "valid");
+  // 디바운스된 입력 처리 함수
+  const handleInputChange = (
+    type: "id" | "phone",
+    value: string,
+    setter: React.Dispatch<React.SetStateAction<string>>,
+    statusSetter: React.Dispatch<React.SetStateAction<"default" | "valid" | "invalid">>
+  ) => {
+    setter(value);
+    statusSetter("default");
+  };
+
+  // 전화번호 포맷팅 함수
+  const formatPhoneNumber = (value: string) => {
+    // 숫자만 추출
+    const numbers = value.replace(/[^\d]/g, '');
+
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+  };
+
+  // 전화번호 입력 핸들러
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedNumber = formatPhoneNumber(e.target.value);
+    setPhoneNumber(formattedNumber);
+    setPhoneNumberStatus("default");
+  };
+
+  // 이메일 중복 확인 함수
+  const checkEmailDuplicate = async (emailValue: string) => {
+    if (!emailValue.trim()) {
+      alert("이메일을 입력해주세요.");
+      return false;
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailValue)) {
+      alert("유효한 이메일 형식이 아닙니다.");
+      return false;
+    }
+
+    try {
+      // Supabase에서 중복 이메일 확인
+      const { data, error } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', emailValue);
+        
+      if (error) {
+        throw error;
+      }
+      
+      const isDuplicate = data && data.length > 0;
+      setEmailStatus(isDuplicate ? "invalid" : "valid");
+      
+      if (isDuplicate) {
+        alert("이미 등록된 이메일입니다.");
+      }
+      
+      return !isDuplicate; // 중복이 아닌 경우 true 반환
+    } catch (error) {
+      console.error('이메일 중복 확인 중 오류 발생:', error);
+      alert('이메일 중복 확인 중 오류가 발생했습니다.');
+      setEmailStatus("default");
+      return false;
     }
   };
 
-  const handleEmailVerification = () => {
+  // 이메일 인증 요청 처리
+  const handleEmailVerification = async () => {
+    // 이메일 중복 확인 수행
+    const isEmailAvailable = await checkEmailDuplicate(email);
+    
+    if (!isEmailAvailable) {
+      return; // 중복된 이메일이면 여기서 중단
+    }
+    
+    // 인증 코드 생성
+    const newVerificationCode = generateVerificationCode();
+    setActualVerificationCode(newVerificationCode);
+    
+    // 실제 이메일 발송 로직은 서버에서 처리해야 하지만, 
+    // 개발 중이므로 콘솔에 인증 코드를 출력하고 알림으로 표시
+    console.log(`인증 코드: ${newVerificationCode}`);
+    alert(`인증 코드가 발송되었습니다. (개발 테스트용: ${newVerificationCode})`);
+    
+    // 인증 코드 입력 모달 표시
     setShowEmailVerificationModal(true);
   };
 
+  // 인증 코드 확인
   const handleVerificationSubmit = () => {
-    // 실제로는 서버에 인증 코드를 확인하는 요청을 보내야 합니다.
-    // 임시로 인증 성공 처리
-    setIsEmailVerified(true);
-    setShowEmailVerificationModal(false);
-    setVerificationCode("");
+    if (verificationCode === actualVerificationCode) {
+      alert("이메일 인증이 완료되었습니다.");
+      setIsEmailVerified(true);
+      setShowEmailVerificationModal(false);
+      setVerificationCode("");
+    } else {
+      alert("인증 코드가 일치하지 않습니다. 다시 확인해주세요.");
+    }
   };
 
   const getBorderColor = (status: "default" | "valid" | "invalid") => {
@@ -74,14 +163,96 @@ export default function GuardianSignup() {
     }
   };
 
+  // 실제로는 서버에 중복 확인 요청을 보내야 합니다.
+  const checkDuplication = async (type: "id" | "phone", value: string) => {
+    // 디바운스 타이머가 이미 있으면 제거
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    if (!value.trim()) {
+      alert(type === "id" ? "아이디를 입력해주세요." : "전화번호를 입력해주세요.");
+      return;
+    }
+
+    // 최소 길이 검증 (아이디는 최소 3자, 전화번호는 최소 10자)
+    if ((type === "id" && value.length < 3) || (type === "phone" && value.length < 10)) {
+      alert(type === "id" ? "아이디는 최소 3자 이상이어야 합니다." : "전화번호는 최소 10자 이상이어야 합니다.");
+      return;
+    }
+
+    try {
+      if (type === "id") {
+        // Supabase에서 중복 아이디 확인 - 올바른 방식으로 쿼리 구성
+        const { data, error } = await supabase
+          .from('users')
+          .select('userId')
+          .eq('userId', value);
+          
+        if (error) {
+          throw error;
+        }
+        
+        const isDuplicate = data && data.length > 0;
+        setUserIdStatus(isDuplicate ? "invalid" : "valid");
+        alert(isDuplicate ? "이미 사용 중인 아이디입니다." : "사용 가능한 아이디입니다.");
+      } else {
+        // 전화번호에서 하이픈 제거하고 확인
+        const cleanPhoneNumber = value.replace(/-/g, '');
+        
+        // Supabase에서 중복 전화번호 확인 - 올바른 방식으로 쿼리 구성
+        const { data, error } = await supabase
+          .from('users')
+          .select('phone_number')
+          .eq('phone_number', cleanPhoneNumber);
+          
+        if (error) {
+          throw error;
+        }
+        
+        const isDuplicate = data && data.length > 0;
+        setPhoneNumberStatus(isDuplicate ? "invalid" : "valid");
+        alert(isDuplicate ? "이미 등록된 전화번호입니다." : "사용 가능한 전화번호입니다.");
+      }
+    } catch (error) {
+      console.error('중복 확인 중 오류 발생:', error);
+      alert('중복 확인 중 오류가 발생했습니다.');
+      if (type === "id") {
+        setUserIdStatus("default");
+      } else {
+        setPhoneNumberStatus("default");
+      }
+    }
+  };
+
   const handleSignup = async () => {
     try {
+      // 중복 확인 여부 검증
+      if (userIdStatus !== "valid") {
+        alert('아이디 중복 확인을 해주세요.');
+        return;
+      }
+      
+      if (phoneNumberStatus !== "valid") {
+        alert('전화번호 중복 확인을 해주세요.');
+        return;
+      }
+      
+      // 이메일 인증 여부 확인
+      if (!isEmailVerified) {
+        alert('이메일 인증을 완료해주세요.');
+        return;
+      }
+
       // 비밀번호 확인 검증
       if (password !== confirmPassword) {
         alert('비밀번호가 일치하지 않습니다.');
         return;
       }
 
+      // 전화번호에서 하이픈 제거
+      const cleanPhoneNumber = phoneNumber.replace(/-/g, '');
+      
       // 1. 사용자 비밀번호 해싱은 Supabase에서 자동으로 처리
       const { data: userData, error: userError } = await supabase.auth.signUp({
         email, 
@@ -89,6 +260,7 @@ export default function GuardianSignup() {
       });
 
       if (userError) throw userError;
+      if (!userData?.user) throw new Error('사용자 계정 생성에 실패했습니다.');
 
       // 2. users 테이블에 추가 정보 저장
       const { error: profileError } = await supabase
@@ -98,7 +270,7 @@ export default function GuardianSignup() {
           email,
           name,
           userId,
-          phone_number: phoneNumber,
+          phone_number: cleanPhoneNumber, // 하이픈 제거된 번호 저장
           address,
           user_type: "guardian", // 보호자로 설정
           invitation_code: null // 보호자는 초대코드가 필요 없음
@@ -171,10 +343,7 @@ export default function GuardianSignup() {
           <input
             type="text"
             value={userId}
-            onChange={(e) => {
-              setUserId(e.target.value);
-              setUserIdStatus("default");
-            }}
+            onChange={(e) => handleInputChange("id", e.target.value, setUserId, setUserIdStatus)}
             placeholder="아이디를 입력하세요"
             className={`w-full h-full px-4 text-neutral-400 text-xs font-['Do_Hyeon'] rounded-[10px] border ${getBorderColor(userIdStatus)} focus:outline-none`}
           />
@@ -204,9 +373,13 @@ export default function GuardianSignup() {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailStatus("default");
+              setIsEmailVerified(false); // 이메일 변경 시 인증 상태 초기화
+            }}
             placeholder="이메일을 입력하세요"
-            className="w-full h-full px-4 text-neutral-400 text-xs font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
+            className={`w-full h-full px-4 text-neutral-400 text-xs font-['Do_Hyeon'] rounded-[10px] border ${getBorderColor(emailStatus)} focus:outline-none`}
           />
         </div>
         <button 
@@ -215,6 +388,11 @@ export default function GuardianSignup() {
         >
           인증요청
         </button>
+        {isEmailVerified && (
+          <div className="left-[160px] top-[344px] absolute">
+            <span className="text-green-500 text-xs font-['Do_Hyeon']">✓ 인증완료</span>
+          </div>
+        )}
 
         {/* 전화번호 입력 필드 */}
         <div className="w-20 h-9 left-[38px] top-[374px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">전화번호</div>
@@ -222,11 +400,8 @@ export default function GuardianSignup() {
           <input
             type="tel"
             value={phoneNumber}
-            onChange={(e) => {
-              setPhoneNumber(e.target.value);
-              setPhoneNumberStatus("default");
-            }}
-            placeholder="'-'없이 숫자만 입력하셔도 됩니다"
+            onChange={handlePhoneNumberChange}
+            placeholder="숫자만 입력하세요"
             className={`w-full h-full px-4 text-neutral-400 text-xs font-['Do_Hyeon'] rounded-[10px] border ${getBorderColor(phoneNumberStatus)} focus:outline-none`}
           />
         </div>
@@ -318,7 +493,7 @@ export default function GuardianSignup() {
 
         {/* 회원가입 버튼 */}
         <button 
-          onClick={() => router.push('/register/pregnant/pregnancy-info')}
+          onClick={handleSignup}
           className="w-70 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px] z-10 hover:bg-yellow-300 transition-colors"
         >
           <div className="w-50 h-7 left-[45px] top-[-5px] absolute text-black text-base font-['Do_Hyeon'] leading-[50px]">
