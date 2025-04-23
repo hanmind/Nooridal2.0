@@ -80,10 +80,10 @@ export default function MyPage() {
         </button>
 
         {/* 프로필 카드 */}
-        <div className="w-[360px] h-[280px] left-[10px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+        <div className="w-[360px] h-[280px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           {/* 프로필 이미지 */}
           <div 
-            className={`w-14 h-14 left-[20px] top-[20px] absolute rounded-full overflow-hidden ${profileImage ? 'cursor-pointer' : ''}`}
+            className={`w-16 h-16 left-[20px] top-[20px] absolute rounded-full overflow-hidden ${profileImage ? 'cursor-pointer' : ''}`}
             onClick={handleProfileImageClick}
           >
             {profileImage ? (
@@ -102,17 +102,17 @@ export default function MyPage() {
           </div>
           
           {/* 사용자 이름 */}
-          <div className="left-[100px] top-[20px] absolute text-neutral-700 text-lg font-normal font-['Do_Hyeon']">
+          <div className="left-[105px] top-[20px] absolute text-neutral-700 text-lg font-normal font-['Do_Hyeon']">
             홍길동
           </div>
           
           {/* 사용자 ID */}
-          <div className="left-[100px] top-[45px] absolute text-stone-500 text-sm font-normal font-['Do_Hyeon']">
+          <div className="left-[105px] top-[45px] absolute text-stone-500 text-sm font-normal font-['Do_Hyeon']">
             nooridal
           </div>
           
           {/* 고위험 임신 표시 */}
-          <div className="flex items-center left-[100px] top-[70px] absolute">
+          <div className="flex items-center left-[105px] top-[70px] absolute">
             <svg className="w-3 h-3 text-red-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
@@ -120,10 +120,10 @@ export default function MyPage() {
           </div>
           
           {/* 임신 정보 등록 버튼 */}
-          <div className="w-[260px] h-[36px] left-[20px] top-[100px] absolute">
-            <div className="w-full h-full bg-yellow-200 rounded-2xl flex items-center justify-center">
-              <span className="text-black text-sm font-normal font-['Do_Hyeon']">
-                ❤️ 사랑스러운 아기와 만나기까지 ❤️
+          <div className="w-[320px] h-[36px] left-[20px] top-[100px] absolute ">
+            <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center">
+              <span className="text-black text-sm font-normal font-['Do_Hyeon'] ">
+                🍼 사랑스러운 아기와 만나기까지 🐥
               </span>
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function MyPage() {
               </div>
               <button 
                 onClick={handleRegisterPregnancyInfo}
-                className="bg-[#FFD600] text-white py-2 px-6 rounded-full text-base font-normal font-['Do_Hyeon'] shadow-md hover:bg-[#E6C200] transition-colors"
+                className="bg-yellow-300 text-gray py-2 px-6 rounded-full text-base font-normal font-['Do_Hyeon'] shadow-md hover:bg-[#E6C200] transition-colors"
               >
                 임신 정보 등록하기
               </button>
@@ -160,7 +160,7 @@ export default function MyPage() {
         </div>
 
         {/* 메뉴 카드 */}
-        <div className="w-[360px] h-62 left-[10px] top-[430px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+        <div className="w-[360px] h-62 left-[12px] top-[430px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           {/* 내 정보 관리 */}
           <div 
             onClick={handleProfileManagement}

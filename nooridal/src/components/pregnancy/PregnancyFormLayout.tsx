@@ -70,7 +70,7 @@ export default function PregnancyFormLayout({
               <div key={step} className="flex flex-col items-center">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
-                    step < currentStep ? "bg-[#FFE999]" : step === currentStep ? "bg-green-500" : "bg-gray-200"
+                    step < currentStep ? "bg-yellow-300" : step === currentStep ? "bg-green-500" : "bg-gray-200"
                   }`}
                 >
                   <span
@@ -83,7 +83,7 @@ export default function PregnancyFormLayout({
                 </div>
                 <span
                   className={`text-xs font-['Do_Hyeon'] ${
-                    step < currentStep ? "text-[#FFE999]" : step === currentStep ? "text-green-500" : "text-gray-400"
+                    step < currentStep ? "text-yellow-300" : step === currentStep ? "text-green-500" : "text-gray-400"
                   }`}
                 >
                   {label}
@@ -110,13 +110,13 @@ export default function PregnancyFormLayout({
               }`}
               disabled={isNextDisabled}
             >
-              <span className="text-black text-xs font-['Do_Hyeon']">완료</span>
+              <span className="text-black text-xs font-['Do_Hyeon']">{currentStep === 4 ? "완료" : "다음"}</span>
             </button>
           </div>
         </div>
 
         {/* 배경 이미지 */}
-        <div className="absolute bottom-0 left-0 right-0 h-[400px] w-full">
+        <div className="absolute bottom-[-70px] left-0 right-0 h-[400px] w-full">
           <Image
             src="/images/logo/임신정보등록 배경.png"
             alt="배경"

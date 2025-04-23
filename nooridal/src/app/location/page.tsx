@@ -4,6 +4,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAddress } from "../context/AddressContext";
+import TabBar from '../components/TabBar';
 
 // 타입 정의 제거
 
@@ -85,7 +86,7 @@ export default function LocationPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center relative overflow-hidden">
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center relative overflow-hidden">
       {showBackground && (
         <div className="absolute inset-0">
           <div className="absolute top-[5%] left-[10%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
@@ -96,20 +97,22 @@ export default function LocationPage() {
         </div>
       )}
 
-      <div className="w-96 h-[900px] relative">
+      <div className="w-full max-w-[390px] min-h-screen flex flex-col items-center relative">
         {/* Header */}
-        <div className="absolute left-1/2 top-[65px] -translate-x-1/2 text-center text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
-          위치
+        <div className="w-full relative">
+          <div className="text-center text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px] mt-[65px]">
+            위치
+          </div>
+          <button 
+            onClick={() => router.back()}
+            className="absolute left-[24px] top-[63px] text-center text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
+          >
+            &lt;
+          </button>
         </div>
-        <button 
-          onClick={() => router.back()}
-          className="absolute left-[24px] top-[63px] text-center text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
-        >
-          &lt;
-        </button>
 
         {/* Current Location Section */}
-        <div className="mx-6 mt-[130px] p-4 bg-white rounded-xl shadow-sm">
+        <div className="w-[calc(100%-48px)] mt-[65px] p-4 bg-white rounded-xl shadow-sm">
           {/* 위치 아이콘은 왼쪽에 유지하고 텍스트는 가운데 정렬 */}
           <div className="flex items-start">
             {/* 위치 아이콘 */}
@@ -141,50 +144,23 @@ export default function LocationPage() {
         </div>
 
         {/* Menu Grid */}
-        <div className="grid grid-cols-2 gap-4 mx-6 mt-6">
+        <div className="grid grid-cols-2 gap-4 w-[calc(100%-48px)] mt-6">
           {[
             { icon: '🏥', title: '산부인과', link: '/location/obstetrics' },
             { icon: '🏪', title: '편의시설', link: '/location/facilities' },
             { icon: '🚙', title: '교통약자\n이동 지원 센터', link: '/location/transport' },
             { icon: '📍', title: '지도', link: '/location/map' }
           ].map((item, index) => (
-            <div key={index} className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => router.push(item.link)}>
+            <div key={index} className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors h-[140px]" onClick={() => router.push(item.link)}>
               <div className="text-3xl mb-2">{item.icon}</div>
               <div className="text-center font-['Do_Hyeon'] whitespace-pre-line">{item.title}</div>
             </div>
           ))}
         </div>
 
-        {/* Footer Navigation */}
-        <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg rounded-t-xl">
-          <div className="flex justify-around items-center h-20 max-w-lg mx-auto px-4">
-            {[
-              { id: 'chat', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z', label: '채팅' },
-              { id: 'calendar', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', label: '캘린더' },
-              { id: 'location', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z', label: '위치' },
-              { id: 'mypage', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', label: '마이페이지' }
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleTabClick(item.id)}
-                className="flex flex-col items-center"
-              >
-                <div className={`p-2 rounded-full ${activeTab === item.id ? 'bg-yellow-400' : ''}`}>
-                  <svg
-                    className={`w-6 h-6 ${activeTab === item.id ? 'stroke-white' : 'stroke-gray-400'}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                  </svg>
-                </div>
-                <span className={`text-xs mt-1 font-['Do_Hyeon'] ${activeTab === item.id ? 'text-yellow-400' : 'text-gray-400'}`}>
-                  {item.label}
-                </span>
-              </button>
-            ))}
-          </div>
+        {/* TabBar Component */}
+        <div className="w-full mt-auto">
+          <TabBar activeTab={activeTab} tabs={['chat', 'calendar', 'location', 'mypage']} onTabClick={handleTabClick} />
         </div>
       </div>
     </div>
