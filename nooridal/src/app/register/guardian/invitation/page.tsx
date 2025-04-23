@@ -3,16 +3,48 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
+import { supabase } from "../../../../utils/supabase";
 
 export default function GuardianInvitation() {
   const router = useRouter();
   const [invitationCode, setInvitationCode] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleVerification = () => {
-    // Here you would typically verify the invitation code with your backend
-    // For now, we'll just navigate to the registration form
-    console.log("Navigating to guardian registration form...");
-    router.push('/register/guardian');
+  const handleVerification = async () => {
+    if (!invitationCode.trim()) {
+      setError("초대 코드를 입력해주세요");
+      return;
+    }
+
+    setIsVerifying(true);
+    setError("");
+
+    try {
+      // 초대 코드로 사용자 찾기
+      const { data, error: fetchError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('invitation_code', invitationCode)
+        .eq('user_type', 'pregnant')
+        .single();
+
+      if (fetchError || !data) {
+        setError("유효하지 않은 초대 코드입니다");
+        setIsVerifying(false);
+        return;
+      }
+
+      // 초대 코드가 유효하면 세션에 저장하고 보호자 회원가입 페이지로 이동
+      sessionStorage.setItem('invitation_code', invitationCode);
+      sessionStorage.setItem('pregnant_user_id', data.id);
+      router.push('/register/guardian');
+    } catch (error) {
+      console.error("초대 코드 확인 중 오류 발생:", error);
+      setError("초대 코드 확인 중 오류가 발생했습니다");
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   return (
@@ -51,6 +83,13 @@ export default function GuardianInvitation() {
               />
             </div>
             
+            {/* Error message */}
+            {error && (
+              <div className="text-red-500 text-sm font-['Do_Hyeon'] mb-2 text-center">
+                {error}
+              </div>
+            )}
+            
             {/* Helper text */}
             <div className="text-neutral-400 text-base font-['Do_Hyeon'] mb-6 text-center">
               내 정보 관리에서 코드를 확인해 주세요 ♥︎
@@ -59,9 +98,12 @@ export default function GuardianInvitation() {
             {/* Verify button */}
             <button 
               onClick={handleVerification}
-              className="w-72 h-12 mb-6 bg-yellow-200 rounded-[20px] flex items-center justify-center hover:bg-yellow-300 transition-colors"
+              disabled={isVerifying}
+              className={`w-72 h-12 mb-6 ${isVerifying ? 'bg-gray-300' : 'bg-yellow-200 hover:bg-yellow-300'} rounded-[20px] flex items-center justify-center transition-colors`}
             >
-              <span className="text-black text-lg font-['Do_Hyeon']">인증 확인</span>
+              <span className="text-black text-lg font-['Do_Hyeon']">
+                {isVerifying ? '확인 중...' : '인증 확인'}
+              </span>
             </button>
             
             {/* Back to login link */}

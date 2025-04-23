@@ -3,6 +3,17 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { supabase } from "../../../utils/supabase";
+
+// 8자리 랜덤 초대코드 생성 함수
+const generateInvitationCode = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+};
 
 export default function PregnantSignup() {
   const router = useRouter();
@@ -47,6 +58,50 @@ export default function PregnantSignup() {
         return "border-red-500";
       default:
         return "border-zinc-300";
+    }
+  };
+
+  const handleSignup = async () => {
+    try {
+      // 비밀번호 확인 검증
+      if (password !== confirmPassword) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
+      }
+      
+      // 초대코드 생성
+      const invitationCode = generateInvitationCode();
+
+      // 1. 사용자 비밀번호 해싱은 Supabase에서 자동으로 처리
+      const { data: userData, error: userError } = await supabase.auth.signUp({
+        email, 
+        password,
+      });
+
+      if (userError) throw userError;
+
+      // 2. users 테이블에 추가 정보 저장
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert({
+          id: userData.user.id,
+          email,
+          name,
+          userId,
+          phone_number: phoneNumber,
+          address,
+          user_type: "pregnant", // 임산부로 설정
+          invitation_code: invitationCode // 초대코드 저장
+        });
+
+      if (profileError) throw profileError;
+
+      // 3. 성공 시 다음 페이지로 이동
+      router.push('/register/pregnant/pregnancy-info'); 
+      
+    } catch (error) {
+      console.error('회원가입 에러:', error);
+      alert('회원가입 중 오류가 발생했습니다.');
     }
   };
 
@@ -215,8 +270,9 @@ export default function PregnantSignup() {
 
         {/* 회원가입 버튼 */}
         <button 
-          onClick={() => router.push('/register/pregnant/pregnancy-info')}
-          className="w-70 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px] z-10 hover:bg-yellow-300 transition-colors"
+          // onClick={() => router.push('/register/pregnant/pregnancy-info')}
+          onClick={handleSignup}
+          className="w-72 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px] z-10 hover:bg-yellow-300 transition-colors"
         >
           <div className="w-50 h-7 left-[45px] top-[-5px] absolute text-black text-base font-['Do_Hyeon'] leading-[50px]">
             회원가입
