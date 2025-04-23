@@ -299,7 +299,6 @@ export type Database = {
           id: string
           invitation_code: string | null
           name: string
-          password: number | null
           phone_number: string | null
           profile_image_url: string | null
           updated_at: string | null
@@ -313,7 +312,6 @@ export type Database = {
           id: string
           invitation_code?: string | null
           name: string
-          password?: number | null
           phone_number?: string | null
           profile_image_url?: string | null
           updated_at?: string | null
@@ -327,7 +325,6 @@ export type Database = {
           id?: string
           invitation_code?: string | null
           name?: string
-          password?: number | null
           phone_number?: string | null
           profile_image_url?: string | null
           updated_at?: string | null
