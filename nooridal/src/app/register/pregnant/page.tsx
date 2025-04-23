@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../../utils/supabase";
+import Script from "next/script";
 
 // 랜덤 인증코드 생성 함수 (6자리 숫자)
 const generateVerificationCode = () => {
@@ -198,6 +199,30 @@ export default function PregnantSignup() {
     }
   };
 
+  // Daum Postcode API 사용을 위한 함수
+  const handlePostcodeSearch = () => {
+    if ((window as any).daum && (window as any).daum.Postcode) {
+      new (window as any).daum.Postcode({
+        oncomplete: function(data: any) {
+          // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분
+          let addr = ''; // 주소 변수
+          
+          // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+          if (data.userSelectedType === 'R') { // 도로명 주소
+            addr = data.roadAddress;
+          } else { // 지번 주소
+            addr = data.jibunAddress;
+          }
+          
+          // 주소 정보를 해당 필드에 넣는다.
+          setAddress(addr);
+        }
+      }).open();
+    } else {
+      alert('주소 검색 서비스를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+  };
+
   const handleSignup = async () => {
     try {
       // 중복 확인 여부 검증
@@ -247,7 +272,7 @@ export default function PregnantSignup() {
           name,
           userId,
           phone_number: cleanPhoneNumber, // 하이픈 제거된 번호 저장
-          address,
+          address, // Use just the main address
           user_type: "pregnant", // 임산부로 설정
           invitation_code: invitationCode // 초대코드 저장
         });
@@ -265,6 +290,9 @@ export default function PregnantSignup() {
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
+      {/* Load Daum Postcode API script */}
+      <Script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" strategy="beforeInteractive" />
+      
       <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
         <div className="w-80 h-[745px] left-[28px] top-[67px] absolute bg-white rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />
         
@@ -288,7 +316,8 @@ export default function PregnantSignup() {
         </div>
         <button 
           onClick={() => checkDuplication("id", userId)}
-          className="w-16 h-6 left-[264px] top-[206px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+          className={`w-16 h-6 left-[264px] top-[206px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] ${userIdStatus === "valid" ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-300 transition-colors"}`}
+          disabled={userIdStatus === "valid"}
         >
           중복확인
         </button>
@@ -322,15 +351,11 @@ export default function PregnantSignup() {
         </div>
         <button 
           onClick={handleVerificationRequest}
-          className="w-16 h-6 left-[264px] top-[344px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+          className={`w-16 h-6 left-[264px] top-[344px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] ${isEmailVerified ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-300 transition-colors"}`}
+          disabled={isEmailVerified}
         >
-          인증요청
+          {isEmailVerified ? "인증완료" : "인증요청"}
         </button>
-        {isEmailVerified && (
-          <div className="left-[160px] top-[344px] absolute">
-            <span className="text-green-500 text-xs font-['Do_Hyeon']">✓ 인증완료</span>
-          </div>
-        )}
 
         {/* 전화번호 입력 필드 */}
         <div className="w-20 h-9 left-[38px] top-[374px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">전화번호</div>
@@ -345,7 +370,8 @@ export default function PregnantSignup() {
         </div>
         <button 
           onClick={() => checkDuplication("phone", phoneNumber)}
-          className="w-16 h-6 left-[264px] top-[419px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+          className={`w-16 h-6 left-[264px] top-[419px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] ${phoneNumberStatus === "valid" ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-300 transition-colors"}`}
+          disabled={phoneNumberStatus === "valid"}
         >
           중복확인
         </button>
@@ -386,10 +412,13 @@ export default function PregnantSignup() {
             readOnly
           />
         </div>
-        <button className="w-16 h-6 left-[264px] top-[647px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors">
+        <button 
+          onClick={handlePostcodeSearch}
+          className="w-16 h-6 left-[264px] top-[647px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+        >
           검색
         </button>
-
+        
         {/* 이메일 인증 모달 */}
         {showEmailVerificationModal && (
           <>
@@ -431,7 +460,6 @@ export default function PregnantSignup() {
 
         {/* 회원가입 버튼 */}
         <button 
-          // onClick={() => router.push('/register/pregnant/pregnancy-info')}
           onClick={handleSignup}
           className="w-72 h-10 left-[49px] top-[702.18px] absolute bg-yellow-200 rounded-[20px] z-10 hover:bg-yellow-300 transition-colors"
         >

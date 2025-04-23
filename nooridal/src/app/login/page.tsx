@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../utils/supabase";
 
 declare global {
   interface Window {
@@ -35,6 +36,11 @@ export default function Login() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
+  const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [rememberLogin, setRememberLogin] = useState(false);
   const router = useRouter();
 
   const handleIdFind = () => {
@@ -65,6 +71,100 @@ export default function Login() {
     router.push('/register');
   };
 
+  // 로그인 처리 함수
+  const handleLogin = async () => {
+    // Reset previous errors
+    setLoginError("");
+    
+    // Validate inputs
+    if (!userId.trim()) {
+      setLoginError("아이디를 입력해주세요.");
+      return;
+    }
+    if (!password.trim()) {
+      setLoginError("비밀번호를 입력해주세요.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      // First, get the user's email using their userId
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('email')
+        .eq('userId', userId)
+        .single();
+      
+      if (userError || !userData) {
+        setLoginError("존재하지 않는 아이디입니다.");
+        setIsLoading(false);
+        return;
+      }
+      
+      // Now login with the email and password via Supabase Auth
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: userData.email,
+        password: password,
+      });
+
+      if (error) {
+        console.error('Login error:', error.message);
+        setLoginError("아이디 또는 비밀번호가 일치하지 않습니다.");
+        return;
+      }
+
+      if (data.user) {
+        // 로그인 유지 설정을 localStorage에 저장
+        if (rememberLogin) {
+          localStorage.setItem('rememberLogin', 'true');
+        } else {
+          localStorage.removeItem('rememberLogin');
+        }
+        
+        // Get user type to redirect to appropriate dashboard
+        const { data: profileData } = await supabase
+          .from('users')
+          .select('user_type')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (profileData) {
+          // 로그인 성공 처리 및 리다이렉트
+          console.log("로그인 성공:", data.user.email);
+          
+          // Redirect to calendar regardless of user type
+          router.push('/calendar');
+          
+          // Previous user-type based redirection
+          /*
+          if (profileData.user_type === 'pregnant') {
+            router.push('/pregnant-dashboard');
+          } else if (profileData.user_type === 'guardian') {
+            router.push('/guardian-dashboard');
+          } else {
+            router.push('/dashboard'); // Default dashboard
+          }
+          */
+        } else {
+          router.push('/calendar'); // Default fallback also goes to calendar
+        }
+      }
+    } catch (error) {
+      console.error('Unexpected error during login:', error);
+      setLoginError("로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 엔터 키 핸들러
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !isLoading) {
+      handleLogin();
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#FFF4BB] to-[#FFE999] flex flex-col">
       {/* 메인 컨텐츠 영역 */}
@@ -89,6 +189,13 @@ export default function Login() {
           <div className="absolute top-[30px] left-0 right-0 px-8 z-20">
             <h2 className="text-2xl font-['Do_Hyeon'] text-[#333333] text-center mb-6">로그인</h2>
 
+            {/* Display login error message if any */}
+            {loginError && (
+              <div className="bg-red-100 border border-red-200 text-red-700 px-4 py-2 mb-4 rounded-lg text-sm font-['Do_Hyeon']">
+                {loginError}
+              </div>
+            )}
+
             {/* 입력 필드 */}
             <div className="space-y-5">
               <div>
@@ -96,6 +203,8 @@ export default function Login() {
                 <div className="relative">
                   <input 
                     type="text"
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
                     placeholder="아이디를 입력하세요"
                     className="w-full h-12 px-5 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none"
                   />
@@ -112,6 +221,9 @@ export default function Login() {
                 <div className="relative">
                   <input 
                     type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     placeholder="비밀번호를 입력하세요"
                     className="w-full h-12 px-5 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none"
                   />
@@ -126,13 +238,22 @@ export default function Login() {
 
             {/* 로그인 유지 체크박스 */}
             <div className="flex items-center gap-2 mt-4">
-              <input type="checkbox" className="w-5 h-5 rounded-[10px] border-2 border-[#FFE999] text-[#FFE999] focus:ring-[#FFE999]" />
+              <input 
+                type="checkbox" 
+                checked={rememberLogin}
+                onChange={(e) => setRememberLogin(e.target.checked)}
+                className="w-5 h-5 rounded-[10px] border-2 border-[#FFE999] text-[#FFE999] focus:ring-[#FFE999]" 
+              />
               <span className="text-[#666666] text-sm font-['Do_Hyeon']">로그인 유지</span>
             </div>
 
             {/* 로그인 버튼 */}
-            <button className="w-full h-12 mt-6 bg-[#FFED90] rounded-2xl text-lg font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
-              로그인
+            <button 
+              onClick={handleLogin}
+              disabled={isLoading}
+              className={`w-full h-12 mt-6 bg-[#FFED90] rounded-2xl text-lg font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
+              {isLoading ? '로그인 중...' : '로그인'}
             </button>
 
             {/* 하단 링크들 */}
