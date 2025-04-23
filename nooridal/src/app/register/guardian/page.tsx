@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "../../../utils/supabase";
 
 export default function GuardianSignup() {
   const router = useRouter();
@@ -18,7 +19,25 @@ export default function GuardianSignup() {
   const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [invitationCode, setInvitationCode] = useState("");
+  const [pregnantUserId, setPregnantUserId] = useState("");
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+
+  // 세션 스토리지에서 초대코드 정보 로드
+  useEffect(() => {
+    const savedInvitationCode = sessionStorage.getItem('invitation_code');
+    const savedPregnantUserId = sessionStorage.getItem('pregnant_user_id');
+
+    if (savedInvitationCode) {
+      setInvitationCode(savedInvitationCode);
+    } else {
+      // 초대코드가 없으면 초대 페이지로 리다이렉트
+      router.push('/register/guardian/invitation');
+    }
+
+    if (savedPregnantUserId) {
+      setPregnantUserId(savedPregnantUserId);
+    }
+  }, [router]);
 
   // 실제로는 서버에 중복 확인 요청을 보내야 합니다.
   const checkDuplication = async (type: "id" | "phone", value: string) => {
@@ -55,20 +74,74 @@ export default function GuardianSignup() {
     }
   };
 
-  const handleSignup = () => {
-    // 실제로는 서버에 회원가입 요청을 보내야 합니다.
-    console.log("회원가입 요청:", {
-      userId,
-      name,
-      email,
-      phoneNumber,
-      password,
-      address,
-      invitationCode
-    });
-    
-    // 회원가입 성공 시 로그인 페이지로 이동
-    router.push('/login');
+  const handleSignup = async () => {
+    try {
+      // 비밀번호 확인 검증
+      if (password !== confirmPassword) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
+      }
+
+      // 1. 사용자 비밀번호 해싱은 Supabase에서 자동으로 처리
+      const { data: userData, error: userError } = await supabase.auth.signUp({
+        email, 
+        password,
+      });
+
+      if (userError) throw userError;
+
+      // 2. users 테이블에 추가 정보 저장
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert({
+          id: userData.user.id,
+          email,
+          name,
+          userId,
+          phone_number: phoneNumber,
+          address,
+          user_type: "guardian", // 보호자로 설정
+          invitation_code: null // 보호자는 초대코드가 필요 없음
+        });
+
+      if (profileError) throw profileError;
+
+      // 3. 임산부와 보호자 연결 - pregnancies 테이블 업데이트
+      if (pregnantUserId) {
+        // 임산부의 pregnancies 테이블에서 최신 레코드 찾기
+        const { data: pregnancyData, error: pregnancyError } = await supabase
+          .from('pregnancies')
+          .select('id')
+          .eq('user_id', pregnantUserId)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (pregnancyError || !pregnancyData || pregnancyData.length === 0) {
+          console.warn('임산부의 임신 정보를 찾을 수 없습니다');
+        } else {
+          // 임신 정보에 보호자 ID 업데이트
+          const { error: updateError } = await supabase
+            .from('pregnancies')
+            .update({ guardian_id: userData.user.id })
+            .eq('id', pregnancyData[0].id);
+
+          if (updateError) {
+            console.error('임신 정보 업데이트 중 오류 발생:', updateError);
+          }
+        }
+      }
+
+      // 4. 초대코드 및 임산부 ID 세션 스토리지에서 제거
+      sessionStorage.removeItem('invitation_code');
+      sessionStorage.removeItem('pregnant_user_id');
+
+      // 5. 성공 시 로그인 페이지로 이동
+      router.push('/login');
+      
+    } catch (error) {
+      console.error('회원가입 에러:', error);
+      alert('회원가입 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -83,9 +156,18 @@ export default function GuardianSignup() {
           alt="누리달 로고"
         />
 
+        {/* 초대코드 표시 */}
+        {invitationCode && (
+          <div className="w-72 h-10 left-[50px] top-[167px] absolute bg-yellow-100 rounded-md flex items-center justify-center">
+            <span className="text-black text-sm font-['Do_Hyeon']">
+              초대코드: {invitationCode}
+            </span>
+          </div>
+        )}
+
         {/* 아이디 입력 필드 */}
-        <div className="w-20 h-9 left-[32px] top-[167px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">아이디</div>
-        <div className="w-72 h-8 left-[52px] top-[202px] absolute">
+        <div className="w-20 h-9 left-[32px] top-[197px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">아이디</div>
+        <div className="w-72 h-8 left-[52px] top-[232px] absolute">
           <input
             type="text"
             value={userId}
@@ -99,14 +181,14 @@ export default function GuardianSignup() {
         </div>
         <button 
           onClick={() => checkDuplication("id", userId)}
-          className="w-16 h-6 left-[275px] top-[207px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+          className="w-16 h-6 left-[275px] top-[237px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
         >
           중복확인
         </button>
 
         {/* 이름 입력 필드 */}
-        <div className="w-12 h-9 left-[45px] top-[236px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">이름</div>
-        <div className="w-72 h-8 left-[52px] top-[271px] absolute">
+        <div className="w-12 h-9 left-[45px] top-[266px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">이름</div>
+        <div className="w-72 h-8 left-[52px] top-[301px] absolute">
           <input
             type="text"
             value={name}
@@ -117,8 +199,8 @@ export default function GuardianSignup() {
         </div>
 
         {/* 이메일 입력 필드 */}
-        <div className="w-12 h-9 left-[49px] top-[305px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">이메일</div>
-        <div className="w-72 h-8 left-[52px] top-[340px] absolute">
+        <div className="w-12 h-9 left-[49px] top-[335px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">이메일</div>
+        <div className="w-72 h-8 left-[52px] top-[370px] absolute">
           <input
             type="email"
             value={email}
@@ -129,14 +211,14 @@ export default function GuardianSignup() {
         </div>
         <button 
           onClick={handleEmailVerification}
-          className="w-16 h-6 left-[275px] top-[344px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+          className="w-16 h-6 left-[275px] top-[374px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
         >
           인증요청
         </button>
 
         {/* 전화번호 입력 필드 */}
-        <div className="w-20 h-9 left-[38px] top-[374px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">전화번호</div>
-        <div className="w-72 h-8 left-[52px] top-[415px] absolute">
+        <div className="w-20 h-9 left-[38px] top-[404px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">전화번호</div>
+        <div className="w-72 h-8 left-[52px] top-[445px] absolute">
           <input
             type="tel"
             value={phoneNumber}
@@ -150,14 +232,14 @@ export default function GuardianSignup() {
         </div>
         <button 
           onClick={() => checkDuplication("phone", phoneNumber)}
-          className="w-16 h-6 left-[275px] top-[420px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+          className="w-16 h-6 left-[275px] top-[450px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
         >
           중복확인
         </button>
 
         {/* 비밀번호 입력 필드 */}
-        <div className="w-32 h-9 left-[15px] top-[449px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">비밀번호</div>
-        <div className="w-72 h-8 left-[52px] top-[487px] absolute">
+        <div className="w-32 h-9 left-[15px] top-[479px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">비밀번호</div>
+        <div className="w-72 h-8 left-[52px] top-[517px] absolute">
           <input
             type="password"
             value={password}
@@ -168,8 +250,8 @@ export default function GuardianSignup() {
         </div>
 
         {/* 비밀번호 확인 입력 필드 */}
-        <div className="w-32 h-9 left-[28px] top-[531px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">비밀번호 확인</div>
-        <div className="w-72 h-8 left-[51px] top-[569px] absolute">
+        <div className="w-32 h-9 left-[28px] top-[561px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">비밀번호 확인</div>
+        <div className="w-72 h-8 left-[51px] top-[599px] absolute">
           <input
             type="password"
             value={confirmPassword}
@@ -180,8 +262,8 @@ export default function GuardianSignup() {
         </div>
 
         {/* 주소 입력 필드 */}
-        <div className="w-20 h-9 left-[31px] top-[606px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">주소</div>
-        <div className="w-72 h-8 left-[52px] top-[643px] absolute">
+        <div className="w-20 h-9 left-[31px] top-[636px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">주소</div>
+        <div className="w-72 h-8 left-[52px] top-[673px] absolute">
           <input
             type="text"
             value={address}
@@ -191,7 +273,7 @@ export default function GuardianSignup() {
             readOnly
           />
         </div>
-        <button className="w-16 h-6 left-[275px] top-[647px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors">
+        <button className="w-16 h-6 left-[275px] top-[677px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors">
           검색
         </button>
 

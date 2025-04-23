@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../utils/supabase";
 
 export default function Login() {
   const [showIdFindModal, setShowIdFindModal] = useState(false);
@@ -13,10 +14,13 @@ export default function Login() {
   const [foundId, setFoundId] = useState("");
   const [showFoundId, setShowFoundId] = useState(false);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showVerificationCode, setShowVerificationCode] = useState(false);
   const [showPwReset, setShowPwReset] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
   const router = useRouter();
 
   const handleIdFind = () => {
@@ -30,6 +34,38 @@ export default function Login() {
   const handlePwFindRequest = () => {
     // 실제로는 서버에 이메일 전송 요청을 보내는 로직이 들어갈 것입니다.
     setShowVerificationCode(true);
+  };
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setLoginError("이메일과 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    setIsLoading(true);
+    setLoginError("");
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // 로그인 성공
+      console.log("로그인 성공:", data);
+      
+      // 홈페이지로 리다이렉트
+      router.push('/');
+    } catch (error) {
+      console.error("로그인 에러:", error);
+      setLoginError("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,9 +83,22 @@ export default function Login() {
         <div className="w-96 h-[507px] left-[23px] top-[229px] absolute bg-white rounded-[20px] blur-[2px]" />
         
         {/* 로그인 버튼 */}
-        <div className="w-80 h-9 left-[51px] top-[430px] absolute bg-yellow-200 rounded-[20px]">
-          <div className="w-64 h-10 left-[23px] top-[-4px] absolute text-center text-neutral-700 text-lg font-['Do_Hyeon'] leading-[50px]">로그인</div>
-        </div>
+        <button 
+          onClick={handleLogin}
+          disabled={isLoading}
+          className={`w-80 h-9 left-[51px] top-[430px] absolute ${isLoading ? 'bg-gray-300' : 'bg-yellow-200 hover:bg-yellow-300'} rounded-[20px] transition-colors`}
+        >
+          <div className="w-64 h-10 left-[23px] top-[-4px] absolute text-center text-neutral-700 text-lg font-['Do_Hyeon'] leading-[50px]">
+            {isLoading ? '로그인 중...' : '로그인'}
+          </div>
+        </button>
+
+        {/* 에러 메시지 */}
+        {loginError && (
+          <div className="w-80 text-center left-[51px] top-[465px] absolute text-red-500 text-sm font-['Do_Hyeon']">
+            {loginError}
+          </div>
+        )}
 
         {/* 입력 필드 레이블 */}
         <div className="w-14 h-8 left-[50px] top-[245.65px] absolute text-black/70 text-lg font-['Do_Hyeon'] leading-[50px]">아이디</div>
@@ -58,16 +107,25 @@ export default function Login() {
         {/* 입력 필드 */}
         <div className="w-80 h-8 left-[50px] top-[288px] absolute bg-white rounded-[20px] border border-zinc-300">
           <input 
-            type="text"
-            placeholder="아이디를 입력하세요"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="이메일을 입력하세요"
             className="w-full h-full px-4 text-neutral-400 text-base font-['Do_Hyeon'] rounded-[20px] focus:outline-none"
           />
         </div>
         <div className="w-80 h-8 left-[51px] top-[367px] absolute bg-white rounded-[20px] border border-zinc-300">
           <input 
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="비밀번호를 입력하세요"
             className="w-full h-full px-4 text-neutral-400 text-base font-['Do_Hyeon'] rounded-[20px] focus:outline-none"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleLogin();
+              }
+            }}
           />
         </div>
 
