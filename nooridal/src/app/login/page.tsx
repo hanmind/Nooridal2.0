@@ -177,13 +177,13 @@ export default function Login() {
     // 회원가입 버튼 클릭 핸들러
     const handleSignupClick = () => {
       router.push('/register');
-    };
+  };
 
-    return ( 
+  return (
       <div className="fixed inset-0 flex items-center justify-center z-50">
-        <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
+      <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
           {/* 배경 이미지 */}
-          <Image
+        <Image
             className="w-full h-full object-cover absolute"
             src="/images/logo/아이디찾기 배경.png"
             alt={`${type === "pregnant" ? "임산부" : "보호자"} 회원가입 배경`}
@@ -339,15 +339,15 @@ export default function Login() {
           {/* 로그인 폼 */}
           <div className="absolute top-[30px] left-0 right-0 px-8 z-20">
             <h2 className="text-2xl font-['Do_Hyeon'] text-[#333333] text-center mb-6">로그인</h2>
-            
-            {/* 입력 필드 */}
+
+        {/* 입력 필드 */}
             <div className="space-y-5">
               <div>
                 <label className="block text-[#333333] text-base font-['Do_Hyeon'] mb-2">아이디</label>
                 <div className="relative">
-                  <input 
-                    type="text"
-                    placeholder="아이디를 입력하세요"
+          <input 
+            type="text"
+            placeholder="아이디를 입력하세요"
                     className="w-full h-12 px-5 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none"
                   />
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -356,14 +356,14 @@ export default function Login() {
                     </svg>
                   </div>
                 </div>
-              </div>
+        </div>
               
               <div>
                 <label className="block text-[#333333] text-base font-['Do_Hyeon'] mb-2">비밀번호</label>
                 <div className="relative">
-                  <input 
-                    type="password"
-                    placeholder="비밀번호를 입력하세요"
+          <input 
+            type="password"
+            placeholder="비밀번호를 입력하세요"
                     className="w-full h-12 px-5 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none"
                   />
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -373,43 +373,43 @@ export default function Login() {
                   </div>
                 </div>
               </div>
-            </div>
-            
-            {/* 로그인 유지 체크박스 */}
+        </div>
+
+        {/* 로그인 유지 체크박스 */}
             <div className="flex items-center gap-2 mt-4">
               <input type="checkbox" className="w-5 h-5 rounded-[10px] border-2 border-[#FFE999] text-[#FFE999] focus:ring-[#FFE999]" />
               <span className="text-[#666666] text-sm font-['Do_Hyeon']">로그인 유지</span>
-            </div>
-            
+        </div>
+
             {/* 로그인 버튼 */}
             <button className="w-full h-12 mt-6 bg-[#FFED90] rounded-2xl text-lg font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
               로그인
             </button>
-            
-            {/* 하단 링크들 */}
+
+        {/* 하단 링크들 */}
             <div className="flex justify-center items-center gap-4 mt-4">
-              <button 
-                onClick={() => setShowIdFindModal(true)}
+          <button 
+            onClick={() => setShowIdFindModal(true)}
                 className="text-[#666666] text-sm font-['Do_Hyeon'] hover:text-[#333333] transition-colors duration-300"
-              >
-                ID 찾기
-              </button>
+          >
+            ID 찾기
+          </button>
               <div className="w-0.5 h-4 bg-[#DDDDDD]"></div>
-              <button 
-                onClick={() => setShowPwFindModal(true)}
+          <button 
+            onClick={() => setShowPwFindModal(true)}
                 className="text-[#666666] text-sm font-['Do_Hyeon'] hover:text-[#333333] transition-colors duration-300"
-              >
-                PW 찾기
-              </button>
+          >
+            PW 찾기
+          </button>
               <div className="w-0.5 h-4 bg-[#DDDDDD]"></div>
-              <button 
+          <button 
                 onClick={handleSignupClick}
                 className="text-[#FFB800] text-sm font-['Do_Hyeon'] hover:text-[#FFA000] transition-colors duration-300"
-              >
-                회원가입
-              </button>
-            </div>
-            
+          >
+            회원가입
+          </button>
+        </div>
+
             {/* 간편 로그인 섹션 */}
             <div className="mt-8">
               <div className="relative flex items-center justify-center">
@@ -564,7 +564,7 @@ export default function Login() {
               {/* 폼 컨테이너 */}
               <div className="bg-white/90 rounded-b-[20px] p-6 shadow-lg w-full">
                 <div className="space-y-4">
-                  {!showVerificationCode && !showPwReset && (
+              {!showVerificationCode && !showPwReset && (
                     <div>
                       <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">이메일</label>
                       <div className="relative">
@@ -668,37 +668,37 @@ export default function Login() {
                         비밀번호 재설정
                       </button>
                     )}
-                    <button
-                      onClick={() => {
-                        setShowPwFindModal(false);
-                        setShowVerificationCode(false);
-                        setShowPwReset(false);
+                      <button
+                        onClick={() => {
+                          setShowPwFindModal(false);
+                          setShowVerificationCode(false);
+                          setShowPwReset(false);
                         setEmail("");
                         setVerificationCode("");
                         setNewPassword("");
                         setConfirmPassword("");
-                      }}
+                        }}
                       className="w-full text-center mt-3 text-[#666666] text-sm font-['Do_Hyeon'] hover:text-[#333333] transition-colors duration-300"
-                    >
+                      >
                       돌아가기
-                    </button>
+                      </button>
+                    </div>
                   </div>
-                </div>
               </div>
             </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {showSignupModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
+        {showSignupModal && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="w-96 h-[600px] relative bg-[#FFF4BB] overflow-hidden">
             {/* 배경 이미지 */}
-            <Image
-              className="w-full h-full object-cover absolute"
-              src="/images/logo/아이디찾기 배경.png"
-              alt="회원가입 배경"
-              width={384}
+              <Image
+                className="w-full h-full object-cover absolute"
+                src="/images/logo/아이디찾기 배경.png"
+                alt="회원가입 배경"
+                width={384}
               height={600}
             />
 
