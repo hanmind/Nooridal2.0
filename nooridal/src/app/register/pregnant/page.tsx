@@ -21,6 +21,13 @@ const generateInvitationCode = () => {
   return code;
 };
 
+type Pregnancy = {
+  id: string;
+  baby_name: string | null;
+  current_week: number | null;
+  high_risk: boolean | null;
+};
+
 export default function PregnantSignup() {
   const router = useRouter();
   const [userId, setUserId] = useState("");
@@ -37,6 +44,12 @@ export default function PregnantSignup() {
   const [actualVerificationCode, setActualVerificationCode] = useState(""); // 실제 생성된 인증코드 저장용
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [emailStatus, setEmailStatus] = useState<"default" | "valid" | "invalid">("default");
+  const [pregnancies, setPregnancies] = useState<Pregnancy[]>([]);
+  const [newPregnancy, setNewPregnancy] = useState({
+    baby_name: '',
+    current_week: 0,
+    high_risk: false,
+  });
 
   // 디바운스 타이머 참조
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -286,6 +299,34 @@ export default function PregnantSignup() {
       console.error('회원가입 에러:', error);
       alert('회원가입 중 오류가 발생했습니다.');
     }
+  };
+
+  useEffect(() => {
+    fetchPregnancies();
+  }, []);
+
+  const fetchPregnancies = async () => {
+    const { data, error } = await supabase.from('pregnancies').select('*');
+    if (error) console.error('Error fetching pregnancies:', error);
+    else setPregnancies(data as Pregnancy[]);
+  };
+
+  const createPregnancy = async () => {
+    const { data, error } = await supabase.from('pregnancies').insert([newPregnancy]);
+    if (error) console.error('Error creating pregnancy:', error);
+    else if (data) setPregnancies([...pregnancies, data[0] as Pregnancy]);
+  };
+
+  const updatePregnancy = async (id: string, updates: Partial<Pregnancy>) => {
+    const { data, error } = await supabase.from('pregnancies').update(updates).eq('id', id);
+    if (error) console.error('Error updating pregnancy:', error);
+    else if (data) setPregnancies(pregnancies.map(p => (p.id === id ? data[0] as Pregnancy : p)));
+  };
+
+  const deletePregnancy = async (id: string) => {
+    const { error } = await supabase.from('pregnancies').delete().eq('id', id);
+    if (error) console.error('Error deleting pregnancy:', error);
+    else setPregnancies(pregnancies.filter(p => p.id !== id));
   };
 
   return (
