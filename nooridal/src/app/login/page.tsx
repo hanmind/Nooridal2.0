@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../utils/supabase";
 
 declare global {
   interface Window {
@@ -35,6 +36,8 @@ export default function Login() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
+  const [password, setPassword] = useState("");
+  const [userId, setUserId] = useState("");
   const router = useRouter();
 
   const handleIdFind = () => {
@@ -64,6 +67,39 @@ export default function Login() {
   const handleSignupClick = () => {
     router.push('/register');
   };
+
+  const handleLogin = async () => {
+    if (!userId || !password) {
+      alert('아이디와 비밀번호를 모두 입력하세요.');
+      return;
+    }
+
+    try {
+      // 아이디와 비밀번호로 사용자 조회
+      const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .eq('password', hashPassword(password)) // 비밀번호 해시 비교
+        .single();
+
+      if (error || !user) {
+        alert('로그인에 실패했습니다. 아이디와 비밀번호를 확인하세요.');
+        return;
+      }
+
+      // 로그인 성공 시
+      router.push('/calendar');
+    } catch (error) {
+      alert('로그인 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    }
+  };
+
+  // 비밀번호 해시 함수 (예시)
+  function hashPassword(password: string): string {
+    // 실제 해시 알고리즘을 사용해야 합니다.
+    return password; // 예시로 단순 반환
+  }
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#FFF4BB] to-[#FFE999] flex flex-col">
@@ -96,6 +132,8 @@ export default function Login() {
                 <div className="relative">
                   <input 
                     type="text"
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
                     placeholder="아이디를 입력하세요"
                     className="w-full h-12 px-5 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none"
                   />
@@ -112,6 +150,8 @@ export default function Login() {
                 <div className="relative">
                   <input 
                     type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="비밀번호를 입력하세요"
                     className="w-full h-12 px-5 bg-[#F8F8F8] rounded-2xl border-2 border-transparent focus:border-[#FFE999] transition-all duration-300 text-base font-['Do_Hyeon'] outline-none"
                   />
@@ -131,7 +171,7 @@ export default function Login() {
             </div>
 
             {/* 로그인 버튼 */}
-            <button className="w-full h-12 mt-6 bg-[#FFED90] rounded-2xl text-lg font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
+            <button onClick={handleLogin} className="w-full h-12 mt-6 bg-[#FFED90] rounded-2xl text-lg font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
               로그인
             </button>
 
