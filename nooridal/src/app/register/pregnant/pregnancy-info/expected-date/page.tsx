@@ -1,8 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PregnancyFormLayout from "@/components/pregnancy/PregnancyFormLayout";
+
+// 로컬 스토리지 키 상수
+const STORAGE_KEY = "pregnancyInfo";
 
 export default function ExpectedDate() {
   const router = useRouter();
@@ -19,6 +22,51 @@ export default function ExpectedDate() {
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [calculatedPregnancyWeek, setCalculatedPregnancyWeek] = useState("");
   const [calculatedDueDate, setCalculatedDueDate] = useState("");
+
+  // 컴포넌트 마운트 시 저장된 데이터 불러오기
+  useEffect(() => {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        const data = JSON.parse(savedData);
+        if (data.pregnancyWeek) setPregnancyWeek(data.pregnancyWeek);
+        if (data.expectedDate) setExpectedDate(data.expectedDate);
+        if (data.noInfo) setNoInfo(data.noInfo);
+        if (data.lastPeriodDate) setLastPeriodDate(data.lastPeriodDate);
+        if (data.calculatedPregnancyWeek) setCalculatedPregnancyWeek(data.calculatedPregnancyWeek);
+        if (data.calculatedDueDate) setCalculatedDueDate(data.calculatedDueDate);
+      } catch (error) {
+        console.error("저장된 데이터를 불러오는 중 오류가 발생했습니다:", error);
+      }
+    }
+  }, []);
+
+  // 데이터가 변경될 때마다 로컬 스토리지에 저장
+  useEffect(() => {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    let data = {};
+    
+    if (savedData) {
+      try {
+        data = JSON.parse(savedData);
+      } catch (error) {
+        console.error("저장된 데이터를 파싱하는 중 오류가 발생했습니다:", error);
+      }
+    }
+    
+    // 현재 페이지의 데이터만 업데이트
+    const updatedData = {
+      ...data,
+      pregnancyWeek,
+      expectedDate,
+      noInfo,
+      lastPeriodDate,
+      calculatedPregnancyWeek,
+      calculatedDueDate
+    };
+    
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
+  }, [pregnancyWeek, expectedDate, noInfo, lastPeriodDate, calculatedPregnancyWeek, calculatedDueDate]);
 
   const handleNext = () => {
     router.push('/register/pregnant/pregnancy-info/high-risk');
@@ -128,12 +176,12 @@ export default function ExpectedDate() {
     >
       {/* 임신 주차 입력 */}
       <div className="mb-4">
-        <label className="block text-sm font-['Do_Hyeon'] text-gray-700 mb-1">현재 임신 주차</label>
+        <label className="block text-m font-['Do_Hyeon'] text-gray-900 mb-1">현재 임신 주차</label>
         <div 
           className="w-full h-12 bg-white rounded-xl border border-gray-300 text-black font-['Do_Hyeon'] flex justify-between items-center cursor-pointer px-4"
           onClick={() => !noInfo && setShowPregnancyWeekPicker(!showPregnancyWeekPicker)}
         >
-          <span className="text-gray-900">{pregnancyWeek ? `${pregnancyWeek}주차` : "임신 주차를 선택해주세요"}</span>
+          <span className="text-gray-500">{pregnancyWeek ? `${pregnancyWeek}주차` : "임신 주차를 선택해주세요"}</span>
           {!noInfo && (
             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -144,7 +192,7 @@ export default function ExpectedDate() {
         {/* 임신 주차 선택 모달 */}
         {showPregnancyWeekPicker && !noInfo && (
           <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-[20px] shadow-lg w-80">
+            <div className="bg-white border-gray-300 border-3 p-6 rounded-[20px] shadow-lg w-80">
               <div className="text-center mb-4">
                 <div className="text-lg font-['Do_Hyeon'] text-gray-900">
                   임신 주차를 선택해주세요
@@ -183,12 +231,12 @@ export default function ExpectedDate() {
 
       {/* 출산 예정일 입력 */}
       <div className="mb-6">
-        <label className="block text-sm font-['Do_Hyeon'] text-gray-700 mb-1">출산 예정일</label>
+        <label className="block text-m font-['Do_Hyeon'] text-gray-900 mb-1">출산 예정일</label>
         <div 
           className="w-full h-12 bg-white rounded-xl border border-gray-300 text-black font-['Do_Hyeon'] flex justify-between items-center cursor-pointer px-4"
           onClick={() => !noInfo && setShowExpectedDatePicker(!showExpectedDatePicker)}
         >
-          <span className="text-gray-900">{expectedDate || "출산 예정일을 선택해주세요"}</span>
+          <span className="text-gray-500">{expectedDate || "출산 예정일을 선택해주세요"}</span>
           {!noInfo && (
             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -322,9 +370,9 @@ export default function ExpectedDate() {
         )}
       </div>
 
-      {/* 두개다 모른다 체크박스 */}
+      {/* 두 개 다 모른다 체크박스 */}
       <div 
-        className="mb-4 flex items-center cursor-pointer"
+        className="mb-5 flex items-center cursor-pointer"
         onClick={() => {
           setNoInfo(!noInfo);
           if (!noInfo) {
