@@ -18,7 +18,7 @@ export default function PregnancyInfo() {
     if (savedData) {
       try {
         const data = JSON.parse(savedData);
-        if (data.isPregnant !== undefined) setIsPregnant(data.isPregnant);
+        setIsPregnant(!!data.isPregnant); // boolean 값으로 확실하게 변환
       } catch (error) {
         console.error("저장된 데이터를 불러오는 중 오류가 발생했습니다:", error);
       }
@@ -38,17 +38,22 @@ export default function PregnancyInfo() {
       }
     }
     
-    // 현재 페이지의 데이터만 업데이트
-    const updatedData = {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
       ...data,
-      isPregnant
-    };
-    
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
+      isPregnant: isPregnant
+    }));
   }, [isPregnant]);
 
   const handleNext = () => {
-    // 임신 정보 입력 후 태명 입력 페이지로 이동
+    // 현재 상태를 저장하고 다음 페이지로 이동
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    const data = savedData ? JSON.parse(savedData) : {};
+    
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      ...data,
+      isPregnant: isPregnant
+    }));
+    
     router.push('/register/pregnant/pregnancy-info/baby-name');
   };
 

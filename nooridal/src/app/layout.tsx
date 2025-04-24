@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ProfileProvider } from "./context/ProfileContext";
 import { AddressProvider } from './context/AddressContext';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,9 +20,9 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap"
-          rel="stylesheet"
+        <Script 
+          src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+          strategy="beforeInteractive"
         />
       </head>
       <body className={inter.className}>

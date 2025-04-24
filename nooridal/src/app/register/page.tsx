@@ -11,7 +11,7 @@ export default function Register() {
   };
 
   const handlePregnantClick = () => {
-    router.push("/register/pregnant/pregnancy-info/baby-name");
+    router.push("/register/pregnant");
   };
 
   return (

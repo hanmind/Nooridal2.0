@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useProfile } from "@/app/context/ProfileContext";
 import { useAddress } from "@/app/context/AddressContext";
+import { supabase } from "@/utils/supabase";
 
 declare global {
   interface Window {
@@ -35,39 +36,65 @@ export default function ProfileManagement() {
   const [showEditOptions, setShowEditOptions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { profileImage, setProfileImage } = useProfile();
-  const [userId, setUserId] = useState("");
   const [isEditingId, setIsEditingId] = useState(false);
   const [tempUserId, setTempUserId] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [tempPhoneNumber, setTempPhoneNumber] = useState("");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordLength, setPasswordLength] = useState(8);
+  const [userInfo, setUserInfo] = useState({
+    name: '',
+    email: '',
+    userId: '',
+    phoneNumber: '',
+    address: ''
+  });
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState("");
 
   useEffect(() => {
-    // Daum 우편번호 서비스 스크립트 로드
     const script = document.createElement("script");
     script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
     script.async = true;
     document.head.appendChild(script);
 
-    // 저장된 프로필 이미지 불러오기
-    // const savedProfileImage = localStorage.getItem('profileImage');
-    // if (savedProfileImage) {
-    //   setProfileImage(savedProfileImage);
-    // }
-    
-    // 저장된 아이디와 전화번호 불러오기
-    const savedUserId = localStorage.getItem('userId');
-    const savedPhoneNumber = localStorage.getItem('phoneNumber');
-    
-    if (savedUserId) {
-      setUserId(savedUserId);
-      setTempUserId(savedUserId);
-    }
-    
-    if (savedPhoneNumber) {
-      setPhoneNumber(savedPhoneNumber);
-      setTempPhoneNumber(savedPhoneNumber);
-    }
+    // Supabase에서 사용자 정보 불러오기
+    const fetchUserInfo = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+          if (error) throw error;
+
+          if (data) {
+            setUserInfo({
+              name: data.name || '',
+              email: data.email || '',
+              userId: data.userId || '',
+              phoneNumber: data.phone_number || '',
+              address: data.address || ''
+            });
+            setTempUserId(data.userId || '');
+            setTempPhoneNumber(data.phone_number || '');
+            setTempName(data.name || '');
+            setPasswordLength(8);
+          }
+        }
+      } catch (error) {
+        console.error('사용자 정보를 불러오는데 실패했습니다:', error);
+      }
+    };
+
+    fetchUserInfo();
 
     return () => {
       if (document.head.contains(script)) {
@@ -116,24 +143,34 @@ export default function ProfileManagement() {
     }
   };
 
-  const checkIdDuplicate = () => {
+  const checkIdDuplicate = async () => {
     if (!tempUserId.trim()) {
-      return; // 빈 아이디는 중복 체크하지 않음
+      return;
     }
-    
-    // 실제로는 API 호출을 통해 중복 여부를 확인해야 합니다.
-    // 여기서는 예시로 랜덤하게 중복 여부를 결정합니다.
-    const isDuplicate = Math.random() > 0.5;
-    setIdDuplicate(isDuplicate);
-    
-    // 중복이 아닌 경우에만 아이디를 업데이트
-    if (!isDuplicate) {
-      setUserId(tempUserId);
-      setIsEditingId(false);
-      localStorage.setItem('userId', tempUserId);
+
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('userId')
+        .eq('userId', tempUserId)
+        .neq('email', userInfo.email) // 현재 사용자 제외
+        .single();
+
+      if (error && error.code === 'PGRST116') {
+        // 데이터가 없음 = 중복 아님
+        setIdDuplicate(false);
+        setUserInfo(prev => ({ ...prev, userId: tempUserId }));
+        alert("사용 가능한 아이디입니다.");
+      } else if (data) {
+        // 데이터가 있음 = 중복
+        setIdDuplicate(true);
+        alert("이미 사용 중인 아이디입니다.");
+      }
+    } catch (error) {
+      console.error('아이디 중복 확인 중 오류 발생:', error);
+      alert('중복 확인 중 오류가 발생했습니다.');
     }
-    
-    // 3초 후에 상태 초기화
+
     setTimeout(() => {
       setIdDuplicate(null);
     }, 3000);
@@ -163,24 +200,34 @@ export default function ProfileManagement() {
     }
   };
 
-  const checkPhoneDuplicate = () => {
+  const checkPhoneDuplicate = async () => {
     if (!tempPhoneNumber.trim()) {
-      return; // 빈 전화번호는 중복 체크하지 않음
+      return;
     }
-    
-    // 실제로는 API 호출을 통해 중복 여부를 확인해야 합니다.
-    // 여기서는 예시로 랜덤하게 중복 여부를 결정합니다.
-    const isDuplicate = Math.random() > 0.5;
-    setPhoneDuplicate(isDuplicate);
-    
-    // 중복이 아닌 경우에만 전화번호를 업데이트
-    if (!isDuplicate) {
-      setPhoneNumber(tempPhoneNumber);
-      setIsEditingPhone(false);
-      localStorage.setItem('phoneNumber', tempPhoneNumber);
+
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('phone_number')
+        .eq('phone_number', tempPhoneNumber.replace(/-/g, ''))
+        .neq('email', userInfo.email) // 현재 사용자 제외
+        .single();
+
+      if (error && error.code === 'PGRST116') {
+        // 데이터가 없음 = 중복 아님
+        setPhoneDuplicate(false);
+        setUserInfo(prev => ({ ...prev, phoneNumber: tempPhoneNumber }));
+        alert("사용 가능한 전화번호입니다.");
+      } else if (data) {
+        // 데이터가 있음 = 중복
+        setPhoneDuplicate(true);
+        alert("이미 등록된 전화번호입니다.");
+      }
+    } catch (error) {
+      console.error('전화번호 중복 확인 중 오류 발생:', error);
+      alert('중복 확인 중 오류가 발생했습니다.');
     }
-    
-    // 3초 후에 상태 초기화
+
     setTimeout(() => {
       setPhoneDuplicate(null);
     }, 3000);
@@ -242,10 +289,70 @@ export default function ProfileManagement() {
     router.push('/mypage'); // 마이페이지로 이동
   };
 
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmPassword) {
+      setPasswordError("새 비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordError("비밀번호는 최소 6자 이상이어야 합니다.");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      alert("비밀번호가 성공적으로 변경되었습니다.");
+      setShowPasswordModal(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordError("");
+    } catch (error) {
+      console.error('비밀번호 변경 중 오류 발생:', error);
+      setPasswordError("비밀번호 변경에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
+
+  const handleNameClick = () => {
+    setIsEditingName(true);
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempName(e.target.value);
+  };
+
+  const handleNameBlur = async () => {
+    if (tempName.trim() !== userInfo.name) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { error } = await supabase
+            .from('users')
+            .update({ name: tempName })
+            .eq('id', user.id);
+
+          if (error) throw error;
+
+          setUserInfo(prev => ({ ...prev, name: tempName }));
+        }
+      } catch (error) {
+        console.error('이름 변경 중 오류 발생:', error);
+        alert('이름 변경에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
+    setIsEditingName(false);
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
-        <div className="w-96 h-[610px] left-[0px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]" />
+        <div className="w-[360px] h-[610px] left-[15px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]" />
         <div className="left-[155px] top-[55px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
           내 정보 관리
         </div>
@@ -258,7 +365,7 @@ export default function ProfileManagement() {
 
         {/* 프로필 사진 영역 */}
         <div 
-          className="w-25 h-25 left-[32px] top-[163px] absolute bg-gray-200 rounded-full relative cursor-pointer overflow-hidden"
+          className="w-25 h-25 left-[32px] top-[163px] absolute bg-gray-200 rounded-full relative cursor-pointer overflow-hidden z-10"
           onClick={handleProfileClick}
         >
           {profileImage ? (
@@ -270,17 +377,17 @@ export default function ProfileManagement() {
           ) : (
             <div className="w-full h-full bg-gray-200" />
           )}
-          <div className="absolute bottom-0 right-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+          <div className="absolute bottom-0 right-0 w-8 h-8 bg-[#FFE999] rounded-full flex items-center justify-center z-30">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 15.2C13.7673 15.2 15.2 13.7673 15.2 12C15.2 10.2327 13.7673 8.8 12 8.8C10.2327 8.8 8.8 10.2327 8.8 12C8.8 13.7673 10.2327 15.2 12 15.2Z" fill="#6B7280"/>
-              <path d="M9 2L7.17 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4H16.83L15 2H9ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17Z" fill="#6B7280"/>
+              <path d="M12 15.2C13.7673 15.2 15.2 13.7673 15.2 12C15.2 10.2327 13.7673 8.8 12 8.8C10.2327 8.8 8.8 10.2327 8.8 12C8.8 13.7673 10.2327 15.2 12 15.2Z" fill="#333333"/>
+              <path d="M9 2L7.17 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4H16.83L15 2H9ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17Z" fill="#333333"/>
             </svg>
           </div>
         </div>
         
         {/* 프로필 옵션 팝업 */}
         {showProfileOptions && (
-          <div className="absolute left-0 top-20 w-32 bg-white rounded-lg shadow-lg z-10">
+          <div className="absolute left-[20px] top-20 w-32 bg-white rounded-lg shadow-lg z-10">
             <div 
               className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-green-50 cursor-pointer text-emerald-400"
               onClick={() => {
@@ -302,7 +409,7 @@ export default function ProfileManagement() {
         
         {/* 편집 옵션 팝업 */}
         {showEditOptions && (
-          <div className="absolute left-0 top-20 w-32 bg-white rounded-lg shadow-lg z-10">
+          <div className="absolute left-[20px] top-20 w-32 bg-white rounded-lg shadow-lg z-10">
             <div 
               className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-blue-50 cursor-pointer text-sky-400"
               onClick={handleEditProfile}
@@ -353,7 +460,25 @@ export default function ProfileManagement() {
         </div>
         <div className="left-[160px] top-[178px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">이 름</div>
         <div className="left-[159px] top-[227px] absolute text-center justify-start text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px]">초대코드</div>
-        <div className="w-16 h-4 left-[213px] top-[177px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">홍길동</div>
+        {isEditingName ? (
+          <div className="w-37 h-9 left-[214px] top-[184px] absolute flex items-center">
+            <input
+              type="text"
+              value={tempName}
+              onChange={handleNameChange}
+              onBlur={handleNameBlur}
+              className="w-full h-full pl-4 text-left text-black text-base font-normal font-['Do_Hyeon'] bg-transparent outline-none"
+              autoFocus
+            />
+          </div>
+        ) : (
+          <div 
+            className="w-16 h-4 left-[213px] top-[177px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer"
+            onClick={handleNameClick}
+          >
+            {userInfo.name}
+          </div>
+        )}
         <div className="w-20 h-4 left-[223px] top-[227px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">{inviteCode}</div>
 
         {/* 아이디 */}
@@ -375,7 +500,7 @@ export default function ProfileManagement() {
             className="w-52 h-11 left-[45px] top-[305px] absolute text-left justify-start text-black text-s font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer"
             onClick={handleIdClick}
           >
-            {userId}
+            {userInfo.userId}
           </div>
         )}
         <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[305px] absolute" onClick={checkIdDuplicate}>
@@ -387,17 +512,105 @@ export default function ProfileManagement() {
         {/* 비밀번호 */}
         <div className="w-[260px] h-11 left-[30px] top-[380px] absolute bg-white rounded-[10px] border border-zinc-300" />
         <div className="w-24 h-5 left-[35px] top-[344px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">비밀번호</div>
-        <div className="w-52 h-11 left-[-28px] top-[378px] absolute text-center justify-start text-neutral-400 text-s font-normal font-['Do_Hyeon'] leading-[50px]">********</div>
-        <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[380px] absolute">
-          <div className="w-16 h-9 left-0 top-1 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
-            <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">변경</span>
-          </div>
+        <div className="w-52 h-11 left-[45px] top-[378px] absolute text-left justify-start text-neutral-400 text-s font-normal font-['Do_Hyeon'] leading-[50px]">
+          {'*'.repeat(passwordLength)}
         </div>
+        <button
+          onClick={() => setShowPasswordModal(true)}
+          className="w-16 h-9 left-[300px] top-[381px] absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
+        >
+          <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">변경</span>
+        </button>
+
+        {/* 비밀번호 변경 모달 */}
+        {showPasswordModal && (
+          <div className="fixed inset-0 bg-neutral-400/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-3xl p-6 w-80 relative">
+
+              {/* 로고 */}
+              <div className="flex justify-center mb-2">
+                <div className="relative w-24 h-14">
+                  <Image
+                    src="/images/logo/누리달.png"
+                    alt="누리달"
+                    width={96}
+                    height={96}
+                  />
+                </div>
+              </div>
+
+              {/* 모달 헤더 */}
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-['Do_Hyeon'] text-center flex-1">비밀번호 변경</h3>
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* 입력 필드들 */}
+              <div className="space-y-4">
+                <div className="relative">
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => {
+                      setCurrentPassword(e.target.value);
+                      setPasswordError(""); // 입력 시 에러 메시지 초기화
+                    }}
+                    placeholder="현재 비밀번호"
+                    className={`w-full px-4 py-2 rounded-full border-2 ${
+                      passwordError ? 'border-red-500' : 'border-[#FFE999]'
+                    } focus:outline-none focus:border-[#FFD966] text-sm font-['Do_Hyeon']`}
+                  />
+                  <div className="absolute right-4 top-2.5 text-yellow-400">🔒</div>
+                  {passwordError && (
+                    <p className="text-red-500 text-xs font-['Do_Hyeon'] mt-1 ml-2">
+                      {passwordError}
+                    </p>
+                  )}
+                </div>
+                <div className="relative">
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="새 비밀번호"
+                    className="w-full px-4 py-2 rounded-full border-2 border-[#FFE999] focus:outline-none focus:border-[#FFD966] text-sm font-['Do_Hyeon']"
+                  />
+                  <div className="absolute right-4 top-2.5 text-yellow-400">✨</div>
+                </div>
+                <div className="relative">
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="새 비밀번호 확인"
+                    className="w-full px-4 py-2 rounded-full border-2 border-[#FFE999] focus:outline-none focus:border-[#FFD966] text-sm font-['Do_Hyeon']"
+                  />
+                  <div className="absolute right-4 top-2.5 text-yellow-400">✅</div>
+                </div>
+              </div>
+
+              {/* 변경 버튼 */}
+              <button
+                onClick={handlePasswordChange}
+                className="w-full mt-6 bg-[#FFE999] hover:bg-[#FFD966] text-black py-3 rounded-full transition-colors duration-300 font-['Do_Hyeon']"
+              >
+                비밀번호 변경하기
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* 이메일 */}
         <div className="w-[260px] h-11 left-[30px] top-[452px] absolute bg-gray-200 rounded-[10px] border border-zinc-300" />
         <div className="w-28 h-5 left-[35px] top-[417px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">이메일</div>
-        <div className="w-52 h-2 left-[2px] top-[450px] absolute text-center justify-start text-stone-500 text-s font-normal font-['Do_Hyeon'] leading-[50px]">user@example.com</div>
+        <div className="w-52 h-2 left-[45px] top-[450px] absolute text-left justify-start text-stone-500 text-s font-normal font-['Do_Hyeon'] leading-[50px]">
+          {userInfo.email}
+        </div>
 
         {/* 전화번호 */}
         <div className={`w-[260px] h-11 left-[30px] top-[524px] absolute rounded-[10px] border ${phoneDuplicate === true ? 'bg-red-100 border-red-300' : phoneDuplicate === false ? 'bg-green-100 border-green-300' : 'bg-white border-zinc-300'}`} />
@@ -420,7 +633,7 @@ export default function ProfileManagement() {
             className="w-52 h-11 left-[45px] top-[520px] absolute text-left justify-start text-black text-s font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer"
             onClick={handlePhoneClick}
           >
-            {phoneNumber || ""}
+            {userInfo.phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')}
           </div>
         )}
         <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[505px] absolute" onClick={checkPhoneDuplicate}>
@@ -431,8 +644,10 @@ export default function ProfileManagement() {
 
         {/* 주소 */}
         <div className="w-24 h-9 left-[35px] top-[560px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">주소</div>
-        <div className="w-[260px] h-11 left-[28px] top-[596px] absolute bg-white rounded-[10px] border border-zinc-300" />
-        <div className="w-44 h-4 left-[40px] top-[595px] absolute text-center justify-start text-neutral-900 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">{address}</div>
+        <div className="w-[260px] h-11 left-[30px] top-[596px] absolute bg-white rounded-[10px] border border-zinc-300" />
+        <div className="w-44 h-4 left-[45px] top-[595px] absolute text-left justify-start text-neutral-900 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
+          {userInfo.address}
+        </div>
         <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[577px] absolute">
           <div className="w-16 h-9 left-0 top-6 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
             <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon'] cursor-pointer" onClick={handleAddressSearch}>검색</span>

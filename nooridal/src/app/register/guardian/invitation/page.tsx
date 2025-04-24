@@ -68,7 +68,7 @@ export default function GuardianInvitation() {
           height={55}
         />
 
-        <div className="w-80 h-[320px] left-[28px] top-[260px] absolute bg-white rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] z-10">
+        <div className="w-80 h-[340px] left-[28px] top-[260px] absolute bg-white rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] z-10">
           <div className="w-full flex flex-col items-center pt-8">
             <div className="text-2xl font-['Do_Hyeon'] mb-8">보호자 초대 코드 확인</div>
             
