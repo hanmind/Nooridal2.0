@@ -356,15 +356,6 @@ export default function GuardianSignup() {
           alt="누리달 로고"
         />
 
-        {/* 초대코드 표시 */}
-        {invitationCode && (
-          <div className="w-72 h-10 left-[50px] top-[167px] absolute bg-yellow-100 rounded-md flex items-center justify-center">
-            <span className="text-black text-sm font-['Do_Hyeon']">
-              초대코드: {invitationCode}
-            </span>
-          </div>
-        )}
-
         {/* 아이디 입력 필드 */}
         <div className="w-20 h-9 left-[32px] top-[167px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">아이디</div>
         <div className="w-70 h-8 left-[52px] top-[202px] absolute">
