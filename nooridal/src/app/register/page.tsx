@@ -10,6 +10,10 @@ export default function Register() {
     router.push('/register/guardian/invitation');
   };
 
+  const handlePregnantClick = () => {
+    router.push("/register/pregnant/pregnancy-info/baby-name");
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
@@ -36,7 +40,7 @@ export default function Register() {
         <div className="w-full flex flex-col items-center absolute top-[260px] z-20">
           <div className="text-2xl font-['Do_Hyeon'] mb-14">회원가입</div>
           <button 
-            onClick={() => router.push('/register/pregnant')}
+            onClick={handlePregnantClick}
             className="w-64 h-16 mb-6 bg-[#B7E5FF] rounded-[30px] shadow-lg hover:bg-[#A3D9F9] hover:scale-105 transition-all"
           >
             <span className="text-black text-xl font-['Do_Hyeon']">임산부</span>

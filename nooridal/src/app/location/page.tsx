@@ -86,7 +86,7 @@ export default function LocationPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center relative overflow-hidden">
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center relative">
       {showBackground && (
         <div className="absolute inset-0">
           <div className="absolute top-[5%] left-[10%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
@@ -97,7 +97,7 @@ export default function LocationPage() {
         </div>
       )}
 
-      <div className="w-full max-w-[390px] min-h-screen flex flex-col items-center relative">
+      <div className="w-full max-w-[390px] flex flex-col items-center relative pb-28">
         {/* Header */}
         <div className="w-full relative">
           <div className="text-center text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px] mt-[65px]">
@@ -157,12 +157,10 @@ export default function LocationPage() {
             </div>
           ))}
         </div>
-
-        {/* TabBar Component */}
-        <div className="w-full mt-auto">
-          <TabBar activeTab={activeTab} tabs={['chat', 'calendar', 'location', 'mypage']} onTabClick={handleTabClick} />
-        </div>
       </div>
+      
+      {/* TabBar Component */}
+      <TabBar activeTab={activeTab} tabs={['chat', 'calendar', 'location', 'mypage']} onTabClick={handleTabClick} />
     </div>
   );
 } 

@@ -35,6 +35,12 @@ export default function ProfileManagement() {
   const [showEditOptions, setShowEditOptions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { profileImage, setProfileImage } = useProfile();
+  const [userId, setUserId] = useState("");
+  const [isEditingId, setIsEditingId] = useState(false);
+  const [tempUserId, setTempUserId] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [tempPhoneNumber, setTempPhoneNumber] = useState("");
 
   useEffect(() => {
     // Daum 우편번호 서비스 스크립트 로드
@@ -48,9 +54,25 @@ export default function ProfileManagement() {
     // if (savedProfileImage) {
     //   setProfileImage(savedProfileImage);
     // }
+    
+    // 저장된 아이디와 전화번호 불러오기
+    const savedUserId = localStorage.getItem('userId');
+    const savedPhoneNumber = localStorage.getItem('phoneNumber');
+    
+    if (savedUserId) {
+      setUserId(savedUserId);
+      setTempUserId(savedUserId);
+    }
+    
+    if (savedPhoneNumber) {
+      setPhoneNumber(savedPhoneNumber);
+      setTempPhoneNumber(savedPhoneNumber);
+    }
 
     return () => {
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, []);
 
@@ -79,11 +101,37 @@ export default function ProfileManagement() {
     }
   };
 
+  const handleIdClick = () => {
+    setIsEditingId(true);
+  };
+
+  const handleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempUserId(e.target.value);
+  };
+
+  const handleIdBlur = () => {
+    // 중복 체크 중이 아닐 때만 편집 모드 종료
+    if (idDuplicate === null) {
+      setIsEditingId(false);
+    }
+  };
+
   const checkIdDuplicate = () => {
+    if (!tempUserId.trim()) {
+      return; // 빈 아이디는 중복 체크하지 않음
+    }
+    
     // 실제로는 API 호출을 통해 중복 여부를 확인해야 합니다.
     // 여기서는 예시로 랜덤하게 중복 여부를 결정합니다.
     const isDuplicate = Math.random() > 0.5;
     setIdDuplicate(isDuplicate);
+    
+    // 중복이 아닌 경우에만 아이디를 업데이트
+    if (!isDuplicate) {
+      setUserId(tempUserId);
+      setIsEditingId(false);
+      localStorage.setItem('userId', tempUserId);
+    }
     
     // 3초 후에 상태 초기화
     setTimeout(() => {
@@ -91,11 +139,46 @@ export default function ProfileManagement() {
     }, 3000);
   };
 
+  const handlePhoneClick = () => {
+    setIsEditingPhone(true);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/[^0-9]/g, ''); // 숫자만 남기기
+    
+    if (value.length <= 11) {
+      // 전화번호 형식으로 변환 (010-1234-5678)
+      if (value.length > 3 && value.length <= 7) {
+        value = value.slice(0, 3) + '-' + value.slice(3);
+      } else if (value.length > 7) {
+        value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7);
+      }
+      setTempPhoneNumber(value);
+    }
+  };
+
+  const handlePhoneBlur = () => {
+    if (phoneDuplicate === null) {
+      setIsEditingPhone(false);
+    }
+  };
+
   const checkPhoneDuplicate = () => {
+    if (!tempPhoneNumber.trim()) {
+      return; // 빈 전화번호는 중복 체크하지 않음
+    }
+    
     // 실제로는 API 호출을 통해 중복 여부를 확인해야 합니다.
     // 여기서는 예시로 랜덤하게 중복 여부를 결정합니다.
     const isDuplicate = Math.random() > 0.5;
     setPhoneDuplicate(isDuplicate);
+    
+    // 중복이 아닌 경우에만 전화번호를 업데이트
+    if (!isDuplicate) {
+      setPhoneNumber(tempPhoneNumber);
+      setIsEditingPhone(false);
+      localStorage.setItem('phoneNumber', tempPhoneNumber);
+    }
     
     // 3초 후에 상태 초기화
     setTimeout(() => {
@@ -268,55 +351,98 @@ export default function ProfileManagement() {
             )}
           </button>
         </div>
-        <div className="left-[163px] top-[178px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">이     름</div>
-        <div className="left-[153px] top-[227px] absolute text-center justify-start text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px]">초대 코드</div>
+        <div className="left-[160px] top-[178px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">이 름</div>
+        <div className="left-[159px] top-[227px] absolute text-center justify-start text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px]">초대코드</div>
         <div className="w-16 h-4 left-[213px] top-[177px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">홍길동</div>
         <div className="w-20 h-4 left-[223px] top-[227px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">{inviteCode}</div>
 
         {/* 아이디 */}
         <div className={`w-[260px] h-11 left-[30px] top-[308px] absolute rounded-[10px] border ${idDuplicate === true ? 'bg-red-100 border-red-300' : idDuplicate === false ? 'bg-green-100 border-green-300' : 'bg-white border-zinc-300'}`} />
-        <div className="w-24 h-5 left-[50px] top-[268px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">아이디</div>
-        <div className="w-52 h-11 left-[-34px] top-[305px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">nooridal</div>
+        <div className="w-24 h-5 left-[35px] top-[272px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">아이디</div>
+        {isEditingId ? (
+          <div className="w-[260px] h-11 left-[30px] top-[308px] absolute flex items-center">
+            <input
+              type="text"
+              value={tempUserId}
+              onChange={handleIdChange}
+              onBlur={handleIdBlur}
+              className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none"
+              autoFocus
+            />
+          </div>
+        ) : (
+          <div 
+            className="w-52 h-11 left-[45px] top-[305px] absolute text-left justify-start text-black text-s font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer"
+            onClick={handleIdClick}
+          >
+            {userId}
+          </div>
+        )}
         <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[305px] absolute" onClick={checkIdDuplicate}>
-          <div className="w-16 h-9 left-0 top-1 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
-            <span className="text-center text-[#333333] text-xs font-normal font-['Do_Hyeon']">중복확인</span>
+          <div className="w-16 h-9 left-0 top-2 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
+            <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">중복확인</span>
           </div>
         </div>
 
         {/* 비밀번호 */}
         <div className="w-[260px] h-11 left-[30px] top-[380px] absolute bg-white rounded-[10px] border border-zinc-300" />
-        <div className="w-24 h-5 left-[46px] top-[342px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">비밀번호</div>
-        <div className="w-52 h-11 left-[-25px] top-[375px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">********</div>
+        <div className="w-24 h-5 left-[35px] top-[344px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">비밀번호</div>
+        <div className="w-52 h-11 left-[-28px] top-[378px] absolute text-center justify-start text-neutral-400 text-s font-normal font-['Do_Hyeon'] leading-[50px]">********</div>
+        <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[380px] absolute">
+          <div className="w-16 h-9 left-0 top-1 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
+            <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">변경</span>
+          </div>
+        </div>
 
         {/* 이메일 */}
         <div className="w-[260px] h-11 left-[30px] top-[452px] absolute bg-gray-200 rounded-[10px] border border-zinc-300" />
-        <div className="w-28 h-5 left-[46px] top-[415px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">이메일</div>
-        <div className="w-52 h-2 left-[2px] top-[450px] absolute text-center justify-start text-stone-500 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">user@example.com</div>
+        <div className="w-28 h-5 left-[35px] top-[417px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">이메일</div>
+        <div className="w-52 h-2 left-[2px] top-[450px] absolute text-center justify-start text-stone-500 text-s font-normal font-['Do_Hyeon'] leading-[50px]">user@example.com</div>
 
         {/* 전화번호 */}
-        <div className={`w-[260px] h-11 left-[28px] top-[524px] absolute rounded-[10px] border ${phoneDuplicate === true ? 'bg-red-100 border-red-300' : phoneDuplicate === false ? 'bg-green-100 border-green-300' : 'bg-white border-zinc-300'}`} />
-        <div className="w-24 h-5 left-[46px] top-[487px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">전화번호</div>
-        <div className="w-52 h-11 left-[-10px] top-[520px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">010-1234-5678</div>
+        <div className={`w-[260px] h-11 left-[30px] top-[524px] absolute rounded-[10px] border ${phoneDuplicate === true ? 'bg-red-100 border-red-300' : phoneDuplicate === false ? 'bg-green-100 border-green-300' : 'bg-white border-zinc-300'}`} />
+        <div className="w-24 h-5 left-[35px] top-[489px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">전화번호</div>
+        {isEditingPhone ? (
+          <div className="w-[260px] h-11 left-[30px] top-[524px] absolute flex items-center">
+            <input
+              type="text"
+              value={tempPhoneNumber}
+              onChange={handlePhoneChange}
+              onBlur={handlePhoneBlur}
+              className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none"
+              autoFocus
+              maxLength={13}
+              placeholder="010-0000-0000"
+            />
+          </div>
+        ) : (
+          <div 
+            className="w-52 h-11 left-[45px] top-[520px] absolute text-left justify-start text-black text-s font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer"
+            onClick={handlePhoneClick}
+          >
+            {phoneNumber || ""}
+          </div>
+        )}
         <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[505px] absolute" onClick={checkPhoneDuplicate}>
           <div className="w-16 h-9 left-0 top-6 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
-            <span className="text-center text-[#333333] text-xs font-normal font-['Do_Hyeon']">중복확인</span>
+            <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">중복확인</span>
           </div>
         </div>
 
         {/* 주소 */}
-        <div className="w-24 h-9 left-[46px] top-[560px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">주소</div>
-        <div className="w-[260px] h-11 left-[30px] top-[596px] absolute bg-white rounded-[10px] border border-zinc-300" />
-        <div className="w-44 h-4 left-[10px] top-[595px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">{address}</div>
-        <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[582px] absolute">
+        <div className="w-24 h-9 left-[35px] top-[560px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">주소</div>
+        <div className="w-[260px] h-11 left-[28px] top-[596px] absolute bg-white rounded-[10px] border border-zinc-300" />
+        <div className="w-44 h-4 left-[40px] top-[595px] absolute text-center justify-start text-neutral-900 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">{address}</div>
+        <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[577px] absolute">
           <div className="w-16 h-9 left-0 top-6 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
-            <span className="text-center text-[#333333] text-xs font-normal font-['Do_Hyeon'] cursor-pointer" onClick={handleAddressSearch}>검색</span>
+            <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon'] cursor-pointer" onClick={handleAddressSearch}>검색</span>
           </div>
         </div>
 
         {/* Center the text inside the edit button and navigate back to @page.tsx on click */}
         <button 
           onClick={() => router.push('/mypage')}
-          className="w-40 h-10 left-[50%] transform -translate-x-1/2 top-[670px] absolute bg-sky-200 rounded-full flex items-center justify-center text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
+          className="w-20 h-10 left-[50%] transform -translate-x-1/2 top-[670px] absolute bg-sky-200 rounded-full flex items-center justify-center text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
         >
           수정
         </button>
