@@ -220,7 +220,7 @@ export default function MyPage() {
             <div className="w-full px-6 top-[100px] absolute">
               <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center" style={{ height: 'auto', padding: '10px 0' }}>
                 <span className="text-black text-lg font-normal font-['Do_Hyeon'] ">
-                  🍼 {pregnancyInfo?.baby_name || '사랑스러운 아기'}와 만나기까지  
+                  🍼 {pregnancyInfo?.baby_name || '사랑스러운 아기'} 만나기까지  
                   {pregnancyInfo?.due_date ? ` D-${Math.ceil((new Date(pregnancyInfo.due_date).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24))}일` : '비밀'} 
                   🐥
                 </span>

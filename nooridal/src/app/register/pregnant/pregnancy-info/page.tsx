@@ -40,7 +40,7 @@ export default function PregnancyInfo() {
     if (currentStep === 2) {
       router.push('/register/pregnant/pregnancy-info');
     } else if (currentStep === 1) {
-      router.push('/login');
+    router.push('/login');
     }
   };
 
@@ -204,15 +204,15 @@ export default function PregnancyInfo() {
     >
       {currentStep === 1 && (
         <div className="w-full p-4 bg-[#FFF4BB] rounded-xl border border-[#FFE999] mb-4 flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={isPregnant}
+        <input
+          type="checkbox"
+          checked={isPregnant}
             onChange={() => {
               setIsPregnant(!isPregnant);
               setWaitingForBaby(false);
             }}
-            className="w-4 h-4 mr-4"
-          />
+          className="w-4 h-4 mr-4"
+        />
           <span className="text-black font-['Do_Hyeon']">🤰🏻 뱃속에 아기가 있어요</span>
         </div>
       )}
@@ -568,7 +568,7 @@ export default function PregnancyInfo() {
               </button>
             </div>
           </div>
-        </div>
+      </div>
       )}
     </PregnancyFormLayout>
   );
