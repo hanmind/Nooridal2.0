@@ -158,6 +158,36 @@ export default function Login() {
     }
   };
 
+  // 카카오 로그인 처리 함수
+  const handleKakaoLogin = async () => {
+    setIsLoading(true);
+    setLoginError(""); // Clear previous errors
+    
+    try {
+      console.log("카카오 로그인 시도...");
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'kakao',
+        options: {
+          redirectTo: `${window.location.origin}/calendar`,
+          scopes: 'account_email profile_nickname profile_image openid'
+        }
+      });
+
+      if (error) {
+        console.error('Kakao login error:', error.message);
+        setLoginError('카카오 로그인 중 오류가 발생했습니다.');
+      }
+      // Supabase는 자동으로 카카오 로그인 페이지로 리다이렉트합니다.
+      // 성공 시 /auth/v1/callback에서 세션 처리 후 리다이렉트됩니다.
+    } catch (error) {
+      console.error('Unexpected error during Kakao login:', error);
+      setLoginError("카카오 로그인 중 예상치 못한 오류가 발생했습니다.");
+    } finally {
+      // OAuth 리다이렉션이 발생하므로 로딩 상태 해제는 불필요할 수 있음
+      // setIsLoading(false);
+    }
+  };
+
   // 엔터 키 핸들러
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !isLoading) {
@@ -300,7 +330,11 @@ export default function Login() {
                   </svg>
                 </button>
                 {/* Kakao */}
-                <button className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                <button 
+                  onClick={handleKakaoLogin}
+                  disabled={isLoading} // Disable button while loading
+                  className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
                   <svg width="24" height="24" viewBox="0 0 24 24">
                     <path fill="#000000" d="M12 4C7.03 4 3 7.03 3 10.82C3 13.27 4.56 15.41 6.94 16.58V19.58C6.94 19.97 7.4 20.19 7.7 19.94L10.73 17.72C11.14 17.78 11.56 17.82 12 17.82C16.97 17.82 21 14.79 21 10.82C21 7.03 16.97 4 12 4Z"/>
                   </svg>
