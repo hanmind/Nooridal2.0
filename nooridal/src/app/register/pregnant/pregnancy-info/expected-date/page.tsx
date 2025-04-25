@@ -231,9 +231,9 @@ export default function ExpectedDate() {
 
       {/* 출산 예정일 입력 */}
       <div className="mb-6">
-        <label className="block text-m font-['Do_Hyeon'] text-gray-900 mb-1">출산 예정일</label>
+        <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">출산 예정일</label>
         <div 
-          className="w-full h-12 bg-white rounded-xl border border-gray-300 text-black font-['Do_Hyeon'] flex justify-between items-center cursor-pointer px-4"
+          className="w-full h-12 bg-[#FFF4BB] rounded-xl border border-yellow-300 text-black font-['Do_Hyeon'] flex justify-between items-center cursor-pointer px-4"
           onClick={() => !noInfo && setShowExpectedDatePicker(!showExpectedDatePicker)}
         >
           <span className="text-gray-500">{expectedDate || "출산 예정일을 선택해주세요"}</span>
