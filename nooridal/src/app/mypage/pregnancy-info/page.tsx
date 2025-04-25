@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../../utils/supabase";
 
 interface FormData {
   babyName: string;

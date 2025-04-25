@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useProfile } from "@/app/context/ProfileContext";
 import { useState, useEffect } from "react";
 import TabBar from '../components/TabBar';
-import { supabase } from "../../utils/supabase"; // Adjust the import path as needed
+import { supabase } from "../../utils/supabase";
 
 
 export default function MyPage() {
