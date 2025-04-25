@@ -224,29 +224,37 @@ export default function MyPage() {
                 🐥
               </span>
             </div>
-            <div className="text-black text-lg font-normal font-['Do_Hyeon'] mt-6">
-              출산 예정일: {pregnancyInfo.due_date}
-            </div>
-            <div className="flex items-center mt-10">
-              <div className="w-full h-2 bg-gray-200 rounded-full relative">
-                <div
-                  className="h-full bg-blue-500 rounded-full"
-                  style={{ width: `${(pregnancyInfo.current_week / 40) * 100}%` }} // Assuming 40 weeks as full term
-                ></div>
-                <div
-                  className="absolute -top-6 text-blue-500"
-                  style={{ left: `calc(${(pregnancyInfo.current_week / 40) * 100}% - 8px)` }} // Adjust for icon width
-                >
-                  <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                    <circle cx="12" cy="9" r="2.5" />
-                  </svg>
-                  <div className="text-center text-sm font-['Do_Hyeon'] mt-2">
-                    {pregnancyInfo.current_week}주
+            {pregnancyInfo ? (
+              <>
+                <div className="text-black text-lg font-normal font-['Do_Hyeon'] mt-6">
+                  출산 예정일: {pregnancyInfo.due_date}
+                </div>
+                <div className="flex items-center mt-10">
+                  <div className="w-full h-2 bg-gray-200 rounded-full relative">
+                    <div
+                      className="h-full bg-blue-500 rounded-full"
+                      style={{ width: `${(pregnancyInfo.current_week / 40) * 100}%` }} // Assuming 40 weeks as full term
+                    ></div>
+                    <div
+                      className="absolute -top-6 text-blue-500"
+                      style={{ left: `calc(${(pregnancyInfo.current_week / 40) * 100}% - 8px)` }} // Adjust for icon width
+                    >
+                      <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                        <circle cx="12" cy="9" r="2.5" />
+                      </svg>
+                      <div className="text-center text-sm font-['Do_Hyeon'] mt-2">
+                        {pregnancyInfo.current_week}주
+                      </div>
+                    </div>
                   </div>
                 </div>
+              </>
+            ) : (
+              <div className="text-black text-lg font-normal font-['Do_Hyeon'] mt-6">
+                임신 정보가 없습니다.
               </div>
-            </div>
+            )}
           </div>
         </div>
 
