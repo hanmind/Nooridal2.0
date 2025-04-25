@@ -216,46 +216,55 @@ export default function MyPage() {
           )}
           
           {/* 아기와 만나기까지, 출산 예정일 */}
-          <div className="w-full px-6 top-[100px] absolute">
-            <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center" style={{ height: 'auto', padding: '10px 0' }}>
-              <span className="text-black text-lg font-normal font-['Do_Hyeon'] ">
-                🍼 {pregnancyInfo?.baby_name || '사랑스러운 아기'}와 만나기까지  
-                {pregnancyInfo?.due_date ? ` D-${Math.ceil((new Date(pregnancyInfo.due_date).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24))}일` : '비밀'} 
-                🐥
-              </span>
-            </div>
-            {pregnancyInfo ? (
-              <>
-                <div className="text-black text-lg font-normal font-['Do_Hyeon'] mt-6">
-                  출산 예정일: {pregnancyInfo.due_date}
-                </div>
-                <div className="flex items-center mt-10">
-                  <div className="w-full h-2 bg-gray-200 rounded-full relative">
-                    <div
-                      className="h-full bg-blue-500 rounded-full"
-                      style={{ width: `${(pregnancyInfo.current_week / 40) * 100}%` }} // Assuming 40 weeks as full term
-                    ></div>
-                    <div
-                      className="absolute -top-6 text-blue-500"
-                      style={{ left: `calc(${(pregnancyInfo.current_week / 40) * 100}% - 8px)` }} // Adjust for icon width
-                    >
-                      <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                        <circle cx="12" cy="9" r="2.5" />
-                      </svg>
-                      <div className="text-center text-sm font-['Do_Hyeon'] mt-2">
-                        {pregnancyInfo.current_week}주
-                      </div>
+          {pregnancyInfo ? (
+            <div className="w-full px-6 top-[100px] absolute">
+              <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center" style={{ height: 'auto', padding: '10px 0' }}>
+                <span className="text-black text-lg font-normal font-['Do_Hyeon'] ">
+                  🍼 {pregnancyInfo?.baby_name || '사랑스러운 아기'}와 만나기까지  
+                  {pregnancyInfo?.due_date ? ` D-${Math.ceil((new Date(pregnancyInfo.due_date).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24))}일` : '비밀'} 
+                  🐥
+                </span>
+              </div>
+              <div className="text-black text-lg font-normal font-['Do_Hyeon'] mt-6">
+                출산 예정일: {pregnancyInfo.due_date}
+              </div>
+              <div className="flex items-center mt-8">
+                <div className="w-full h-2 bg-gray-200 rounded-full relative">
+                  <div
+                    className="h-full bg-blue-500 rounded-full"
+                    style={{ width: `${(pregnancyInfo.current_week / 40) * 100}%` }} // Assuming 40 weeks as full term
+                  ></div>
+                  <div
+                    className="absolute -top-6 text-blue-500"
+                    style={{ left: `calc(${(pregnancyInfo.current_week / 40) * 100}% - 8px)` }} // Adjust for icon width
+                  >
+                    <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                      <circle cx="12" cy="9" r="2.5" />
+                    </svg>
+                    <div className="flex flex-col items-center text-center text-sm font-['Do_Hyeon'] mt-2">
+                      <span>{pregnancyInfo.current_week}</span>
+                      <span>주</span>
                     </div>
                   </div>
                 </div>
-              </>
-            ) : (
-              <div className="text-black text-lg font-normal font-['Do_Hyeon'] mt-6">
-                임신 정보가 없습니다.
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="w-full px-6 top-[100px] absolute">
+              <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center" style={{ height: 'auto', padding: '10px 0' }}>
+                <span className="text-black text-lg font-normal font-['Do_Hyeon'] ">
+                  임신 정보가 없습니다. 등록해 주세요.
+                </span>
+              </div>
+              <button
+                onClick={handleRegisterPregnancyInfo}
+                className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded-full font-['Do_Hyeon'] hover:bg-yellow-600 transition-colors mx-auto block"
+              >
+                임신 정보 등록하기
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 메뉴 카드 */}

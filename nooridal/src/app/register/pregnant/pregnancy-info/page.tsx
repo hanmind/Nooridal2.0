@@ -15,7 +15,7 @@ export default function PregnancyInfo() {
   const [babyName, setBabyName] = useState("");
   const [expectedDate, setExpectedDate] = useState("");
   const [highRisk, setHighRisk] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState<number>(1);
   const [babyGender, setBabyGender] = useState("");
   const [pregnancyWeek, setPregnancyWeek] = useState("");
   const [lastPeriodDate, setLastPeriodDate] = useState("");
@@ -39,6 +39,11 @@ export default function PregnancyInfo() {
   const handlePrevious = () => {
     if (currentStep === 2) {
       router.push('/register/pregnant/pregnancy-info');
+    } else if (currentStep === 1) {
+      router.push('/login');
+    }
+  };
+
   const createPregnancy = async () => {
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     if (sessionError) {
@@ -84,32 +89,31 @@ export default function PregnancyInfo() {
   };
 
   const handleNext = async () => {
-    console.log('Current step:', currentStep);
-    if (currentStep === 1) {
-      if (isPregnant) {
-        setCurrentStep(2);
-        console.log('Moving to step 2');
-      } else if (waitingForBaby) {
-        console.log('Navigating directly to calendar');
-        router.push('/calendar');
+    if (currentStep === 4) {
+      router.push('/calendar');
+    } else {
+      console.log('Current step:', currentStep);
+      if (currentStep === 1) {
+        if (isPregnant) {
+          setCurrentStep(2);
+          console.log('Moving to step 2');
+        } else if (waitingForBaby) {
+          console.log('Navigating directly to calendar');
+          router.push('/calendar');
+        }
+      } else if (currentStep === 2) {
+        setCurrentStep(3);
+        console.log('Moving to step 3');
+      } else if (currentStep === 3) {
+        router.push('/register/pregnant/pregnancy-info/baby-name');
+        setCurrentStep(4);
+        console.log('Moving to step 4');
+      } else if (currentStep === 4) {
+        router.push('/register/pregnant/pregnancy-info/expected-date');
+        console.log('Calling createPregnancy');
+        await createPregnancy();
       }
-    } else if (currentStep === 2) {
-      setCurrentStep(3);
-      console.log('Moving to step 3');
-    } else if (currentStep === 3) {
-      router.push('/register/pregnant/pregnancy-info/baby-name');
-      setCurrentStep(4);
-      console.log('Moving to step 4');
-    } else if (currentStep === 4) {
-      router.push('/register/pregnant/pregnancy-info/expected-date');
-      console.log('Calling createPregnancy');
-      await createPregnancy();
-    router.push('/calendar');
     }
-  };
-
-  const handlePrevious = () => {
-    router.push('/login');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -180,6 +184,9 @@ export default function PregnancyInfo() {
   const handleDateSelect = (date: Date) => {
     setExpectedDate(date.toISOString().split('T')[0]);
     setShowCalendar(false);
+    if (currentStep === 3) {
+      setCurrentStep(4);
+    }
   };
 
   const formatYearMonth = (date: Date) => {
@@ -271,7 +278,7 @@ export default function PregnancyInfo() {
                   babyGender === '모름' ? 'bg-gray-200 border-gray-200' : 'bg-white border-gray-300'
                 } cursor-pointer transition-colors font-['Do_Hyeon']`}
               >
-                <span className="text-black text-sm">몰라용</span>
+                <span className="text-black text-sm">비밀</span>
               </button>
             </div>
           </div>
