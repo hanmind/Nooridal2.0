@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
+import { supabase } from "../../lib/supabase";
 
 interface FormData {
   babyName: string;
@@ -66,6 +67,42 @@ export default function PregnancyInfo() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  useEffect(() => {
+    const fetchPregnancyInfo = async () => {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error('사용자 세션을 가져오는 중 오류 발생:', sessionError);
+        return;
+      }
+
+      const user = sessionData?.session?.user;
+      if (user) {
+        const { data: pregnancyData, error: pregnancyError } = await supabase
+          .from('pregnancies')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (pregnancyError) {
+          console.error('임신 정보를 가져오는 중 오류 발생:', pregnancyError.message);
+        } else {
+          console.log('임신 정보가 성공적으로 가져와졌습니다:', pregnancyData);
+          const daysUntilBirth = calculateDaysUntilBirth(pregnancyData.due_date);
+          setFormData({
+            babyName: pregnancyData.baby_name,
+            gender: pregnancyData.gender,
+            pregnancyWeek: pregnancyData.current_week.toString(),
+            dueDate: pregnancyData.due_date,
+            isHighRisk: pregnancyData.high_risk,
+            daysUntilBirth: daysUntilBirth,
+          });
+        }
+      }
+    };
+
+    fetchPregnancyInfo();
+  }, []);
+
   // 임신 주차 변경 핸들러
   const handleWeekChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedWeek = e.target.value;
@@ -105,12 +142,33 @@ export default function PregnancyInfo() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Save the updated pregnancy information
-    // This could involve an API call to update the server-side data
-    // For now, we'll simulate saving by updating local state or context
-    // Example: updatePregnancyInfo(formData);
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+
+      const user = sessionData?.session?.user;
+      if (user) {
+        const { error: updateError } = await supabase
+          .from('pregnancies')
+          .update({
+            gender: formData.gender,
+            baby_name: formData.babyName,
+            current_week: parseInt(formData.pregnancyWeek),
+            due_date: formData.dueDate,
+            high_risk: formData.isHighRisk,
+            days_until_birth: formData.daysUntilBirth
+          })
+          .eq('user_id', user.id);
+
+        if (updateError) throw updateError;
+
+        console.log('임신 정보가 성공적으로 업데이트되었습니다.');
+      }
+    } catch (error: any) {
+      console.error('임신 정보를 업데이트하는 중 오류 발생:', error.message);
+    }
     setIsEditing(false);
     router.push('/mypage'); // Navigate back to my page after saving
   };
@@ -510,7 +568,7 @@ export default function PregnancyInfo() {
             />
             
             <div className="text-center text-xl font-['Do_Hyeon'] mb-6">
-              홍길동 님의 임신정보
+              {formData.babyName}의 엄마 정보
             </div>
 
             {isEditing ? (

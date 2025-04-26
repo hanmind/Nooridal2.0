@@ -158,6 +158,68 @@ export default function Login() {
     }
   };
 
+  // 카카오 로그인 처리 함수
+  const handleKakaoLogin = async () => {
+    setIsLoading(true);
+    setLoginError(""); // Clear previous errors
+    
+    try {
+      console.log("카카오 로그인 시도...");
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'kakao',
+        options: {
+          redirectTo: `${window.location.origin}/calendar`,
+          scopes: 'account_email profile_nickname profile_image openid'
+        }
+      });
+
+      if (error) {
+        console.error('Kakao login error:', error.message);
+        setLoginError('카카오 로그인 중 오류가 발생했습니다.');
+      }
+      // Supabase는 자동으로 카카오 로그인 페이지로 리다이렉트합니다.
+      // 성공 시 /auth/v1/callback에서 세션 처리 후 리다이렉트됩니다.
+    } catch (error) {
+      console.error('Unexpected error during Kakao login:', error);
+      setLoginError("카카오 로그인 중 예상치 못한 오류가 발생했습니다.");
+    } finally {
+      // OAuth 리다이렉션이 발생하므로 로딩 상태 해제는 불필요할 수 있음
+      // setIsLoading(false);
+    }
+  };
+
+  // 구글 로그인 처리 함수
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    setLoginError(""); // Clear previous errors
+    
+    try {
+      console.log("구글 로그인 시도...");
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/calendar`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Google login error:', error.message);
+        setLoginError('구글 로그인 중 오류가 발생했습니다.');
+      }
+      // Supabase는 자동으로 구글 로그인 페이지로 리다이렉트합니다.
+    } catch (error) {
+      console.error('Unexpected error during Google login:', error);
+      setLoginError("구글 로그인 중 예상치 못한 오류가 발생했습니다.");
+    } finally {
+      // OAuth 리다이렉션이 발생하므로 로딩 상태 해제는 불필요할 수 있음
+      // setIsLoading(false);
+    }
+  };
+
   // 엔터 키 핸들러
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !isLoading) {
@@ -291,7 +353,11 @@ export default function Login() {
               {/* 소셜 로그인 버튼들 */}
               <div className="flex justify-center items-center gap-6 mt-4">
                 {/* Google */}
-                <button className="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                <button 
+                  onClick={handleGoogleLogin}
+                  disabled={isLoading}
+                  className="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
                   <svg width="24" height="24" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -300,7 +366,11 @@ export default function Login() {
                   </svg>
                 </button>
                 {/* Kakao */}
-                <button className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                <button 
+                  onClick={handleKakaoLogin}
+                  disabled={isLoading} // Disable button while loading
+                  className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
                   <svg width="24" height="24" viewBox="0 0 24 24">
                     <path fill="#000000" d="M12 4C7.03 4 3 7.03 3 10.82C3 13.27 4.56 15.41 6.94 16.58V19.58C6.94 19.97 7.4 20.19 7.7 19.94L10.73 17.72C11.14 17.78 11.56 17.82 12 17.82C16.97 17.82 21 14.79 21 10.82C21 7.03 16.97 4 12 4Z"/>
                   </svg>
