@@ -53,8 +53,6 @@ export default function ProfileManagement() {
     phoneNumber: '',
     address: ''
   });
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [tempName, setTempName] = useState("");
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -65,28 +63,45 @@ export default function ProfileManagement() {
     // Supabase에서 사용자 정보 불러오기
     const fetchUserInfo = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.error('Error fetching user session:', sessionError);
+          return;
+        }
+
+        const user = sessionData?.session?.user;
         if (user) {
-          const { data, error } = await supabase
+          // 사용자 기본 정보 설정
+          setUserInfo({
+            name: user.user_metadata.full_name || "",
+            email: user.email || '',
+            userId: user.id || '',
+            phoneNumber: user.user_metadata.phone || '',
+            address: user.user_metadata.address || ''
+          });
+          setTempUserId(user.id || '');
+          setTempPhoneNumber(user.user_metadata.phone || '');
+          setPasswordLength(8);
+
+          // 추가 사용자 정보 가져오기
+          const { data: userData, error: userError } = await supabase
             .from('users')
             .select('*')
             .eq('id', user.id)
             .single();
 
-          if (error) throw error;
-
-          if (data) {
-            setUserInfo({
-              name: data.name || '',
-              email: data.email || '',
-              userId: data.userId || '',
-              phoneNumber: data.phone_number || '',
-              address: data.address || ''
-            });
-            setTempUserId(data.userId || '');
-            setTempPhoneNumber(data.phone_number || '');
-            setTempName(data.name || '');
-            setPasswordLength(8);
+          if (userError) {
+            console.error('Error fetching user data:', userError);
+          } else if (userData) {
+            setUserInfo((prev: typeof userInfo) => ({
+              ...prev,
+              name: userData.name || prev.name,
+              userId: userData.userId || prev.userId,
+              phoneNumber: userData.phone_number || prev.phoneNumber,
+              address: userData.address || prev.address
+            }));
+            setTempUserId(userData.userId || userInfo.userId);
+            setTempPhoneNumber(userData.phone_number || userInfo.phoneNumber);
           }
         }
       } catch (error) {
@@ -107,22 +122,12 @@ export default function ProfileManagement() {
     if (window.daum) {
       new window.daum.Postcode({
         oncomplete: function(data: any) {
-          let fullAddress = data.address;
-          let extraAddress = '';
-
-          if (data.addressType === 'R') {
-            if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
-              extraAddress += data.bname;
-            }
-            if (data.buildingName !== '' && data.apartment === 'Y') {
-              extraAddress += (extraAddress !== '' ? ', ' + data.buildingName : data.buildingName);
-            }
-            if (extraAddress !== '') {
-              fullAddress += ` (${extraAddress})`;
-            }
-          }
-
-          setAddress(fullAddress);
+          // 지번 주소에서 '동'이 포함된 부분까지 추출 (시/구/동 형식)
+          let jibun = data.jibunAddress || '';
+          let match = jibun.match(/(.*?[시구].*?[동])/);
+          let shortAddress = match ? match[1] : jibun;
+          setAddress(shortAddress);
+          setUserInfo(prev => ({ ...prev, address: shortAddress }));
         }
       }).open();
     }
@@ -284,9 +289,29 @@ export default function ProfileManagement() {
     }
   };
 
-  const handleSaveChanges = () => {
-    // 여기에 저장 로직을 추가할 수 있습니다.
-    router.push('/mypage'); // 마이페이지로 이동
+  const handleSaveChanges = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from('users')
+          .update({
+            name: userInfo.name,
+            userId: userInfo.userId,
+            phone_number: userInfo.phoneNumber,
+            address: userInfo.address,
+          })
+          .eq('id', user.id);
+
+        if (error) throw error;
+
+        alert('수정이 완료되었습니다!');
+        router.push('/mypage');
+      }
+    } catch (error) {
+      alert('수정에 실패했습니다. 다시 시도해주세요.');
+      console.error(error);
+    }
   };
 
   const handlePasswordChange = async () => {
@@ -319,41 +344,11 @@ export default function ProfileManagement() {
     }
   };
 
-  const handleNameClick = () => {
-    setIsEditingName(true);
-  };
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTempName(e.target.value);
-  };
-
-  const handleNameBlur = async () => {
-    if (tempName.trim() !== userInfo.name) {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { error } = await supabase
-            .from('users')
-            .update({ name: tempName })
-            .eq('id', user.id);
-
-          if (error) throw error;
-
-          setUserInfo(prev => ({ ...prev, name: tempName }));
-        }
-      } catch (error) {
-        console.error('이름 변경 중 오류 발생:', error);
-        alert('이름 변경에 실패했습니다. 다시 시도해주세요.');
-      }
-    }
-    setIsEditingName(false);
-  };
-
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
         <div className="w-[360px] h-[610px] left-[15px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]" />
-        <div className="left-[155px] top-[55px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
+        <div className="left-[155px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
           내 정보 관리
         </div>
         <button 
@@ -375,15 +370,26 @@ export default function ProfileManagement() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gray-200" />
+            <div className="w-full h-full flex items-center justify-center">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="#9CA3AF"/>
+                </svg>
+              </div>
           )}
-          <div className="absolute bottom-0 right-0 w-8 h-8 bg-[#FFE999] rounded-full flex items-center justify-center z-30">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 15.2C13.7673 15.2 15.2 13.7673 15.2 12C15.2 10.2327 13.7673 8.8 12 8.8C10.2327 8.8 8.8 10.2327 8.8 12C8.8 13.7673 10.2327 15.2 12 15.2Z" fill="#333333"/>
-              <path d="M9 2L7.17 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4H16.83L15 2H9ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17Z" fill="#333333"/>
-            </svg>
-          </div>
         </div>
+        {/* 카메라 버튼 */}
+        <button
+            className="absolute left-[100px] top-[230px] w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md z-50"
+            onClick={() => setShowProfileOptions(true)}
+          >
+            {/* 카메라 아이콘 */}
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="8" width="16" height="10" rx="2" stroke="#9CA3AF" strokeWidth="1.5" fill="white"/>
+              <circle cx="12" cy="13" r="3" stroke="#9CA3AF" strokeWidth="1.5" fill="white"/>
+              <rect x="9" y="6" width="6" height="2" rx="1" fill="#9CA3AF"/>
+              <circle cx="17" cy="10" r="0.7" fill="#9CA3AF"/>
+            </svg>
+          </button>
         
         {/* 프로필 옵션 팝업 */}
         {showProfileOptions && (
@@ -460,26 +466,15 @@ export default function ProfileManagement() {
         </div>
         <div className="left-[160px] top-[178px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">이 름</div>
         <div className="left-[159px] top-[227px] absolute text-center justify-start text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px]">초대코드</div>
-        {isEditingName ? (
-          <div className="w-37 h-9 left-[214px] top-[184px] absolute flex items-center">
-            <input
-              type="text"
-              value={tempName}
-              onChange={handleNameChange}
-              onBlur={handleNameBlur}
-              className="w-full h-full pl-4 text-left text-black text-base font-normal font-['Do_Hyeon'] bg-transparent outline-none"
-              autoFocus
-            />
-          </div>
-        ) : (
-          <div 
-            className="w-16 h-4 left-[213px] top-[177px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer"
-            onClick={handleNameClick}
-          >
-            {userInfo.name}
-          </div>
-        )}
         <div className="w-20 h-4 left-[223px] top-[227px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">{inviteCode}</div>
+
+        {/* 이름 입력란 - 이름이 보이고 수정 가능하게 */}
+        <input
+          type="text"
+          value={userInfo.name}
+          onChange={e => setUserInfo(prev => ({ ...prev, name: e.target.value }))}
+          className="w-37 h-9 left-[214px] top-[184px] absolute bg-white rounded-lg border border-zinc-300 px-3 text-black text-base font-['Do_Hyeon'] focus:outline-none focus:border-sky-400"
+        />
 
         {/* 아이디 */}
         <div className={`w-[260px] h-11 left-[30px] top-[308px] absolute rounded-[10px] border ${idDuplicate === true ? 'bg-red-100 border-red-300' : idDuplicate === false ? 'bg-green-100 border-green-300' : 'bg-white border-zinc-300'}`} />
@@ -491,7 +486,7 @@ export default function ProfileManagement() {
               value={tempUserId}
               onChange={handleIdChange}
               onBlur={handleIdBlur}
-              className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none"
+              className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
               autoFocus
             />
           </div>
@@ -622,7 +617,7 @@ export default function ProfileManagement() {
               value={tempPhoneNumber}
               onChange={handlePhoneChange}
               onBlur={handlePhoneBlur}
-              className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none"
+              className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
               autoFocus
               maxLength={13}
               placeholder="010-0000-0000"
@@ -645,7 +640,7 @@ export default function ProfileManagement() {
         {/* 주소 */}
         <div className="w-24 h-9 left-[35px] top-[560px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">주소</div>
         <div className="w-[260px] h-11 left-[30px] top-[596px] absolute bg-white rounded-[10px] border border-zinc-300" />
-        <div className="w-44 h-4 left-[45px] top-[595px] absolute text-left justify-start text-neutral-900 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
+        <div className="w-44 h-4 left-[45px] top-[595px] absolute text-left justify-start text-neutral-900 text-m font-normal font-['Do_Hyeon'] leading-[50px]">
           {userInfo.address}
         </div>
         <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[577px] absolute">
@@ -656,8 +651,8 @@ export default function ProfileManagement() {
 
         {/* Center the text inside the edit button and navigate back to @page.tsx on click */}
         <button 
-          onClick={() => router.push('/mypage')}
-          className="w-20 h-10 left-[50%] transform -translate-x-1/2 top-[670px] absolute bg-sky-200 rounded-full flex items-center justify-center text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
+          onClick={handleSaveChanges}
+          className="w-20 h-10 left-[50%] transform -translate-x-1/2 top-[670px] absolute bg-sky-200 rounded-full flex items-center justify-center text-black text-m font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
         >
           수정
         </button>

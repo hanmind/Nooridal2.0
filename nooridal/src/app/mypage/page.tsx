@@ -14,6 +14,7 @@ export default function MyPage() {
   const [showImageModal, setShowImageModal] = useState(false);
   const [name, setName] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
   const [pregnancyInfo, setPregnancyInfo] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState('mypage');
   const [babyName, setBabyName] = useState('');
@@ -26,27 +27,39 @@ export default function MyPage() {
     const fetchUserInfo = async () => {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) {
-        console.error('Error fetching user session:', sessionError);
+        console.error('세션 정보를 가져오는데 실패했습니다:', sessionError);
         return;
       }
 
       const user = sessionData?.session?.user;
       if (user) {
-        setName(user.user_metadata.full_name || "Unknown");
         setUserId(user.id);
+        setEmail(user.email || null);
 
-        // userId를 사용하여 임신 정보 가져오기
+        // users 테이블에서 사용자 정보 가져오기
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('name')
+          .eq('id', user.id)
+          .single();
+
+        if (userError) {
+          console.error('사용자 정보를 가져오는데 실패했습니다:', userError);
+        } else if (userData) {
+          setName(userData.name);
+        }
+
+        // 임신 정보 가져오기
         const { data: pregnancyData, error: pregnancyError } = await supabase
           .from('pregnancies')
           .select('baby_name, due_date, current_week, high_risk')
-          .eq('user_id', user.id)
-          .limit(1) 
+          .eq('userId', user.id)
           .maybeSingle();
 
         if (pregnancyError) {
-          console.error('Error fetching pregnancy information:', pregnancyError.message);
-        } else {
-          console.log('Pregnancy data fetched:', pregnancyData);
+          console.error('임신 정보를 가져오는 중 오류 발생:', pregnancyError.message);
+        } else if (pregnancyData) {
+          console.log('임신 정보 가져오기 성공:', pregnancyData);
           setPregnancyInfo(pregnancyData);
         }
       }
@@ -54,26 +67,6 @@ export default function MyPage() {
 
     fetchUserInfo();
   }, []);
-
-  useEffect(() => {
-    const fetchPregnancyInfo = async () => {
-      if (!userId) return; // Ensure userId is not null
-
-      const { data, error } = await supabase
-        .from('pregnancies')
-        .select('*')
-        .eq('user_id', userId);
-
-      if (error) {
-        console.error('Error fetching pregnancy info:', error);
-      } else {
-        console.log('Pregnancy info fetched:', data);
-        setPregnancyInfo(data);
-      }
-    };
-
-    fetchPregnancyInfo();
-  }, [userId]);
 
   useEffect(() => {
     setActiveTab('mypage');
@@ -174,12 +167,9 @@ export default function MyPage() {
         </button>
 
         {/* 프로필 카드 */}
-        <div className="w-[360px] h-[280px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
-          {/* 프로필 이미지 */}
-          <div 
-            className={`w-16 h-16 left-[20px] top-[20px] absolute rounded-full overflow-hidden ${profileImage ? 'cursor-pointer' : ''}`}
-            onClick={handleProfileImageClick}
-          >
+        <div className="w-[360px] h-[280px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)] relative">
+          {/* 프로필 원 */}
+          <div className="w-24 h-24 left-[20px] top-[20px] absolute bg-gray-200 rounded-full overflow-hidden flex items-center justify-center">
             {profileImage ? (
               <img 
                 src={profileImage} 
@@ -187,8 +177,8 @@ export default function MyPage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="w-full h-full flex items-center justify-center">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="#9CA3AF"/>
                 </svg>
               </div>
@@ -196,13 +186,13 @@ export default function MyPage() {
           </div>
           
           {/* 사용자 이름 */}
-          <div className="left-[105px] top-[20px] absolute text-neutral-700 text-lg font-normal font-['Do_Hyeon']">
-            {name || "홍길동"}
+          <div className="left-[130px] top-[40px] absolute text-neutral-700 text-xl font-normal font-['Do_Hyeon']">
+            {name || ""}
           </div>
           
-          {/* 사용자 ID */}
-          <div className="left-[105px] top-[45px] absolute text-stone-500 text-sm font-normal font-['Do_Hyeon']">
-            {userId || "nooridal"}
+          {/* 사용자 email */}
+          <div className="left-[130px] top-[75px] absolute text-stone-500 text-m font-normal font-['Do_Hyeon']">
+            {email || ""}
           </div>
           
           {/* 고위험 임신 표시 */}
@@ -217,7 +207,7 @@ export default function MyPage() {
           
           {/* 아기와 만나기까지, 출산 예정일 */}
           {pregnancyInfo ? (
-            <div className="w-full px-6 top-[100px] absolute">
+            <div className="w-full px-6 top-[130px] absolute">
               <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center" style={{ height: 'auto', padding: '10px 0' }}>
                 <span className="text-black text-lg font-normal font-['Do_Hyeon'] ">
                   🍼 {pregnancyInfo?.baby_name || '사랑스러운 아기'} 만나기까지  
@@ -251,15 +241,15 @@ export default function MyPage() {
               </div>
             </div>
           ) : (
-            <div className="w-full px-6 top-[100px] absolute">
+            <div className="w-full px-6 top-[130px] absolute">
               <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center" style={{ height: 'auto', padding: '10px 0' }}>
-                <span className="text-black text-lg font-normal font-['Do_Hyeon'] ">
-                  임신 정보가 없습니다. 등록해 주세요.
+                <span className="text-black text-m font-normal font-['Do_Hyeon'] ">
+                  아래 버튼을 눌러 임신정보 등록을 해주세요 ❣️
                 </span>
               </div>
               <button
                 onClick={handleRegisterPregnancyInfo}
-                className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded-full font-['Do_Hyeon'] hover:bg-yellow-600 transition-colors mx-auto block"
+                className="mt-6 px-4 py-2 bg-yellow-400 text-white rounded-full font-['Do_Hyeon'] hover:bg-yellow-600 transition-colors mx-auto block"
               >
                 임신 정보 등록하기
               </button>
