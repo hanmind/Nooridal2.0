@@ -1,6 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePopup from '@/app/calendar/DatePopup';
 import SchedulePopup from '@/app/calendar/SchedulePopup';
+import { supabase, getCurrentUser } from '@/utils/supabase';
+
+// 일정 타입 정의
+interface Event {
+  id: string;
+  title: string;
+  start_time: string;
+  end_time: string | null;
+  color: string;
+  all_day: boolean;
+  description?: string;
+  user_id: string;
+}
 
 const Calendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -10,6 +23,89 @@ const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isSchedulePopupOpen, setIsSchedulePopupOpen] = useState(false);
   const [initialTab, setInitialTab] = useState<'schedule' | 'diary' | 'today'>('schedule');
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // 현재 표시되는 월의 일정만 필터링
+  const filteredEvents = events.filter(event => {
+    // UTC 표시자(Z)가 있으면 제거하고 로컬 시간으로 해석
+    const localTimeString = event.start_time.replace('Z', '');
+    const eventDate = new Date(localTimeString);
+    
+    return (
+      eventDate.getFullYear() === currentDate.getFullYear() &&
+      eventDate.getMonth() === currentDate.getMonth()
+    );
+  });
+  
+  // 특정 날짜의 일정 가져오기
+  const getEventsForDay = (day: number) => {
+    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    date.setHours(0, 0, 0, 0);
+    
+    return filteredEvents.filter(event => {
+      // UTC 표시자(Z)가 있으면 제거하고 로컬 시간으로 해석
+      const localTimeString = event.start_time.replace('Z', '');
+      const eventDate = new Date(localTimeString);
+      
+      // 날짜 부분만 비교 (시간 제외)
+      return (
+        eventDate.getFullYear() === date.getFullYear() &&
+        eventDate.getMonth() === date.getMonth() &&
+        eventDate.getDate() === date.getDate()
+      );
+    });
+  };
+  
+  // 일정 가져오기
+  const fetchEvents = async () => {
+    try {
+      setIsLoading(true);
+      
+      // 실제 로그인한 사용자 ID 가져오기
+      const user = await getCurrentUser();
+      const userId = user?.id;
+      
+      // 로그인하지 않은 경우 빈 배열 반환
+      if (!userId) {
+        console.warn('로그인한 사용자 정보가 없습니다. 일정을 가져올 수 없습니다.');
+        setEvents([]);
+        return;
+      }
+      
+      // 현재 월의 시작일과 종료일 계산 (로컬 시간대 기준)
+      const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59);
+      
+      // ISO 문자열로 변환하고 Z 제거 (UTC 표시 제거)
+      const startDateStr = startDate.toISOString().replace('Z', '');
+      const endDateStr = endDate.toISOString().replace('Z', '');
+      
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('user_id', userId)
+        .gte('start_time', startDateStr)
+        .lte('start_time', endDateStr)
+        .order('start_time', { ascending: true });
+      
+      if (error) {
+        console.error('일정 가져오기 오류:', error);
+        return;
+      }
+      
+      setEvents(data || []);
+    } catch (err) {
+      console.error('일정 불러오기 실패:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // 컴포넌트 마운트 시와 현재 월 변경 시 일정 가져오기
+  useEffect(() => {
+    fetchEvents();
+  }, [currentDate]);
   
   const daysInMonth = new Date(
     currentDate.getFullYear(),
@@ -305,25 +401,68 @@ const Calendar: React.FC = () => {
         const leftPosition = startLeft + (col * dayWidth);
         const topPosition = 185 + (row * 101);
         
+        // 해당 날짜의 일정
+        const dayEvents = getEventsForDay(day);
+        
         return (
-          <div 
-            key={`day-${day}`}
-            className={`absolute text-center justify-start text-base font-normal font-['Do_Hyeon'] leading-[50px] w-6 h-6 flex items-center justify-center cursor-pointer hover:bg-yellow-50 transition-colors ${
-              isToday ? 'bg-yellow-200 rounded-[30px]' : ''
-            } ${
-              isSunday ? 'text-red-400' : isSaturday ? 'text-indigo-400' : 'text-black'
-            }`}
-            style={{ 
-              left: `${leftPosition}px`, 
-              top: `${topPosition}px`,
-              backgroundColor: isToday ? '#fef3c7' : 'transparent' 
-            }}
-            onClick={() => {
-              const clickedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-              setSelectedDate(clickedDate);
-            }}
-          >
-            {day}
+          <div key={`day-${day}`}>
+            <div 
+              className={`absolute text-center justify-start text-base font-normal font-['Do_Hyeon'] leading-[50px] w-6 h-6 flex items-center justify-center cursor-pointer hover:bg-yellow-50 transition-colors ${
+                isToday ? 'bg-yellow-200 rounded-[30px]' : ''
+              } ${
+                isSunday ? 'text-red-400' : isSaturday ? 'text-indigo-400' : 'text-black'
+              }`}
+              style={{ 
+                left: `${leftPosition}px`, 
+                top: `${topPosition}px`,
+                backgroundColor: isToday ? '#fef3c7' : 'transparent' 
+              }}
+              onClick={() => {
+                const clickedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                setSelectedDate(clickedDate);
+              }}
+            >
+              {day}
+            </div>
+            
+            {/* 일정 표시 (최대 3개까지) */}
+            {dayEvents.slice(0, 3).map((event, index) => (
+              <div
+                key={`event-${event.id}-${index}`}
+                className={`absolute text-xs rounded-md px-1 truncate`}
+                style={{
+                  left: `${leftPosition - 10}px`,
+                  top: `${topPosition + 23 + (index * 15)}px`,
+                  width: `${dayWidth - 2}px`,
+                  height: '12px',
+                  backgroundColor: getColorForEvent(event.color),
+                  overflow: 'hidden',
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // 일정 상세 보기 기능 추가 가능
+                  const clickedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                  setSelectedDate(clickedDate);
+                }}
+              >
+                {event.title}
+              </div>
+            ))}
+            
+            {/* 추가 일정 표시 (+N개 더) */}
+            {dayEvents.length > 3 && (
+              <div
+                className={`absolute text-xs text-gray-500`}
+                style={{
+                  left: `${leftPosition}px`,
+                  top: `${topPosition + 23 + (3 * 15)}px`,
+                  width: `${dayWidth - 2}px`,
+                  textAlign: 'center',
+                }}
+              >
+                +{dayEvents.length - 3}개 더
+              </div>
+            )}
           </div>
         );
       })}
@@ -347,9 +486,23 @@ const Calendar: React.FC = () => {
         isOpen={isSchedulePopupOpen}
         onClose={() => setIsSchedulePopupOpen(false)}
         selectedDate={new Date()}
+        onEventAdded={fetchEvents}
       />
     </div>
   );
+};
+
+// 이벤트 색상 헬퍼 함수
+const getColorForEvent = (color: string | null): string => {
+  const colorMap: Record<string, string> = {
+    'blue': '#DBEAFE',  // blue-100
+    'green': '#D1FAE5', // green-100
+    'pink': '#FCE7F3',  // pink-100
+    'red': '#FEE2E2',   // red-100
+    'purple': '#EDE9FE' // purple-100
+  };
+  
+  return colorMap[color || 'blue'] || colorMap.blue;
 };
 
 export default Calendar; 

@@ -110,59 +110,42 @@ export type Database = {
       }
       events: {
         Row: {
+          all_day: boolean | null
+          color: string | null
           created_at: string | null
           description: string | null
-          end_date: string | null
           end_time: string | null
-          event_color: string | null
-          event_type: Database["public"]["Enums"]["event_type"] | null
           id: string
-          recurrence_rules: Json | null
-          start_date: string
-          start_time: string | null
+          start_time: string
           title: string
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
+          all_day?: boolean | null
+          color?: string | null
           created_at?: string | null
           description?: string | null
-          end_date?: string | null
           end_time?: string | null
-          event_color?: string | null
-          event_type?: Database["public"]["Enums"]["event_type"] | null
           id?: string
-          recurrence_rules?: Json | null
-          start_date: string
-          start_time?: string | null
+          start_time: string
           title: string
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
+          all_day?: boolean | null
+          color?: string | null
           created_at?: string | null
           description?: string | null
-          end_date?: string | null
           end_time?: string | null
-          event_color?: string | null
-          event_type?: Database["public"]["Enums"]["event_type"] | null
           id?: string
-          recurrence_rules?: Json | null
-          start_date?: string
-          start_time?: string | null
+          start_time?: string
           title?: string
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "events_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       follows: {
         Row: {
@@ -246,6 +229,7 @@ export type Database = {
       }
       pregnancies: {
         Row: {
+          baby_gender: string | null
           baby_name: string | null
           created_at: string | null
           current_week: number | null
@@ -255,9 +239,10 @@ export type Database = {
           id: string
           status: Database["public"]["Enums"]["pregnancy_status"]
           updated_at: string | null
-          user_id: string | null
+          userId: string | null
         }
         Insert: {
+          baby_gender?: string | null
           baby_name?: string | null
           created_at?: string | null
           current_week?: number | null
@@ -267,9 +252,10 @@ export type Database = {
           id?: string
           status?: Database["public"]["Enums"]["pregnancy_status"]
           updated_at?: string | null
-          user_id?: string | null
+          userId?: string | null
         }
         Update: {
+          baby_gender?: string | null
           baby_name?: string | null
           created_at?: string | null
           current_week?: number | null
@@ -279,14 +265,46 @@ export type Database = {
           id?: string
           status?: Database["public"]["Enums"]["pregnancy_status"]
           updated_at?: string | null
-          user_id?: string | null
+          userId?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "pregnancies_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "pregnancies_userId_fkey"
+            columns: ["userId"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pregnancy_summaries: {
+        Row: {
+          created_at: string | null
+          id: string
+          pregnancy_id: string | null
+          summary: string | null
+          week: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          pregnancy_id?: string | null
+          summary?: string | null
+          week?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          pregnancy_id?: string | null
+          summary?: string | null
+          week?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pregnancy_summaries_pregnancy_id_fkey"
+            columns: ["pregnancy_id"]
+            isOneToOne: false
+            referencedRelation: "pregnancies"
             referencedColumns: ["id"]
           },
         ]
@@ -295,7 +313,7 @@ export type Database = {
         Row: {
           address: string | null
           created_at: string | null
-          email: string
+          email: string | null
           id: string
           invitation_code: string | null
           name: string
@@ -308,8 +326,8 @@ export type Database = {
         Insert: {
           address?: string | null
           created_at?: string | null
-          email: string
-          id: string
+          email?: string | null
+          id?: string
           invitation_code?: string | null
           name: string
           phone_number?: string | null
@@ -321,7 +339,7 @@ export type Database = {
         Update: {
           address?: string | null
           created_at?: string | null
-          email?: string
+          email?: string | null
           id?: string
           invitation_code?: string | null
           name?: string
