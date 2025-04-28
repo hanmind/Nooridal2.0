@@ -1,389 +1,783 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import PregnancyFormLayout from "@/components/pregnancy/PregnancyFormLayout";
-import { supabase } from '@/utils/supabase';
-import { Database } from '../../../../../types_db';
-import { getSessionData, calculateDueDate, calculatePregnancyWeek, generateCalendarDays, formatYearMonth } from '../../../../utils/pregnancyUtils';
-import { registerPregnancy } from '../../../../utils/pregnancyUtils';
+import { useState, ChangeEvent, useEffect } from "react";
+import Image from "next/image";
+import { supabase } from "@/utils/supabase";
+import { getSessionData, calculateDueDate, calculatePregnancyWeek, calculateDaysUntilBirth } from '@/utils/pregnancyUtils';
 
-type Pregnancy = Omit<Database['public']['Tables']['pregnancies']['Row'], 'user_id'> & { userId: string };
+interface FormData {
+  babyName: string;
+  gender: "male" | "female" | "unknown" | "";
+  pregnancyWeek: string;
+  dueDate: string;
+  isHighRisk: boolean;
+  daysUntilBirth?: number;
+}
 
 export default function PregnancyInfo() {
   const router = useRouter();
-  const [isPregnant, setIsPregnant] = useState(false);
-  const [pregnancies, setPregnancies] = useState<Pregnancy[]>([]);
-  const [babyName, setBabyName] = useState("");
-  const [expectedDate, setExpectedDate] = useState("");
-  const [highRisk, setHighRisk] = useState(false);
-  const [currentStep, setCurrentStep] = useState<number>(1);
-  const [babyGender, setBabyGender] = useState("");
-  const [pregnancyWeek, setPregnancyWeek] = useState("");
-  const [lastPeriodDate, setLastPeriodDate] = useState("");
-  const [noInfo, setNoInfo] = useState(false);
-  const [noName, setNoName] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isWeekSelectorOpen, setIsWeekSelectorOpen] = useState<boolean>(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [waitingForBaby, setWaitingForBaby] = useState(false);
-  const [showHighRiskModal, setShowHighRiskModal] = useState(false);
+  
+  const [formData, setFormData] = useState<FormData>({
+    babyName: "아기",
+    gender: "",
+    pregnancyWeek: "*",
+    dueDate: "202*-**-**",
+    isHighRisk: true,
+    daysUntilBirth: undefined
+  });
 
-  const handlePrevious = () => {
-    if (currentStep === 2) {
-      router.push('/register/pregnant/pregnancy-info');
-    } else if (currentStep === 1) {
-      router.push('/login');
-    }
-  };
+  const [pregnancyInfo, setPregnancyInfo] = useState(null);
 
-  const handleNext = async () => {
-    if (currentStep === 4) {
-      const user = await getSessionData();
-      if (!user) {
-        console.error('User session not found.');
-        alert('로그인이 필요합니다.');
-        return;
-      }
-      const existingPregnancy = pregnancies.find(p => p.userId === user.id);
-      if (existingPregnancy) {
-        console.log('Pregnancy information already exists for this user.');
-        alert('이미 등록된 임신 정보가 있습니다.');
-        return;
-      }
-      console.log('Calling registerPregnancy');
-      await registerPregnancy(babyName, expectedDate, pregnancyWeek, highRisk, babyGender);
-    } else {
-      console.log('Current step:', currentStep);
-      if (currentStep === 1) {
-        if (isPregnant) {
-          setCurrentStep(2);
-          console.log('Moving to step 2');
-        } else if (waitingForBaby) {
-          console.log('Navigating directly to calendar');
-          router.push('/calendar');
-        }
-      } else if (currentStep === 2) {
-        setCurrentStep(3);
-        console.log('Moving to step 3');
-      } else if (currentStep === 3) {
-        setCurrentStep(4);
-        console.log('Moving to step 4');
-      }
-    }
-  };
+  const weeks: number[] = Array.from({length: 40}, (_, i) => i + 1);
 
   useEffect(() => {
-    console.log('Current step after render:', currentStep);
-  }, [currentStep]);
+    const fetchPregnancyInfo = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      const userId = data.user?.id;
 
-  const calculatePregnancyInfo = (lastPeriodDate: Date) => {
-    const pregnancyWeek = calculatePregnancyWeek(lastPeriodDate.toISOString().split('T')[0]);
-    const dueDate = calculateDueDate(pregnancyWeek);
-    setPregnancyWeek(pregnancyWeek.toString());
-    setExpectedDate(dueDate);
+      if (userId) {
+        const { data: pregnancyData, error: pregnancyError } = await supabase
+          .from('pregnancies')
+          .select('*')
+          .eq('userId', userId)
+          .maybeSingle();
+
+        if (pregnancyError) {
+          console.error('Error fetching pregnancy information:', pregnancyError.message);
+        } else {
+          setPregnancyInfo(pregnancyData);
+          const daysUntilBirth = calculateDaysUntilBirth(pregnancyData.due_date);
+          setFormData({
+            babyName: pregnancyData.baby_name,
+            gender: pregnancyData.baby_gender,
+            pregnancyWeek: pregnancyData.current_week.toString(),
+            dueDate: pregnancyData.due_date,
+            isHighRisk: pregnancyData.high_risk,
+            daysUntilBirth: daysUntilBirth,
+          });
+        }
+      }
+    };
+
+    fetchPregnancyInfo();
+  }, []);
+
+  // 임신 주차 자동 계산
+  const calculatePregnancyWeekFromDate = (date: string) => {
+    const today = new Date();
+    const selectedDate = new Date(date);
+    const diffInTime = today.getTime() - selectedDate.getTime();
+    const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
+    return Math.floor(diffInDays / 7);
   };
 
-  const generateCalendarDaysWrapper = () => {
-    return generateCalendarDays(currentMonth);
+  // 임신 주차 변경 핸들러
+  const handleWeekChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const selectedWeek = e.target.value;
+    if (selectedWeek && selectedWeek !== "") {
+      const calculatedDueDate = calculateDueDate(parseInt(selectedWeek));
+      const daysUntil = calculateDaysUntilBirth(calculatedDueDate);
+      setFormData(prev => ({
+        ...prev,
+        pregnancyWeek: selectedWeek,
+        dueDate: calculatedDueDate,
+        daysUntilBirth: daysUntil
+      }));
+    }
+    setIsWeekSelectorOpen(false);
   };
 
-  const handleDateSelect = (date: Date) => {
-    setExpectedDate(date.toISOString().split('T')[0]);
-    setShowCalendar(false);
-    if (currentStep === 3) {
-      setCurrentStep(4);
+  // 출산 예정일 변경 핸들러
+  const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const selectedDate = e.target.value;
+    if (selectedDate) {
+      const calculatedWeek = calculatePregnancyWeekFromDate(selectedDate);
+      const daysUntil = calculateDaysUntilBirth(selectedDate);
+      setFormData(prev => ({
+        ...prev,
+        dueDate: selectedDate,
+        pregnancyWeek: calculatedWeek.toString(),
+        daysUntilBirth: daysUntil
+      }));
     }
   };
 
+  // 마지막 생리 시작일 변경 핸들러
+  const handleLastPeriodDateChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const selectedDate = e.target.value;
+    if (selectedDate) {
+      const calculatedWeek = calculatePregnancyWeekFromDate(selectedDate);
+      setFormData(prev => ({
+        ...prev,
+        pregnancyWeek: calculatedWeek.toString(),
+      }));
+    }
+  };
+
+  const handleGenderChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newGender = e.target.value as FormData['gender'];
+    setFormData(prev => ({
+      ...prev,
+      gender: newGender
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+
+      const user = sessionData?.session?.user;
+      if (user) {
+        const { error: updateError } = await supabase
+      .from('pregnancies')
+          .update({
+            baby_gender: formData.gender,
+            baby_name: formData.babyName,
+            current_week: parseInt(formData.pregnancyWeek),
+            due_date: formData.dueDate,
+            high_risk: formData.isHighRisk,
+          })
+          .eq('userId', user.id);
+
+        if (updateError) throw updateError;
+
+        console.log('임신 정보가 성공적으로 업데이트되었습니다.');
+      }
+    } catch (error: any) {
+      console.error('임신 정보를 업데이트하는 중 오류 발생:', error.message);
+    }
+    setIsEditing(false);
+    router.push('/mypage'); // Navigate back to my page after saving
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+  };
+
+  // 오늘 날짜 기준 최소/최대 선택 가능 날짜 계산
+  const today = new Date();
+  const minDate = new Date(today);
+  minDate.setDate(today.getDate()); // 오늘부터 선택 가능
+  const maxDate = new Date(today);
+  maxDate.setDate(today.getDate() + 280); // 최대 40주
+
+  const minDateString = minDate.toISOString().split('T')[0];
+  const maxDateString = maxDate.toISOString().split('T')[0];
+
+  // 달력에 표시할 날짜 생성
+  const generateCalendarDays = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    const days = [];
+
+    // 이전 달의 마지막 날짜들
+    const prevMonthLastDate = new Date(year, month, 0).getDate();
+    const firstDayOfWeek = firstDay.getDay();
+    
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+      days.push({
+        date: new Date(year, month - 1, prevMonthLastDate - i),
+        isCurrentMonth: false
+      });
+    }
+
+    // 현재 달의 날짜들
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      days.push({
+        date: new Date(year, month, i),
+        isCurrentMonth: true
+      });
+    }
+
+    // 다음 달의 시작 날짜들
+    const remainingDays = 42 - days.length; // 6주 달력을 위해
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push({
+        date: new Date(year, month + 1, i),
+        isCurrentMonth: false
+      });
+    }
+
+    return days;
+  };
+
+  // 달력 헤더의 년월 포맷
   const formatYearMonth = (date: Date) => {
     return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
   };
 
-  const fetchAndCleanPregnancyRecords = async (userId: string) => {
-    // Fetch the latest pregnancy record
-    const { data, error: fetchError } = await supabase
-      .from('pregnancies')
-      .select('*')
-      .eq('userId', userId)
-      .order('created_at', { ascending: false })
-      .limit(1);
-
-    if (fetchError) {
-      console.error('Error fetching latest pregnancy:', fetchError);
-      return null;
-    }
-
-    const latestPregnancy = data[0];
-
-    if (!latestPregnancy) {
-      console.error('No pregnancy records found.');
-      return null;
-    }
-
-    // Delete older pregnancy records
-    const { error: deleteError } = await supabase
-      .from('pregnancies')
-      .delete()
-      .eq('userId', userId)
-      .neq('id', latestPregnancy.id);
-
-    if (deleteError) {
-      console.error('Error deleting older pregnancies:', deleteError);
-    }
-
-    return latestPregnancy;
+  // 이전/다음 달 이동
+  const changeMonth = (offset: number) => {
+    const newDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1);
+    setCurrentMonth(newDate);
   };
 
-  useEffect(() => {
-    const loadAndCleanPregnancyRecords = async () => {
-      const user = await getSessionData();
-      if (!user) {
-        console.error('User session not found.');
-        return;
-      }
-      const latestPregnancy = await fetchAndCleanPregnancyRecords(user.id);
-      if (latestPregnancy) {
-        setPregnancies([latestPregnancy]);
-      }
-    };
-    loadAndCleanPregnancyRecords();
-  }, []);
+  // 날짜 선택 핸들러
+  const handleDateSelect = (date: Date) => {
+    const selectedDate = date.toISOString().split('T')[0];
+    const calculatedWeek = calculatePregnancyWeek(selectedDate);
+    const daysUntil = calculateDaysUntilBirth(selectedDate);
+    setFormData(prev => ({
+      ...prev,
+      dueDate: selectedDate,
+      pregnancyWeek: calculatedWeek.toString(),
+      daysUntilBirth: daysUntil
+    }));
+    setShowCalendar(false);
+  };
+
+  const handleRegisterClick = () => {
+    router.push('/register/pregnant/pregnancy-info');
+  };
+
+  // 주차 선택 드롭다운
+  const weekOptions = weeks.map(week => (
+    <option key={week} value={week} className="font-['Do_Hyeon']">
+      {week}주차
+    </option>
+  ));
+
+  if (!pregnancyInfo) {
+    return (
+      <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
+        <button onClick={handleRegisterClick} className="bg-blue-500 text-white p-4 rounded">
+          Register Pregnancy Information
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <PregnancyFormLayout
-      title="임신 정보를 입력해주세요"
-      subtitle="누리달에서 맞춤 서비스를 제공해 드립니다"
-      currentStep={currentStep}
-      onPrevious={handlePrevious}
-      onNext={handleNext}
-      isNextDisabled={currentStep === 1 && !isPregnant}
-    >
-      {currentStep === 1 && (
-        <div className="w-full p-4 bg-[#FFF4BB] rounded-xl border border-[#FFE999] mb-4 flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={isPregnant}
-            onChange={() => {
-              setIsPregnant(!isPregnant);
-              setWaitingForBaby(false);
-            }}
-            className="w-4 h-4 mr-4"
-          />
-          <span className="text-black font-['Do_Hyeon']">🤰🏻 뱃속에 아기가 있어요</span>
-        </div>
-      )}
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
+      <style jsx global>{`
+        select, input[type="date"], option {
+          font-family: 'Do Hyeon', sans-serif !important;
+        }
+        select option {
+          font-family: 'Do Hyeon', sans-serif !important;
+        }
+        /* Webkit (Chrome, Safari) */
+        select::-webkit-listbox {
+          font-family: 'Do Hyeon', sans-serif !important;
+        }
+        select::-webkit-list {
+          font-family: 'Do Hyeon', sans-serif !important;
+        }
+        /* Firefox */
+        select:-moz-focusring {
+          font-family: 'Do Hyeon', sans-serif !important;
+        }
+        select::-ms-value {
+          font-family: 'Do Hyeon', sans-serif !important;
+        }
+        /* For the dropdown itself */
+        select option:checked {
+          font-family: 'Do Hyeon', sans-serif !important;
+          font-weight: normal;
+        }
+        select:focus option:checked {
+          font-family: 'Do Hyeon', sans-serif !important;
+        }
+        select option:hover {
+          font-family: 'Do Hyeon', sans-serif !important;
+        }
+        select::-webkit-scrollbar {
+          width: 8px;
+        }
+        select::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 4px;
+        }
+        select::-webkit-scrollbar-thumb {
+          background: #FFC0CB;
+          border-radius: 4px;
+        }
+        select::-webkit-scrollbar-thumb:hover {
+          background: #FFB6C1;
+        }
+        .select-wrapper {
+          position: relative;
+        }
+        .select-wrapper::after {
+          content: '';
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 0;
+          height: 0;
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
+          border-top: 5px solid #666;
+          pointer-events: none;
+        }
+        ::-webkit-calendar-picker-indicator {
+          cursor: pointer;
+        }
+        input[type="date"]::-webkit-datetime-edit-text,
+        input[type="date"]::-webkit-datetime-edit-month-field,
+        input[type="date"]::-webkit-datetime-edit-day-field,
+        input[type="date"]::-webkit-datetime-edit-year-field {
+          font-family: 'Do Hyeon', sans-serif !important;
+        }
+        .gender-radio-group {
+          display: flex;
+          gap: 8px;
+        }
+        
+        .gender-radio-button {
+          display: none;
+        }
+        
+        .gender-radio-label {
+          padding: 8px 16px;
+          background-color: #f3f4f6;
+          border-radius: 20px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-family: 'Do Hyeon', sans-serif;
+        }
+        
+        #male:checked + .gender-radio-label {
+          background-color: #89CFF0;
+          color: white;
+        }
 
-      {currentStep === 2 && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">태명</label>
+        #female:checked + .gender-radio-label {
+          background-color: #FFC0CB;
+          color: white;
+        }
+
+        #unknown:checked + .gender-radio-label {
+          background-color: #9CA3AF;
+          color: white;
+        }
+
+        .week-selector {
+          position: relative;
+          width: 160px;
+        }
+
+        .week-selector select {
+          width: 100%;
+          padding: 8px 16px;
+          border: 2px solid #e5e7eb;
+          border-radius: 20px;
+          font-family: 'Do Hyeon', sans-serif !important;
+          appearance: none;
+          background-color: white;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .week-selector select:not([size]) {
+          border: 2px solid #e5e7eb;
+        }
+
+        .week-selector select:not([size]):hover {
+          border-color: #FFC0CB;
+        }
+
+        .week-selector select:not([size])::after {
+          content: '';
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          width: 10px;
+          height: 10px;
+          border-right: 2px solid #FFC0CB;
+          border-bottom: 2px solid #FFC0CB;
+          transform: translateY(-70%) rotate(45deg);
+        }
+
+        .week-selector select[size] {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 200px !important;
+          overflow-y: auto !important;
+          border-radius: 12px;
+          padding: 8px 0;
+          border: 2px solid #FFC0CB;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          z-index: 10;
+          background-color: white;
+        }
+
+        .week-selector select option {
+          font-family: 'Do Hyeon', sans-serif !important;
+          padding: 12px 16px;
+          background-color: white;
+          color: #4B5563;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .week-selector select option:hover,
+        .week-selector select option:focus {
+          background-color: #FFF4BB !important;
+          color: #1F2937;
+        }
+
+        .week-selector select option:checked {
+          background-color: #FFC0CB !important;
+          color: white;
+        }
+
+        .week-selector select::-webkit-scrollbar {
+          width: 8px;
+          background-color: #f5f5f5;
+        }
+
+        .week-selector select::-webkit-scrollbar-thumb {
+          background-color: #FFC0CB;
+          border-radius: 4px;
+          border: 2px solid #f5f5f5;
+        }
+
+        .week-selector select::-webkit-scrollbar-thumb:hover {
+          background-color: #FFB6C1;
+        }
+
+        .week-selector select::-webkit-scrollbar-track {
+          background-color: #f5f5f5;
+          border-radius: 4px;
+        }
+
+        .week-selector select {
+          scrollbar-width: thin;
+          scrollbar-color: #FFC0CB #f5f5f5;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .week-selector select[size] {
+          animation: fadeIn 0.2s ease-out;
+        }
+
+        /* 날짜 선택 캘린더 스타일링 */
+        input[type="date"] {
+          position: relative;
+          font-family: 'Do Hyeon', sans-serif !important;
+          background-color: white;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 20px;
+          height: 20px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23FFE999' viewBox='0 0 24 24'%3E%3Cpath d='M20 3h-1V2c0-.6-.4-1-1-1s-1 .4-1 1v1H7V2c0-.6-.4-1-1-1S5 1.4 5 2v1H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13zM4 6V5h16v1H4z'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: center;
+          background-size: contain;
+          opacity: 0.7;
+          cursor: pointer;
+          transition: opacity 0.3s ease;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+          opacity: 1;
+        }
+
+        ::-webkit-datetime-edit {
+          padding: 0;
+          color: #4B5563;
+        }
+
+        ::-webkit-datetime-edit-fields-wrapper {
+          padding: 0;
+        }
+
+        ::-webkit-datetime-edit-text {
+          color: #9CA3AF;
+          padding: 0 2px;
+        }
+
+        ::-webkit-datetime-edit-month-field,
+        ::-webkit-datetime-edit-day-field,
+        ::-webkit-datetime-edit-year-field {
+          padding: 0;
+          font-family: 'Do Hyeon', sans-serif;
+        }
+
+        ::-webkit-calendar-picker {
+          border-radius: 12px;
+          border: 2px solid #FFE999;
+          background-color: white;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Firefox 달력 스타일링 */
+        input[type="date"]::-moz-calendar-picker {
+          border-radius: 12px;
+          border: 2px solid #FFE999;
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+          input[type="date"] {
+            font-size: 16px;
+          }
+        }
+
+        /* 달력 애니메이션 */
+        @keyframes calendarFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        input[type="date"]::-webkit-calendar-picker {
+          animation: calendarFadeIn 0.2s ease-out;
+        }
+      `}</style>
+      <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
+        <div className="w-96 h-[538px] left-0 top-[126px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+          <div className="p-6">
+            <Image 
+              src="/images/logo/달달.png"
+              alt="달달 이미지"
+              width={54}
+              height={63}
+              className="mx-auto mb-4"
+            />
+            
+            <div className="text-center text-xl font-['Do_Hyeon'] mb-6">
+              {formData.babyName}의 엄마 정보
+            </div>
+
+            {isEditing ? (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600 font-['Do_Hyeon']">태명</label>
           <input
             type="text"
-            value={babyName}
-            onChange={(e) => setBabyName(e.target.value)}
-            placeholder="태명을 입력하세요"
-            className="mt-1 block w-full p-2.5 bg-[#FFF4BB] rounded-xl border border-yellow-300 text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFE999] focus:border-2 transition-colors"
-          />
-          <div 
-            className="mt-3 flex items-center cursor-pointer"
-            onClick={() => {
-              setNoName(!noName);
-              if (!noName) {
-                setBabyName("아기");
-              } else {
-                setBabyName("");
-              }
-            }}
-          >
+                    value={formData.babyName}
+                    onChange={(e) => setFormData({...formData, babyName: e.target.value})}
+                    className="border rounded-lg px-3 py-1 font-['Do_Hyeon'] w-40 bg-white"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600 font-['Do_Hyeon']">성별</label>
+                  <div className="gender-radio-group">
+                    <input
+                      type="radio"
+                      id="male"
+                      name="gender"
+                      value="male"
+                      checked={formData.gender === "male"}
+                      onChange={handleGenderChange}
+                      className="gender-radio-button"
+                    />
+                    <label htmlFor="male" className="gender-radio-label">남아</label>
+
             <input
-              type="checkbox"
-              checked={noName}
-              onChange={() => {
-                setNoName(!noName);
-                if (!noName) {
-                  setBabyName("아기");
-                } else {
-                  setBabyName("");
-                }
-              }}
-              className="w-4 h-4 mr-2"
-            />
-            <span className="text-black text-sm font-['Do_Hyeon']">아직 이름이 없어용</span>
-          </div>
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">성별</label>
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={() => setBabyGender('남자')}
-                className={`flex-1 p-2 rounded-xl border ${
-                  babyGender === '남자' ? 'bg-blue-200 border-blue-200' : 'bg-white border-gray-300'
-                } cursor-pointer transition-colors font-['Do_Hyeon']`}
-              >
-                <span className="text-black text-sm">남자</span>
-              </button>
-              <button
-                onClick={() => setBabyGender('여자')}
-                className={`flex-1 p-2 rounded-xl border ${
-                  babyGender === '여자' ? 'bg-red-200 border-red-200' : 'bg-white border-gray-300'
-                } cursor-pointer transition-colors font-['Do_Hyeon']`}
-              >
-                <span className="text-black text-sm">여자</span>
-              </button>
-              <button
-                onClick={() => setBabyGender('모름')}
-                className={`flex-1 p-2 rounded-xl border ${
-                  babyGender === '모름' ? 'bg-gray-200 border-gray-200' : 'bg-white border-gray-300'
-                } cursor-pointer transition-colors font-['Do_Hyeon']`}
-              >
-                <span className="text-black text-sm">비밀</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                      type="radio"
+                      id="female"
+                      name="gender"
+                      value="female"
+                      checked={formData.gender === "female"}
+                      onChange={handleGenderChange}
+                      className="gender-radio-button"
+                    />
+                    <label htmlFor="female" className="gender-radio-label">여아</label>
 
-      {currentStep === 3 && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">현재 임신 주차</label>
-          <input
-            type="text"
-            value={pregnancyWeek}
-            onChange={(e) => setPregnancyWeek(e.target.value)}
-            placeholder="임신 주차를 입력하세요"
-            className="mt-1 block w-full p-2.5 bg-[#FFF4BB] rounded-xl border border-yellow-300 text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFE999] focus:border-2 transition-colors"
-          />
-
-          <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon'] mt-4">출산 예정일</label>
-          <div className="relative">
-            <input
-              type="text"
-              value={expectedDate}
-              onClick={() => setShowCalendar(true)}
-              placeholder="날짜를 선택해 주세요"
-              className="mt-1 block w-full p-2.5 bg-[#FFF4BB] rounded-xl border border-yellow-300 text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFE999] focus:border-2 transition-colors"
-              readOnly
-            />
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8h18M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8M16 12h4M8 12h4M8 16h4" />
-              </svg>
-            </div>
-          </div>
-
-          {showCalendar && (
-            <div className="fixed inset-0 flex items-center justify-center z-50">
-              <div 
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm" 
-                onClick={() => setShowCalendar(false)} 
-              />
-              <div className="bg-white p-4 rounded-2xl shadow-lg w-[320px] relative z-10 mx-4">
-                <div className="text-center mb-4">
-                  <div className="text-lg font-['Do_Hyeon'] text-gray-900">
-                    출산 예정일을 선택해주세요
+                    <input
+                      type="radio"
+                      id="unknown"
+                      name="gender"
+                      value="unknown"
+                      checked={formData.gender === "unknown"}
+                      onChange={handleGenderChange}
+                      className="gender-radio-button"
+                    />
+                    <label htmlFor="unknown" className="gender-radio-label">모름</label>
                   </div>
                 </div>
-
-                <div className="flex justify-between items-center mb-3">
-                  <button
-                    onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))}
-                    className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <div className="text-base font-['Do_Hyeon'] text-gray-900">
-                    {formatYearMonth(currentMonth)}
-                  </div>
-                  <button
-                    onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))}
-                    className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-7 mb-1">
-                  {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
-                    <div
-                      key={day}
-                      className={`text-center text-sm font-['Do_Hyeon'] py-1 ${
-                        index === 0 ? 'text-red-500' :
-                        index === 6 ? 'text-blue-500' :
-                        'text-gray-600'
-                      }`}
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600 font-['Do_Hyeon']">임산부 주차</label>
+                  <div className="week-selector">
+                    <select
+                      value={formData.pregnancyWeek}
+                      onChange={handleWeekChange}
+                      className="font-['Do_Hyeon']"
                     >
-                      {day}
+                      <option value="" className="font-['Do_Hyeon']">선택</option>
+                      {weekOptions}
+                    </select>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600 font-['Do_Hyeon']">출산 예정일</label>
+                  <input
+                    type="date"
+                    value={formData.dueDate}
+                    onChange={handleDateChange}
+                    min={minDateString}
+                    max={maxDateString}
+                    className="border rounded-lg px-3 py-1 font-['Do_Hyeon'] bg-white"
+                  />
                     </div>
-                  ))}
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600 font-['Do_Hyeon']">마지막 생리 시작일</label>
+                  <input
+                    type="date"
+                    onChange={handleLastPeriodDateChange}
+                    min={minDateString}
+                    max={maxDateString}
+                    className="border rounded-lg px-3 py-1 font-['Do_Hyeon'] bg-white"
+                  />
                 </div>
-
-                <div className="grid grid-cols-7 gap-0.5">
-                  {generateCalendarDaysWrapper().map((day, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleDateSelect(day.date)}
-                      disabled={!day.isCurrentMonth}
-                      className={`
-                        w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
-                        ${day.isCurrentMonth
-                          ? day.date.toISOString().split('T')[0] === expectedDate
-                            ? 'bg-[#FFE999] text-gray-900 font-bold'
-                            : 'hover:bg-gray-100 text-gray-900'
-                          : 'text-gray-400'
-                        }
-                        ${day.date.getDay() === 0 ? 'text-red-500' : ''}
-                        ${day.date.getDay() === 6 ? 'text-blue-500' : ''}
-                        disabled:opacity-50 disabled:cursor-not-allowed
-                      `}
-                    >
-                      {day.date.getDate()}
-                    </button>
-                  ))}
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600 font-['Do_Hyeon']">고위험 임신</label>
+                  <input
+                    type="checkbox"
+                    checked={formData.isHighRisk}
+                    onChange={(e) => setFormData({...formData, isHighRisk: e.target.checked})}
+                    className="w-4 h-4"
+                  />
                 </div>
-
-                <div className="mt-3 flex justify-center">
+                <div className="flex justify-center gap-4 mt-8">
                   <button
-                    onClick={() => setShowCalendar(false)}
-                    className="px-6 py-2 bg-gray-200 text-gray-700 rounded-full font-['Do_Hyeon'] hover:bg-gray-300 transition-colors text-sm"
+                    type="submit"
+                    className="bg-sky-200 text-black px-6 py-2 rounded-lg font-['Do_Hyeon'] hover:bg-[#E6C200] transition-colors"
+                  >
+                    저장
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="bg-gray-300 text-white px-6 py-2 rounded-lg font-['Do_Hyeon'] hover:bg-gray-400 transition-colors"
                   >
                     취소
                   </button>
                 </div>
+              </form>
+            ) : (
+              <>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 font-['Do_Hyeon']">태명</span>
+                    <span className="font-['Do_Hyeon']">{formData.babyName}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 font-['Do_Hyeon']">성별</span>
+                    <span className="font-['Do_Hyeon']">
+                      {formData.gender === 'male' ? '남아' : 
+                       formData.gender === 'female' ? '여아' : 
+                       formData.gender === 'unknown' ? '모름' : '-'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 font-['Do_Hyeon']">임산부 주차</span>
+                    <span className="font-['Do_Hyeon']">{formData.pregnancyWeek}주차</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 font-['Do_Hyeon']">출산 예정일</span>
+                    <span className="font-['Do_Hyeon']">{formData.dueDate}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 font-['Do_Hyeon']">마지막 생리 시작일</span>
+                    <span className="font-['Do_Hyeon']">{formData.dueDate}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 font-['Do_Hyeon']">출산까지 남은 일수</span>
+                    <span className="font-['Do_Hyeon']">
+                      {formData.daysUntilBirth !== undefined ? `${formData.daysUntilBirth}일` : '***일'}
+                    </span>
               </div>
             </div>
-          )}
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="w-40 h-10 left-[50%] transform -translate-x-1/2 top-[470px] absolute bg-sky-200 rounded-full flex items-center justify-center text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
+                >
+                  수정
+                </button>
+              </>
+            )}
+          </div>
+        </div>
 
-          <div className="mt-4 flex items-center">
-            <input
-              type="checkbox"
-              checked={noInfo}
-              onChange={() => setNoInfo(!noInfo)}
-              className="w-4 h-4 mr-2"
-            />
-            <span className="text-sm font-['Do_Hyeon'] text-gray-700">두 개 다 잘 모르겠어요</span>
+        <div className="left-[148px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
+          내 임신 정보
+        </div>
+        <button 
+          onClick={() => router.back()}
+          className="left-[24px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
+        >
+          &lt;
+        </button>
+
+        {/* 하단 네비게이션 바 */}
+        <div className="absolute bottom-0 w-full">
+          <div className="w-[462px] h-52 relative">
+            <div className="w-44 h-44 left-[-24px] top-[742px] absolute bg-white rounded-full" />
+            <div className="w-44 h-44 left-[109px] top-[742px] absolute bg-white rounded-full" />
+            <div className="w-44 h-44 left-[250px] top-[742px] absolute bg-white rounded-full" />
+            <div className="w-44 h-44 left-[-28px] top-[723px] absolute bg-white/40 rounded-full" />
+            <div className="w-44 h-44 left-[105px] top-[723px] absolute bg-white/40 rounded-full" />
+            <div className="w-44 h-44 left-[246px] top-[723px] absolute bg-white/40 rounded-full" />
+            
+            {/* 채팅 아이콘 */}
+            <div className="w-8 h-7 left-[52.71px] top-[786px] absolute bg-white rounded-full border-[3px] border-neutral-400" />
+            <div className="w-2.5 h-1.5 left-[59.40px] top-[816.33px] absolute origin-top-left rotate-[-141.02deg] bg-white rounded-[0.50px] border-[3px] border-neutral-400" />
+            <div className="w-1.5 h-1.5 left-[60.46px] top-[812.90px] absolute origin-top-left rotate-[-141.02deg] bg-white rounded-[0.50px] border-2 border-yellow-400/0" />
+            
+            {/* 캘린더 아이콘 */}
+            <div className="w-8 h-7 left-[140.75px] top-[787.34px] absolute bg-white rounded-[5px] border-[3px] border-neutral-400" />
+            <div className="w-7 h-0 left-[142.49px] top-[796.10px] absolute outline outline-[3px] outline-offset-[-1.50px] outline-neutral-400"></div>
+            <div className="w-1 h-0 left-[146.83px] top-[784px] absolute origin-top-left rotate-90 outline outline-[3px] outline-offset-[-1.50px] outline-neutral-400"></div>
+            <div className="w-1 h-0 left-[162.90px] top-[784px] absolute origin-top-left rotate-90 outline outline-[3px] outline-offset-[-1.50px] outline-neutral-400"></div>
+            
+            {/* 위치 아이콘 */}
+            <div className="w-8 h-8 left-[222px] top-[784px] absolute overflow-hidden">
+              <div className="w-5 h-7 left-[6.88px] top-[2.75px] absolute bg-neutral-400" />
           </div>
 
-          {noInfo && (
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">마지막 생리일</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={lastPeriodDate}
-                  onClick={() => setShowCalendar(true)}
-                  placeholder="날짜를 선택해 주세요"
-                  className="mt-1 block w-full p-2.5 bg-[#FFF4BB] rounded-xl border border-yellow-300 text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFE999] focus:border-2 transition-colors"
-                  readOnly
-                />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8h18M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8M16 12h4M8 12h4M8 16h4" />
-                  </svg>
+            {/* 마이페이지 아이콘 */}
+            <div className="w-4 h-4 left-[323.75px] top-[787px] absolute bg-white rounded-full border-[3px] border-yellow-400" />
+            <div className="w-9 h-3.5 left-[314.40px] top-[803.78px] absolute bg-white rounded-[5px] border-[3px] border-yellow-400" />
+            <div className="w-10 h-1 left-[310.68px] top-[813.46px] absolute bg-white" />
+
+            {/* 네비게이션 텍스트 */}
+            <div className="w-20 h-16 left-[25px] top-[803px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">채팅</div>
+            <div className="w-9 h-8 left-[138px] top-[803px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">캘린더</div>
+            <div className="w-20 h-10 left-[201px] top-[802.60px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">위치</div>
+            <div className="w-20 h-10 left-[293px] top-[802.60px] absolute text-center justify-start text-yellow-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">마이페이지</div>
                 </div>
               </div>
 
+        {/* 커스텀 달력 모달 */}
               {showCalendar && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
                   <div 
@@ -393,13 +787,14 @@ export default function PregnancyInfo() {
                   <div className="bg-white p-4 rounded-2xl shadow-lg w-[320px] relative z-10 mx-4">
                     <div className="text-center mb-4">
                       <div className="text-lg font-['Do_Hyeon'] text-gray-900">
-                        마지막 생리일을 선택해주세요
+                  출산 예정일을 선택해주세요
                       </div>
                     </div>
 
+              {/* 달력 헤더 */}
                     <div className="flex justify-between items-center mb-3">
                       <button
-                        onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))}
+                  onClick={() => changeMonth(-1)}
                         className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
                       >
                         <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -410,7 +805,7 @@ export default function PregnancyInfo() {
                         {formatYearMonth(currentMonth)}
                       </div>
                       <button
-                        onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))}
+                  onClick={() => changeMonth(1)}
                         className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
                       >
                         <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -419,6 +814,7 @@ export default function PregnancyInfo() {
                       </button>
                     </div>
 
+              {/* 요일 헤더 */}
                     <div className="grid grid-cols-7 mb-1">
                       {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
                         <div
@@ -434,8 +830,9 @@ export default function PregnancyInfo() {
                       ))}
                     </div>
 
+              {/* 달력 날짜 */}
                     <div className="grid grid-cols-7 gap-0.5">
-                      {generateCalendarDaysWrapper().map((day, index) => (
+                      {generateCalendarDays().map((day, index) => (
                         <button
                           key={index}
                           onClick={() => handleDateSelect(day.date)}
@@ -443,7 +840,7 @@ export default function PregnancyInfo() {
                           className={`
                             w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
                             ${day.isCurrentMonth
-                              ? day.date.toISOString().split('T')[0] === lastPeriodDate
+                        ? day.date.toISOString().split('T')[0] === formData.dueDate
                                 ? 'bg-[#FFE999] text-gray-900 font-bold'
                                 : 'hover:bg-gray-100 text-gray-900'
                               : 'text-gray-400'
@@ -458,6 +855,7 @@ export default function PregnancyInfo() {
                       ))}
                     </div>
 
+              {/* 취소 버튼 */}
                     <div className="mt-3 flex justify-center">
                       <button
                         onClick={() => setShowCalendar(false)}
@@ -469,64 +867,7 @@ export default function PregnancyInfo() {
                   </div>
                 </div>
               )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {currentStep === 4 && (
-        <div className="mb-4 flex items-center cursor-pointer bg-red-100 p-2 rounded">
-          <input
-            type="checkbox"
-            checked={highRisk}
-            onChange={() => setShowHighRiskModal(true)}
-            className={`w-4 h-6 mr-2 rounded border-gray-300 ${highRisk ? 'bg-red-100' : ''}`}
-          />
-          <span className="text-red-500 text-sm font-['Do_Hyeon']">고위험 임신입니다</span>
-        </div>
-      )}
-
-      {showHighRiskModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-[20px] shadow-lg w-[90%] max-w-md z-10 mx-4">
-            <div className="text-center mb-6">
-              <div className="text-xl font-['Do_Hyeon'] text-gray-900 mb-2">
-                고위험 임신이란?
-              </div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-600">
-                다음과 같은 경우 고위험 임신으로 분류됩니다:
-              </div>
-            </div>
-
-            <div className="mb-6 space-y-3 bg-gray-50 p-4 rounded-xl">
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">• 만 35세 이상의 고령 임신</div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">• 임신성 당뇨</div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">• 임신성 고혈압</div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">• 다태 임신</div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">• 전치태반</div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">• 조기진통</div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">• 산부인과 전문의가 고위험 임신으로 판단한 경우</div>
-            </div>
-
-            <div className="text-sm font-['Do_Hyeon'] text-gray-600 mb-6 p-3 bg-[#FFF4BB] rounded-xl">
-              누리달에서는 고위험 임신부를 위한 맞춤 서비스를 제공해 드립니다.
-            </div>
-
-            <div className="flex justify-between">
-              <button
-                onClick={() => {
-                  setShowHighRiskModal(false);
-                  setHighRisk(true);
-                  router.push('/calendar');
-                }}
-                className="w-20 h-9 rounded-2xl bg-[#FFE999] hover:bg-[#FFD999] transition-colors"
-              >
-                <span className="text-gray-900 text-sm font-['Do_Hyeon']">확인</span>
-              </button>
-            </div>
           </div>
-        </div>
-      )}
-    </PregnancyFormLayout>
+      </div>
   );
 } 

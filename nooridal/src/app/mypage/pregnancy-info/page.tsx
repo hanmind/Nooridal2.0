@@ -221,7 +221,13 @@ export default function PregnancyInfo() {
   };
 
   if (!pregnancyInfo) {
-    return null;
+    return (
+      <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
+        <button onClick={handleRegisterClick} className="bg-blue-500 text-white p-4 rounded">
+          Register Pregnancy Information
+        </button>
+      </div>
+    );
   }
 
   return (

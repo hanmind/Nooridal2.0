@@ -21,6 +21,7 @@ export default function MyPage() {
   const [weeks, setWeeks] = useState('');
   const [highRisk, setHighRisk] = useState(false);
   const [babyGender, setBabyGender] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -156,6 +157,37 @@ export default function MyPage() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      console.error('Error fetching user session:', sessionError);
+      return;
+    }
+
+    const user = sessionData?.session?.user;
+    if (!user) {
+      console.error('User not logged in');
+      return;
+    }
+
+    // Delete user data
+    const { error: deleteError } = await supabase.from('users').delete().eq('id', user.id);
+    if (deleteError) {
+      console.error('Error deleting user data:', deleteError);
+      return;
+    }
+
+    // Sign out user
+    const { error: signOutError } = await supabase.auth.signOut();
+    if (signOutError) {
+      console.error('Error signing out:', signOutError);
+      return;
+    }
+
+    // Redirect to login page
+    router.push('/login');
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
@@ -204,7 +236,7 @@ export default function MyPage() {
           )}
           {pregnancyInfo ? (
             <div className="w-full px-6 top-[100px] absolute">
-              <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center" style={{ height: 'auto', padding: '10px 0' }}>
+              <div className="w-full h-full bg-yellow-100 bg-opacity-50 rounded-2xl flex items-center justify-center" style={{ height: 'auto', padding: '10px 0' }}>
                 <span className="text-black text-lg font-normal font-['Do_Hyeon'] ">
                   🍼 {pregnancyInfo?.baby_name || '사랑스러운 아기'} 만나기까지  
                   {pregnancyInfo?.due_date ? ` D-${Math.ceil((new Date(pregnancyInfo.due_date).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24))}일` : '비밀'} 
@@ -326,6 +358,13 @@ export default function MyPage() {
         >
           로그아웃
         </button>
+
+        <button 
+          onClick={() => setShowDeleteModal(true)}
+          className="absolute left-1/2 transform -translate-x-1/2 top-[730px] text-center text-gray-400 text-sm font-normal font-['Do_Hyeon'] leading-[40px]"
+        >
+          탈퇴하기
+        </button>
       </div>
       <TabBar activeTab={activeTab} tabs={['chat', 'calendar', 'location', 'mypage']} onTabClick={handleTabClick} />
 
@@ -354,6 +393,30 @@ export default function MyPage() {
                 <path d="M18 6L6 18M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
+          </div>
+        </div>
+      )}
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 flex justify-center items-center z-50">
+          <div className="absolute inset-0 bg-[#FFF4BB] bg-opacity-80"></div>
+          <div className="bg-white p-6 rounded-3xl shadow-lg w-[300px] h-auto relative z-10 flex flex-col justify-center items-center">
+            <p className="text-lg font-['Do_Hyeon'] mb-2 text-center">정말 탈퇴하시겠어요?</p>
+            <p className="text-sm font-['Do_Hyeon'] text-center mb-4">탈퇴 버튼 선택 시, 계정은 삭제되며 복구되지 않습니다.</p>
+            <div className="flex justify-center w-full space-x-2">
+              <button 
+                onClick={handleDeleteAccount}
+                className="bg-red-400 text-white px-3 py-1.5 rounded-full font-['Do_Hyeon'] w-28 mb-2"
+              >
+                예
+              </button>
+              <button 
+                onClick={() => setShowDeleteModal(false)}
+                className="bg-gray-300 text-black px-3 py-1.5 rounded-full font-['Do_Hyeon'] w-28 mb-2"
+              >
+                아니오
+              </button>
+            </div>
           </div>
         </div>
       )}
