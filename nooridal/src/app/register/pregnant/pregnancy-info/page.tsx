@@ -3,10 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import PregnancyFormLayout from "@/components/pregnancy/PregnancyFormLayout";
-import { supabase } from '../../../../utils/supabase';
+import { supabase } from '@/utils/supabase';
 import { Database } from '../../../../../types_db';
+import { getSessionData, calculateDueDate, calculatePregnancyWeek, generateCalendarDays, formatYearMonth } from '../../../../utils/pregnancyUtils';
+import { registerPregnancy } from '../../../../utils/pregnancyUtils';
 
-type Pregnancy = Database['public']['Tables']['pregnancies']['Row'];
+type Pregnancy = Omit<Database['public']['Tables']['pregnancies']['Row'], 'user_id'> & { userId: string };
 
 export default function PregnancyInfo() {
   const router = useRouter();
@@ -26,71 +28,30 @@ export default function PregnancyInfo() {
   const [waitingForBaby, setWaitingForBaby] = useState(false);
   const [showHighRiskModal, setShowHighRiskModal] = useState(false);
 
-  useEffect(() => {
-    fetchPregnancies();
-  }, []);
-
-  const fetchPregnancies = async () => {
-    const { data, error } = await supabase.from('pregnancies').select('*');
-    if (error) console.error('Error fetching pregnancies:', error);
-    else setPregnancies(data);
-  };
-
   const handlePrevious = () => {
     if (currentStep === 2) {
       router.push('/register/pregnant/pregnancy-info');
     } else if (currentStep === 1) {
-    router.push('/login');
-    }
-  };
-
-  const createPregnancy = async () => {
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError) {
-      console.error('Error fetching user session:', sessionError);
-      return;
-    }
-
-    const user = sessionData?.session?.user;
-    if (!user) {
-      console.error('User not logged in');
-      return;
-    }
-
-    const dueDate = new Date(expectedDate);
-    const today = new Date();
-    const diffInTime = dueDate.getTime() - today.getTime();
-    const diffInDays = Math.ceil(diffInTime / (1000 * 3600 * 24));
-    const currentWeek = Math.floor((280 - diffInDays) / 7); // Assuming 280 days for full term
-
-    const newPregnancy = {
-      baby_name: babyName,
-      due_date: dueDate.toISOString().split('T')[0],
-      current_week: currentWeek,
-      high_risk: highRisk,
-      created_at: new Date().toISOString(),
-      user_id: user.id,
-      guardian_id: user.id,
-      status: 'active' as 'active',
-    };
-
-    console.log('Attempting to create pregnancy with data:', newPregnancy);
-
-    try {
-      const { data, error } = await supabase.from('pregnancies').insert(newPregnancy);
-      if (error) {
-        console.error('Error creating pregnancy:', error.message, error.details);
-      } else {
-        console.log('Pregnancy created successfully:', data);
-      }
-    } catch (error) {
-      console.error('Unexpected error:', error);
+      router.push('/login');
     }
   };
 
   const handleNext = async () => {
     if (currentStep === 4) {
-      router.push('/calendar');
+      const user = await getSessionData();
+      if (!user) {
+        console.error('User session not found.');
+        alert('로그인이 필요합니다.');
+        return;
+      }
+      const existingPregnancy = pregnancies.find(p => p.userId === user.id);
+      if (existingPregnancy) {
+        console.log('Pregnancy information already exists for this user.');
+        alert('이미 등록된 임신 정보가 있습니다.');
+        return;
+      }
+      console.log('Calling registerPregnancy');
+      await registerPregnancy(babyName, expectedDate, pregnancyWeek, highRisk, babyGender);
     } else {
       console.log('Current step:', currentStep);
       if (currentStep === 1) {
@@ -105,28 +66,9 @@ export default function PregnancyInfo() {
         setCurrentStep(3);
         console.log('Moving to step 3');
       } else if (currentStep === 3) {
-        router.push('/register/pregnant/pregnancy-info/baby-name');
         setCurrentStep(4);
         console.log('Moving to step 4');
-      } else if (currentStep === 4) {
-        router.push('/register/pregnant/pregnancy-info/expected-date');
-        console.log('Calling createPregnancy');
-        await createPregnancy();
       }
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const { data, error } = await supabase
-      .from('pregnancies')
-      .insert([{ due_date: expectedDate, weeks: expectedDate }]);
-
-    if (error) {
-      console.error('Error inserting data:', error);
-    } else {
-      console.log('Data inserted successfully:', data);
     }
   };
 
@@ -135,50 +77,14 @@ export default function PregnancyInfo() {
   }, [currentStep]);
 
   const calculatePregnancyInfo = (lastPeriodDate: Date) => {
-    const today = new Date();
-    const diffTime = Math.abs(today.getTime() - lastPeriodDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const pregnancyWeek = Math.floor(diffDays / 7);
-    
-    const dueDate = new Date(lastPeriodDate);
-    dueDate.setDate(dueDate.getDate() + 280);
-    
+    const pregnancyWeek = calculatePregnancyWeek(lastPeriodDate.toISOString().split('T')[0]);
+    const dueDate = calculateDueDate(pregnancyWeek);
     setPregnancyWeek(pregnancyWeek.toString());
-    setExpectedDate(dueDate.toISOString().split('T')[0]);
+    setExpectedDate(dueDate);
   };
 
-  const generateCalendarDays = () => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const days = [];
-
-    const prevMonthLastDate = new Date(year, month, 0).getDate();
-    const firstDayOfWeek = firstDay.getDay();
-    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-      days.push({
-        date: new Date(year, month - 1, prevMonthLastDate - i),
-        isCurrentMonth: false,
-      });
-    }
-
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-      days.push({
-        date: new Date(year, month, i),
-        isCurrentMonth: true,
-      });
-    }
-
-    const remainingDays = 42 - days.length;
-    for (let i = 1; i <= remainingDays; i++) {
-      days.push({
-        date: new Date(year, month + 1, i),
-        isCurrentMonth: false,
-      });
-    }
-
-    return days;
+  const generateCalendarDaysWrapper = () => {
+    return generateCalendarDays(currentMonth);
   };
 
   const handleDateSelect = (date: Date) => {
@@ -193,6 +99,56 @@ export default function PregnancyInfo() {
     return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
   };
 
+  const fetchAndCleanPregnancyRecords = async (userId: string) => {
+    // Fetch the latest pregnancy record
+    const { data, error: fetchError } = await supabase
+      .from('pregnancies')
+      .select('*')
+      .eq('userId', userId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (fetchError) {
+      console.error('Error fetching latest pregnancy:', fetchError);
+      return null;
+    }
+
+    const latestPregnancy = data[0];
+
+    if (!latestPregnancy) {
+      console.error('No pregnancy records found.');
+      return null;
+    }
+
+    // Delete older pregnancy records
+    const { error: deleteError } = await supabase
+      .from('pregnancies')
+      .delete()
+      .eq('userId', userId)
+      .neq('id', latestPregnancy.id);
+
+    if (deleteError) {
+      console.error('Error deleting older pregnancies:', deleteError);
+    }
+
+    return latestPregnancy;
+  };
+
+  useEffect(() => {
+    const loadAndCleanPregnancyRecords = async () => {
+      const user = await getSessionData();
+      if (!user) {
+        console.error('User session not found.');
+        return;
+      }
+      const latestPregnancy = await fetchAndCleanPregnancyRecords(user.id);
+      if (latestPregnancy) {
+        setPregnancies([latestPregnancy]);
+      }
+    };
+    loadAndCleanPregnancyRecords();
+  }, []);
+
   return (
     <PregnancyFormLayout
       title="임신 정보를 입력해주세요"
@@ -204,15 +160,15 @@ export default function PregnancyInfo() {
     >
       {currentStep === 1 && (
         <div className="w-full p-4 bg-[#FFF4BB] rounded-xl border border-[#FFE999] mb-4 flex items-center cursor-pointer">
-        <input
-          type="checkbox"
-          checked={isPregnant}
+          <input
+            type="checkbox"
+            checked={isPregnant}
             onChange={() => {
               setIsPregnant(!isPregnant);
               setWaitingForBaby(false);
             }}
-          className="w-4 h-4 mr-4"
-        />
+            className="w-4 h-4 mr-4"
+          />
           <span className="text-black font-['Do_Hyeon']">🤰🏻 뱃속에 아기가 있어요</span>
         </div>
       )}
@@ -364,7 +320,7 @@ export default function PregnancyInfo() {
                 </div>
 
                 <div className="grid grid-cols-7 gap-0.5">
-                  {generateCalendarDays().map((day, index) => (
+                  {generateCalendarDaysWrapper().map((day, index) => (
                     <button
                       key={index}
                       onClick={() => handleDateSelect(day.date)}
@@ -479,7 +435,7 @@ export default function PregnancyInfo() {
                     </div>
 
                     <div className="grid grid-cols-7 gap-0.5">
-                      {generateCalendarDays().map((day, index) => (
+                      {generateCalendarDaysWrapper().map((day, index) => (
                         <button
                           key={index}
                           onClick={() => handleDateSelect(day.date)}
@@ -561,6 +517,7 @@ export default function PregnancyInfo() {
                 onClick={() => {
                   setShowHighRiskModal(false);
                   setHighRisk(true);
+                  router.push('/calendar');
                 }}
                 className="w-20 h-9 rounded-2xl bg-[#FFE999] hover:bg-[#FFD999] transition-colors"
               >
@@ -568,7 +525,7 @@ export default function PregnancyInfo() {
               </button>
             </div>
           </div>
-      </div>
+        </div>
       )}
     </PregnancyFormLayout>
   );

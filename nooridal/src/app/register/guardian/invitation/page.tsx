@@ -37,7 +37,7 @@ export default function GuardianInvitation() {
 
       // 초대 코드가 유효하면 세션에 저장하고 보호자 회원가입 페이지로 이동
       sessionStorage.setItem('invitation_code', invitationCode);
-      sessionStorage.setItem('pregnant_user_id', data.id);
+      sessionStorage.setItem('pregnant_userId', data.id);
       router.push('/register/guardian');
     } catch (error) {
       console.error("초대 코드 확인 중 오류 발생:", error);

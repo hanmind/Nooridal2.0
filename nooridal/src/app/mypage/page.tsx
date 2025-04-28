@@ -35,12 +35,10 @@ export default function MyPage() {
         setName(user.user_metadata.full_name || "Unknown");
         setUserId(user.id);
 
-        // userId를 사용하여 임신 정보 가져오기
         const { data: pregnancyData, error: pregnancyError } = await supabase
           .from('pregnancies')
           .select('baby_name, due_date, current_week, high_risk')
-          .eq('user_id', user.id)
-          .limit(1) 
+          .eq('userId', user.id)
           .maybeSingle();
 
         if (pregnancyError) {
@@ -62,7 +60,7 @@ export default function MyPage() {
       const { data, error } = await supabase
         .from('pregnancies')
         .select('*')
-        .eq('user_id', userId);
+        .eq('userId', userId);
 
       if (error) {
         console.error('Error fetching pregnancy info:', error);
@@ -79,8 +77,39 @@ export default function MyPage() {
     setActiveTab('mypage');
   }, []);
 
+  const createPregnancy = async () => {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      console.error('Error fetching user session:', sessionError);
+      return;
+    }
+
+    const user = sessionData?.session?.user;
+    if (!user) {
+      console.error('User not logged in');
+      return;
+    }
+
+    const newPregnancy = {
+      baby_name: babyName,
+      due_date: new Date(dueDate).toISOString().split('T')[0],
+      current_week: parseInt(weeks, 10),
+      high_risk: highRisk,
+      baby_gender: babyGender,
+      created_at: new Date().toISOString(),
+      userId: user.id,
+      guardian_id: user.id,
+    };
+
+    const { data, error } = await supabase.from('pregnancies').insert(newPregnancy);
+    if (error) {
+      console.error('Error creating pregnancy:', error);
+    } else {
+      console.log('Pregnancy created successfully:', data);
+    }
+  };
+
   const handleLogout = () => {
-    // 로그아웃 처리 로직
     router.push('/login');
   };
 
@@ -127,42 +156,9 @@ export default function MyPage() {
     }
   };
 
-  const createPregnancy = async () => {
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError) {
-      console.error('Error fetching user session:', sessionError);
-      return;
-    }
-
-    const user = sessionData?.session?.user;
-    if (!user) {
-      console.error('User not logged in');
-      return;
-    }
-
-    const newPregnancy = {
-      baby_name: babyName,
-      due_date: new Date(dueDate).toISOString().split('T')[0],
-      current_week: parseInt(weeks, 10),
-      high_risk: highRisk,
-      baby_gender: babyGender,
-      created_at: new Date().toISOString(),
-      user_id: user.id,
-      guardian_id: user.id,
-    };
-
-    const { data, error } = await supabase.from('pregnancies').insert(newPregnancy);
-    if (error) {
-      console.error('Error creating pregnancy:', error);
-    } else {
-      console.log('Pregnancy created successfully:', data);
-    }
-  };
-
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
-        {/* 헤더 */}
         <div className="left-[155px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
           마이페이지
         </div>
@@ -173,9 +169,7 @@ export default function MyPage() {
           &lt;
         </button>
 
-        {/* 프로필 카드 */}
         <div className="w-[360px] h-[280px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
-          {/* 프로필 이미지 */}
           <div 
             className={`w-16 h-16 left-[20px] top-[20px] absolute rounded-full overflow-hidden ${profileImage ? 'cursor-pointer' : ''}`}
             onClick={handleProfileImageClick}
@@ -194,18 +188,12 @@ export default function MyPage() {
               </div>
             )}
           </div>
-          
-          {/* 사용자 이름 */}
           <div className="left-[105px] top-[20px] absolute text-neutral-700 text-lg font-normal font-['Do_Hyeon']">
             {name || "홍길동"}
           </div>
-          
-          {/* 사용자 ID */}
           <div className="left-[105px] top-[45px] absolute text-stone-500 text-sm font-normal font-['Do_Hyeon']">
             {userId || "nooridal"}
           </div>
-          
-          {/* 고위험 임신 표시 */}
           {pregnancyInfo?.high_risk && (
             <div className="flex items-center left-[105px] top-[70px] absolute">
               <svg className="w-3 h-3 text-red-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -214,8 +202,6 @@ export default function MyPage() {
               <span className="text-red-600 text-[11px] font-normal font-['Do_Hyeon']">고위험 임신</span>
             </div>
           )}
-          
-          {/* 아기와 만나기까지, 출산 예정일 */}
           {pregnancyInfo ? (
             <div className="w-full px-6 top-[100px] absolute">
               <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center" style={{ height: 'auto', padding: '10px 0' }}>
@@ -232,11 +218,11 @@ export default function MyPage() {
                 <div className="w-full h-2 bg-gray-200 rounded-full relative">
                   <div
                     className="h-full bg-blue-500 rounded-full"
-                    style={{ width: `${(pregnancyInfo.current_week / 40) * 100}%` }} // Assuming 40 weeks as full term
+                    style={{ width: `${(pregnancyInfo.current_week / 40) * 100}%` }}
                   ></div>
                   <div
                     className="absolute -top-6 text-blue-500"
-                    style={{ left: `calc(${(pregnancyInfo.current_week / 40) * 100}% - 8px)` }} // Adjust for icon width
+                    style={{ left: `calc(${(pregnancyInfo.current_week / 40) * 100}% - 8px)` }}
                   >
                     <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
@@ -267,9 +253,7 @@ export default function MyPage() {
           )}
         </div>
 
-        {/* 메뉴 카드 */}
         <div className="w-[360px] h-62 left-[12px] top-[430px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
-          {/* 내 정보 관리 */}
           <div 
             onClick={handleProfileManagement}
             className="w-full flex items-center justify-between px-4 py-3 border-b border-stone-300 cursor-pointer hover:bg-stone-50 transition-colors"
@@ -286,8 +270,6 @@ export default function MyPage() {
               &gt;
             </div>
           </div>
-          
-          {/* 임신 정보 관리 */}
           <div 
             onClick={handlePregnancyInfoManagement}
             className="w-full flex items-center justify-between px-4 py-3 border-b border-stone-300 cursor-pointer hover:bg-stone-50 transition-colors"
@@ -304,8 +286,6 @@ export default function MyPage() {
               &gt;
             </div>
           </div>
-          
-          {/* 자주 찾는 질문 */}
           <div 
             onClick={handleFAQ}
             className="w-full flex items-center justify-between px-4 py-3 border-b border-stone-300 cursor-pointer hover:bg-stone-50 transition-colors"
@@ -322,8 +302,6 @@ export default function MyPage() {
               &gt;
             </div>
           </div>
-          
-          {/* 앱 정보 */}
           <div 
             onClick={handleAppInfo}
             className="w-full flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-stone-50 transition-colors"
@@ -342,7 +320,6 @@ export default function MyPage() {
           </div>
         </div>
 
-        {/* 로그아웃 버튼 */}
         <button 
           onClick={handleLogout}
           className="absolute left-1/2 transform -translate-x-1/2 top-[690px] text-center text-gray-500 text-base font-normal font-['Do_Hyeon'] leading-[50px]"
@@ -350,10 +327,8 @@ export default function MyPage() {
           로그아웃
         </button>
       </div>
-      {/* TabBar Component */}
       <TabBar activeTab={activeTab} tabs={['chat', 'calendar', 'location', 'mypage']} onTabClick={handleTabClick} />
 
-      {/* 이미지 모달 */}
       {showImageModal && profileImage && (
         <div 
           className="fixed z-50"
