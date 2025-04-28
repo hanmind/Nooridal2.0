@@ -12,7 +12,7 @@ export default function LocationPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('location');
   const [showBackground, setShowBackground] = useState(false);
-  const { address, setAddress } = useAddress();
+  const { address, setAddress, isLoaded } = useAddress();
 
   // 주소를 동까지만 표시하는 함수 추가
   const getShortAddress = (fullAddress: string) => {
@@ -65,6 +65,12 @@ export default function LocationPage() {
         oncomplete: function(data: any) {
           // 도로명 주소 대신 지번 주소를 사용합니다
           let fullAddress = data.jibunAddress;
+          
+          // 지번 주소가 없는 경우 도로명 주소를 사용합니다
+          if (!fullAddress) {
+            fullAddress = data.address;
+          }
+          
           let extraAddress = '';
 
           if (data.addressType === 'R') {
@@ -83,6 +89,10 @@ export default function LocationPage() {
         }
       }).open();
     }
+  };
+
+  const handleCameraClick = () => {
+    // Implementation of handleCameraClick function
   };
 
   return (
@@ -105,14 +115,14 @@ export default function LocationPage() {
           </div>
           <button 
             onClick={() => router.back()}
-            className="absolute left-[24px] top-[63px] text-center text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
+            className="absolute left-[27px] top-[63px] text-center text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
           >
             &lt;
           </button>
         </div>
 
         {/* Current Location Section */}
-        <div className="w-[calc(100%-48px)] mt-[65px] p-4 bg-white rounded-xl shadow-sm">
+        <div className="w-[calc(100%-48px)] mt-[20px] p-4 bg-white rounded-xl shadow-sm">
           {/* 위치 아이콘은 왼쪽에 유지하고 텍스트는 가운데 정렬 */}
           <div className="flex items-start">
             {/* 위치 아이콘 */}
@@ -131,7 +141,9 @@ export default function LocationPage() {
               
               {/* 주소를 가운데 정렬하고 수정 버튼을 오른쪽 끝에 배치 */}
               <div className="flex ml-[-30px] items-center justify-between w-full">
-                <div className="text-xl font-['Do_Hyeon'] text-center flex-1">{getShortAddress(address)}</div>
+                <div className="text-xl font-['Do_Hyeon'] text-center flex-1">
+                  {getShortAddress(address)}
+                </div>
                 <button 
                   onClick={handleAddressEdit}
                   className="text-sm font-['Do_Hyeon'] cursor-pointer hover:text-yellow-400 ml-2"
