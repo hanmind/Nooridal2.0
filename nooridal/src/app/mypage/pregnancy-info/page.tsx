@@ -3,8 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
-import { supabase } from "../../../utils/supabase";
-import { getSessionData, calculateDueDate, calculatePregnancyWeek, calculateDaysUntilBirth } from '../../../utils/pregnancyUtils';
+import { supabase } from "../../lib/supabase";
 
 interface FormData {
   babyName: string;
@@ -31,30 +30,67 @@ export default function PregnancyInfo() {
     daysUntilBirth: undefined
   });
 
-  const [pregnancyInfo, setPregnancyInfo] = useState(null);
-
   const weeks: number[] = Array.from({length: 40}, (_, i) => i + 1);
+
+  // 임신 주차에 따른 출산 예정일 계산
+  const calculateDueDate = (week: number): string => {
+    const today = new Date();
+    const pregnancyStart = new Date(today);
+    const weeksInMilliseconds = (week - 1) * 7 * 24 * 60 * 60 * 1000;
+    pregnancyStart.setTime(today.getTime() - weeksInMilliseconds);
+    
+    const dueDate = new Date(pregnancyStart);
+    dueDate.setDate(pregnancyStart.getDate() + 280); // 40주 = 280일
+    
+    return dueDate.toISOString().split('T')[0];
+  };
+
+  // 출산 예정일에 따른 임신 주차 계산
+  const calculatePregnancyWeek = (dueDate: string): number => {
+    const today = new Date();
+    const due = new Date(dueDate);
+    const pregnancyStart = new Date(due);
+    pregnancyStart.setDate(due.getDate() - 280); // 40주 = 280일
+    
+    const diffTime = today.getTime() - pregnancyStart.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const currentWeek = Math.floor(diffDays / 7) + 1;
+    
+    return Math.min(Math.max(1, currentWeek), 40); // 1주에서 40주 사이로 제한
+  };
+
+  // 출산까지 남은 일수 계산
+  const calculateDaysUntilBirth = (dueDate: string): number => {
+    const today = new Date();
+    const due = new Date(dueDate);
+    const diffTime = due.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
 
   useEffect(() => {
     const fetchPregnancyInfo = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      const userId = data.user?.id;
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error('사용자 세션을 가져오는 중 오류 발생:', sessionError);
+        return;
+      }
 
-      if (userId) {
+      const user = sessionData?.session?.user;
+      if (user) {
         const { data: pregnancyData, error: pregnancyError } = await supabase
           .from('pregnancies')
           .select('*')
-          .eq('userId', userId)
-          .maybeSingle();
+          .eq('user_id', user.id)
+          .single();
 
         if (pregnancyError) {
-          console.error('Error fetching pregnancy information:', pregnancyError.message);
+          console.error('임신 정보를 가져오는 중 오류 발생:', pregnancyError.message);
         } else {
-          setPregnancyInfo(pregnancyData);
+          console.log('임신 정보가 성공적으로 가져와졌습니다:', pregnancyData);
           const daysUntilBirth = calculateDaysUntilBirth(pregnancyData.due_date);
           setFormData({
             babyName: pregnancyData.baby_name,
-            gender: pregnancyData.baby_gender,
+            gender: pregnancyData.gender,
             pregnancyWeek: pregnancyData.current_week.toString(),
             dueDate: pregnancyData.due_date,
             isHighRisk: pregnancyData.high_risk,
@@ -117,13 +153,14 @@ export default function PregnancyInfo() {
         const { error: updateError } = await supabase
           .from('pregnancies')
           .update({
-            baby_gender: formData.gender,
+            gender: formData.gender,
             baby_name: formData.babyName,
             current_week: parseInt(formData.pregnancyWeek),
             due_date: formData.dueDate,
             high_risk: formData.isHighRisk,
+            days_until_birth: formData.daysUntilBirth
           })
-          .eq('userId', user.id);
+          .eq('user_id', user.id);
 
         if (updateError) throw updateError;
 
@@ -215,20 +252,6 @@ export default function PregnancyInfo() {
     }));
     setShowCalendar(false);
   };
-
-  const handleRegisterClick = () => {
-    router.push('/register/pregnant/pregnancy-info');
-  };
-
-  if (!pregnancyInfo) {
-    return (
-      <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-        <button onClick={handleRegisterClick} className="bg-blue-500 text-white p-4 rounded">
-          Register Pregnancy Information
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
