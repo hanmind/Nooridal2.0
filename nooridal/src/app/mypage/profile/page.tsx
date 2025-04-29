@@ -53,6 +53,9 @@ export default function ProfileManagement() {
     phoneNumber: '',
     address: ''
   });
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -342,6 +345,67 @@ export default function ProfileManagement() {
       console.error('비밀번호 변경 중 오류 발생:', error);
       setPasswordError("비밀번호 변경에 실패했습니다. 다시 시도해주세요.");
     }
+  };
+
+  const handleNameClick = () => {
+    setIsEditingName(true);
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempName(e.target.value);
+  };
+
+  const handleNameBlur = async () => {
+    if (tempName.trim() !== userInfo.name) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { error } = await supabase
+            .from('users')
+            .update({ name: tempName })
+            .eq('id', user.id);
+
+          if (error) throw error;
+
+          setUserInfo(prev => ({ ...prev, name: tempName }));
+        }
+      } catch (error) {
+        console.error('이름 변경 중 오류 발생:', error);
+        alert('이름 변경에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
+    setIsEditingName(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      console.error('Error fetching user session:', sessionError);
+      return;
+    }
+
+    const user = sessionData?.session?.user;
+    if (!user) {
+      console.error('User not logged in');
+      return;
+    }
+
+    // Delete user data
+    const { error: deleteError } = await supabase.from('users').delete().eq('id', user.id);
+    if (deleteError) {
+      console.error('Error deleting user data:', deleteError);
+      return;
+    }
+
+    // Sign out user
+    const { error: signOutError } = await supabase.auth.signOut();
+    if (signOutError) {
+      console.error('Error signing out:', signOutError);
+      return;
+    }
+
+    // Redirect to login page
+    router.push('/login');
   };
 
   return (
@@ -658,7 +722,34 @@ export default function ProfileManagement() {
         </button>
 
         {/* 탈퇴하기 */}
-        <div className="w-36 h-6 left-[120px] top-[740px] absolute text-center justify-start text-neutral-400/60 text-base font-normal font-['Do_Hyeon'] leading-[50px]">탈퇴하기</div>
+        <button 
+          onClick={() => setShowDeleteModal(true)}
+          className="absolute left-1/2 transform -translate-x-1/2 top-[750px] text-center text-gray-500 text-base font-normal font-['Do_Hyeon'] leading-[50px]"
+        >
+          탈퇴하기
+        </button>
+
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-10 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <p className="text-lg font-['Do_Hyeon'] mb-4">정말 탈퇴하시겠습니까? 탈퇴 시 모든 정보가 삭제됩니다.</p>
+              <div className="flex justify-end">
+                <button 
+                  onClick={handleDeleteAccount}
+                  className="bg-red-500 text-white px-4 py-2 rounded mr-2"
+                >
+                  예
+                </button>
+                <button 
+                  onClick={() => setShowDeleteModal(false)}
+                  className="bg-gray-300 text-black px-4 py-2 rounded"
+                >
+                  아니오
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 하단 네비게이션 바 */}
         <div className="absolute bottom-0 w-full">

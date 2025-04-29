@@ -22,6 +22,7 @@ export default function MyPage() {
   const [weeks, setWeeks] = useState('');
   const [highRisk, setHighRisk] = useState(false);
   const [babyGender, setBabyGender] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -69,11 +70,62 @@ export default function MyPage() {
   }, []);
 
   useEffect(() => {
+    const fetchPregnancyInfo = async () => {
+      if (!userId) return; // Ensure userId is not null
+
+      const { data, error } = await supabase
+        .from('pregnancies')
+        .select('*')
+        .eq('userId', userId);
+
+      if (error) {
+        console.error('Error fetching pregnancy info:', error);
+      } else {
+        console.log('Pregnancy info fetched:', data);
+        setPregnancyInfo(data);
+      }
+    };
+
+    fetchPregnancyInfo();
+  }, [userId]);
+
+  useEffect(() => {
     setActiveTab('mypage');
   }, []);
 
+  const createPregnancy = async () => {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      console.error('Error fetching user session:', sessionError);
+      return;
+    }
+
+    const user = sessionData?.session?.user;
+    if (!user) {
+      console.error('User not logged in');
+      return;
+    }
+
+    const newPregnancy = {
+      baby_name: babyName,
+      due_date: new Date(dueDate).toISOString().split('T')[0],
+      current_week: parseInt(weeks, 10),
+      high_risk: highRisk,
+      baby_gender: babyGender,
+      created_at: new Date().toISOString(),
+      userId: user.id,
+      guardian_id: user.id,
+    };
+
+    const { data, error } = await supabase.from('pregnancies').insert(newPregnancy);
+    if (error) {
+      console.error('Error creating pregnancy:', error);
+    } else {
+      console.log('Pregnancy created successfully:', data);
+    }
+  };
+
   const handleLogout = () => {
-    // 로그아웃 처리 로직
     router.push('/login');
   };
 
@@ -120,7 +172,7 @@ export default function MyPage() {
     }
   };
 
-  const createPregnancy = async () => {
+  const handleDeleteAccount = async () => {
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     if (sessionError) {
       console.error('Error fetching user session:', sessionError);
@@ -133,29 +185,27 @@ export default function MyPage() {
       return;
     }
 
-    const newPregnancy = {
-      baby_name: babyName,
-      due_date: new Date(dueDate).toISOString().split('T')[0],
-      current_week: parseInt(weeks, 10),
-      high_risk: highRisk,
-      baby_gender: babyGender,
-      created_at: new Date().toISOString(),
-      user_id: user.id,
-      guardian_id: user.id,
-    };
-
-    const { data, error } = await supabase.from('pregnancies').insert(newPregnancy);
-    if (error) {
-      console.error('Error creating pregnancy:', error);
-    } else {
-      console.log('Pregnancy created successfully:', data);
+    // Delete user data
+    const { error: deleteError } = await supabase.from('users').delete().eq('id', user.id);
+    if (deleteError) {
+      console.error('Error deleting user data:', deleteError);
+      return;
     }
+
+    // Sign out user
+    const { error: signOutError } = await supabase.auth.signOut();
+    if (signOutError) {
+      console.error('Error signing out:', signOutError);
+      return;
+    }
+
+    // Redirect to login page
+    router.push('/login');
   };
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
-        {/* 헤더 */}
         <div className="left-[155px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
           마이페이지
         </div>
@@ -194,8 +244,6 @@ export default function MyPage() {
           <div className="left-[130px] top-[75px] absolute text-stone-500 text-m font-normal font-['Do_Hyeon']">
             {email || ""}
           </div>
-          
-          {/* 고위험 임신 표시 */}
           {pregnancyInfo?.high_risk && (
             <div className="flex items-center left-[105px] top-[70px] absolute">
               <svg className="w-3 h-3 text-red-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -204,8 +252,6 @@ export default function MyPage() {
               <span className="text-red-600 text-[11px] font-normal font-['Do_Hyeon']">고위험 임신</span>
             </div>
           )}
-          
-          {/* 아기와 만나기까지, 출산 예정일 */}
           {pregnancyInfo ? (
             <div className="w-full px-6 top-[130px] absolute">
               <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center" style={{ height: 'auto', padding: '10px 0' }}>
@@ -222,11 +268,11 @@ export default function MyPage() {
                 <div className="w-full h-2 bg-gray-200 rounded-full relative">
                   <div
                     className="h-full bg-blue-500 rounded-full"
-                    style={{ width: `${(pregnancyInfo.current_week / 40) * 100}%` }} // Assuming 40 weeks as full term
+                    style={{ width: `${(pregnancyInfo.current_week / 40) * 100}%` }}
                   ></div>
                   <div
                     className="absolute -top-6 text-blue-500"
-                    style={{ left: `calc(${(pregnancyInfo.current_week / 40) * 100}% - 8px)` }} // Adjust for icon width
+                    style={{ left: `calc(${(pregnancyInfo.current_week / 40) * 100}% - 8px)` }}
                   >
                     <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
@@ -257,9 +303,7 @@ export default function MyPage() {
           )}
         </div>
 
-        {/* 메뉴 카드 */}
         <div className="w-[360px] h-62 left-[12px] top-[430px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
-          {/* 내 정보 관리 */}
           <div 
             onClick={handleProfileManagement}
             className="w-full flex items-center justify-between px-4 py-3 border-b border-stone-300 cursor-pointer hover:bg-stone-50 transition-colors"
@@ -276,8 +320,6 @@ export default function MyPage() {
               &gt;
             </div>
           </div>
-          
-          {/* 임신 정보 관리 */}
           <div 
             onClick={handlePregnancyInfoManagement}
             className="w-full flex items-center justify-between px-4 py-3 border-b border-stone-300 cursor-pointer hover:bg-stone-50 transition-colors"
@@ -294,8 +336,6 @@ export default function MyPage() {
               &gt;
             </div>
           </div>
-          
-          {/* 자주 찾는 질문 */}
           <div 
             onClick={handleFAQ}
             className="w-full flex items-center justify-between px-4 py-3 border-b border-stone-300 cursor-pointer hover:bg-stone-50 transition-colors"
@@ -312,8 +352,6 @@ export default function MyPage() {
               &gt;
             </div>
           </div>
-          
-          {/* 앱 정보 */}
           <div 
             onClick={handleAppInfo}
             className="w-full flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-stone-50 transition-colors"
@@ -332,18 +370,22 @@ export default function MyPage() {
           </div>
         </div>
 
-        {/* 로그아웃 버튼 */}
         <button 
           onClick={handleLogout}
           className="absolute left-1/2 transform -translate-x-1/2 top-[690px] text-center text-gray-500 text-base font-normal font-['Do_Hyeon'] leading-[50px]"
         >
           로그아웃
         </button>
+
+        <button 
+          onClick={() => setShowDeleteModal(true)}
+          className="absolute left-1/2 transform -translate-x-1/2 top-[730px] text-center text-gray-400 text-sm font-normal font-['Do_Hyeon'] leading-[40px]"
+        >
+          탈퇴하기
+        </button>
       </div>
-      {/* TabBar Component */}
       <TabBar activeTab={activeTab} tabs={['chat', 'calendar', 'location', 'mypage']} onTabClick={handleTabClick} />
 
-      {/* 이미지 모달 */}
       {showImageModal && profileImage && (
         <div 
           className="fixed z-50"
@@ -369,6 +411,30 @@ export default function MyPage() {
                 <path d="M18 6L6 18M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
+          </div>
+        </div>
+      )}
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 flex justify-center items-center z-50">
+          <div className="absolute inset-0 bg-[#FFF4BB] bg-opacity-80"></div>
+          <div className="bg-white p-6 rounded-3xl shadow-lg w-[300px] h-auto relative z-10 flex flex-col justify-center items-center">
+            <p className="text-lg font-['Do_Hyeon'] mb-2 text-center">정말 탈퇴하시겠어요?</p>
+            <p className="text-sm font-['Do_Hyeon'] text-center mb-4">탈퇴 버튼 선택 시, 계정은 삭제되며 복구되지 않습니다.</p>
+            <div className="flex justify-center w-full space-x-2">
+              <button 
+                onClick={handleDeleteAccount}
+                className="bg-red-400 text-white px-3 py-1.5 rounded-full font-['Do_Hyeon'] w-28 mb-2"
+              >
+                예
+              </button>
+              <button 
+                onClick={() => setShowDeleteModal(false)}
+                className="bg-gray-300 text-black px-3 py-1.5 rounded-full font-['Do_Hyeon'] w-28 mb-2"
+              >
+                아니오
+              </button>
+            </div>
           </div>
         </div>
       )}

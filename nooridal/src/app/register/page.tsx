@@ -2,16 +2,33 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { supabase } from '@/utils/supabase';
 
 export default function Register() {
   const router = useRouter();
+  const [isPregnant, setIsPregnant] = useState(false);
+  const [buttonClicked, setButtonClicked] = useState(false);
 
   const handleGuardianClick = () => {
     router.push('/register/guardian/invitation');
   };
 
-  const handlePregnantClick = () => {
-    router.push("/register/pregnant");
+  const handleRegisterPregnancyClick = async () => {
+    setButtonClicked(true);
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      console.error('Error fetching user:', error.message);
+      return;
+    }
+
+    const userId = data.user?.id;
+
+    if (userId) {
+      // Directly navigate to the pregnancy information registration form
+      router.push('/register/pregnant/pregnancy-info');
+    }
   };
 
   return (
@@ -40,10 +57,10 @@ export default function Register() {
         <div className="w-full flex flex-col items-center absolute top-[260px] z-20">
           <div className="text-2xl font-['Do_Hyeon'] mb-14">회원가입</div>
           <button 
-            onClick={handlePregnantClick}
+            onClick={handleRegisterPregnancyClick}
             className="w-64 h-16 mb-6 bg-[#B7E5FF] rounded-[30px] shadow-lg hover:bg-[#A3D9F9] hover:scale-105 transition-all"
           >
-            <span className="text-black text-xl font-['Do_Hyeon']">임산부</span>
+            <span className="text-black text-xl font-['Do_Hyeon']">임신 정보 등록하기</span>
           </button>
           <button
             onClick={handleGuardianClick}

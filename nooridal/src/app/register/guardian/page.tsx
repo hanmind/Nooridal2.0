@@ -36,7 +36,7 @@ export default function GuardianSignup() {
   // 세션 스토리지에서 초대코드 정보 로드
   useEffect(() => {
     const savedInvitationCode = sessionStorage.getItem('invitation_code');
-    const savedPregnantUserId = sessionStorage.getItem('pregnant_user_id');
+    const savedPregnantUserId = sessionStorage.getItem('pregnant_userId');
 
     if (savedInvitationCode) {
       setInvitationCode(savedInvitationCode);
@@ -330,7 +330,7 @@ export default function GuardianSignup() {
 
       // 4. 초대코드 및 임산부 ID 세션 스토리지에서 제거
       sessionStorage.removeItem('invitation_code');
-      sessionStorage.removeItem('pregnant_user_id');
+      sessionStorage.removeItem('pregnant_userId');
 
       // 5. 성공 시 로그인 페이지로 이동
       router.push('/login');
