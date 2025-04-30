@@ -347,7 +347,7 @@ export default function ProfileManagement() {
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
-        <div className="w-[360px] h-[610px] left-[15px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]" />
+        <div className="w-[360px] h-[610px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]" />
         <div className="left-[155px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
           내 정보 관리
         </div>
@@ -446,9 +446,16 @@ export default function ProfileManagement() {
           onChange={handleFileChange}
         />
 
-        {/* 이름과 초대 코드 */}
-        <div className="w-37 h-9 left-[214px] top-[184px] absolute bg-white rounded-lg border border-zinc-300" />
-        <div className="w-37 h-9 left-[214px] top-[235px] absolute bg-gray-200 rounded-lg border border-zinc-300 flex items-center justify-between px-2">
+        {/* 이름 입력란 */}
+        <input
+          type="text"
+          value={userInfo.name}
+          onChange={e => setUserInfo(prev => ({ ...prev, name: e.target.value }))}
+          className="w-36 h-9 left-[209px] top-[184px] absolute bg-white rounded-lg border border-zinc-300 px-3 text-black text-base font-['Do_Hyeon'] focus:outline-none focus:border-sky-400"
+        />
+
+        {/* 초대 코드 */}
+        <div className="w-36 h-9 left-[209px] top-[235px] absolute bg-gray-200 rounded-lg border border-zinc-300 flex items-center justify-between px-2">
           <button 
             onClick={copyInviteCode}
             className="w-6 h-6 cursor-pointer ml-auto"
@@ -464,23 +471,16 @@ export default function ProfileManagement() {
             )}
           </button>
         </div>
-        <div className="left-[160px] top-[178px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">이 름</div>
-        <div className="left-[159px] top-[227px] absolute text-center justify-start text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px]">초대코드</div>
-        <div className="w-20 h-4 left-[223px] top-[227px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">{inviteCode}</div>
+        <div className="left-[158px] top-[178px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">이 름</div>
+        <div className="left-[157px] top-[227px] absolute text-center justify-start text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px]">초대코드</div>
+        <div className="w-20 h-4 left-[221px] top-[227px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">{inviteCode}</div>
 
-        {/* 이름 입력란 - 이름이 보이고 수정 가능하게 */}
-        <input
-          type="text"
-          value={userInfo.name}
-          onChange={e => setUserInfo(prev => ({ ...prev, name: e.target.value }))}
-          className="w-37 h-9 left-[214px] top-[184px] absolute bg-white rounded-lg border border-zinc-300 px-3 text-black text-base font-['Do_Hyeon'] focus:outline-none focus:border-sky-400"
-        />
-
+        
         {/* 아이디 */}
-        <div className={`w-[260px] h-11 left-[30px] top-[308px] absolute rounded-[10px] border ${idDuplicate === true ? 'bg-red-100 border-red-300' : idDuplicate === false ? 'bg-green-100 border-green-300' : 'bg-white border-zinc-300'}`} />
+        <div className={`w-[250px] h-11 left-[30px] top-[308px] absolute rounded-[10px] border ${idDuplicate === true ? 'bg-red-100 border-red-300' : idDuplicate === false ? 'bg-green-100 border-green-300' : 'bg-white border-zinc-300'}`} />
         <div className="w-24 h-5 left-[35px] top-[272px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">아이디</div>
         {isEditingId ? (
-          <div className="w-[260px] h-11 left-[30px] top-[308px] absolute flex items-center">
+          <div className="w-[250px] h-11 left-[30px] top-[308px] absolute flex items-center">
             <input
               type="text"
               value={tempUserId}
@@ -499,22 +499,22 @@ export default function ProfileManagement() {
           </div>
         )}
         <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[305px] absolute" onClick={checkIdDuplicate}>
-          <div className="w-16 h-9 left-0 top-2 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
+          <div className="w-16 h-9 left-[-10px] top-2 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
             <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">중복확인</span>
           </div>
         </div>
 
         {/* 비밀번호 */}
-        <div className="w-[260px] h-11 left-[30px] top-[380px] absolute bg-white rounded-[10px] border border-zinc-300" />
+        <div className="w-[250px] h-11 left-[30px] top-[380px] absolute bg-white rounded-[10px] border border-zinc-300" />
         <div className="w-24 h-5 left-[35px] top-[344px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">비밀번호</div>
         <div className="w-52 h-11 left-[45px] top-[378px] absolute text-left justify-start text-neutral-400 text-s font-normal font-['Do_Hyeon'] leading-[50px]">
           {'*'.repeat(passwordLength)}
         </div>
         <button
           onClick={() => setShowPasswordModal(true)}
-          className="w-16 h-9 left-[300px] top-[381px] absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
+          className="w-16 h-9 left-[290px] top-[384px] absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
         >
-          <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">변경</span>
+          <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">변경하기</span>
         </button>
 
         {/* 비밀번호 변경 모달 */}
@@ -601,17 +601,17 @@ export default function ProfileManagement() {
         )}
 
         {/* 이메일 */}
-        <div className="w-[260px] h-11 left-[30px] top-[452px] absolute bg-gray-200 rounded-[10px] border border-zinc-300" />
+        <div className="w-[250px] h-11 left-[30px] top-[452px] absolute bg-gray-200 rounded-[10px] border border-zinc-300" />
         <div className="w-28 h-5 left-[35px] top-[417px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">이메일</div>
         <div className="w-52 h-2 left-[45px] top-[450px] absolute text-left justify-start text-stone-500 text-s font-normal font-['Do_Hyeon'] leading-[50px]">
           {userInfo.email}
         </div>
 
         {/* 전화번호 */}
-        <div className={`w-[260px] h-11 left-[30px] top-[524px] absolute rounded-[10px] border ${phoneDuplicate === true ? 'bg-red-100 border-red-300' : phoneDuplicate === false ? 'bg-green-100 border-green-300' : 'bg-white border-zinc-300'}`} />
+        <div className={`w-[250px] h-11 left-[30px] top-[524px] absolute rounded-[10px] border ${phoneDuplicate === true ? 'bg-red-100 border-red-300' : phoneDuplicate === false ? 'bg-green-100 border-green-300' : 'bg-white border-zinc-300'}`} />
         <div className="w-24 h-5 left-[35px] top-[489px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">전화번호</div>
         {isEditingPhone ? (
-          <div className="w-[260px] h-11 left-[30px] top-[524px] absolute flex items-center">
+          <div className="w-[250px] h-11 left-[30px] top-[524px] absolute flex items-center">
             <input
               type="text"
               value={tempPhoneNumber}
@@ -632,19 +632,19 @@ export default function ProfileManagement() {
           </div>
         )}
         <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[505px] absolute" onClick={checkPhoneDuplicate}>
-          <div className="w-16 h-9 left-0 top-6 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
+          <div className="w-16 h-9 left-[-10px] top-6 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
             <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">중복확인</span>
           </div>
         </div>
 
         {/* 주소 */}
         <div className="w-24 h-9 left-[35px] top-[560px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">주소</div>
-        <div className="w-[260px] h-11 left-[30px] top-[596px] absolute bg-white rounded-[10px] border border-zinc-300" />
+        <div className="w-[250px] h-11 left-[30px] top-[596px] absolute bg-white rounded-[10px] border border-zinc-300" />
         <div className="w-44 h-4 left-[45px] top-[595px] absolute text-left justify-start text-neutral-900 text-m font-normal font-['Do_Hyeon'] leading-[50px]">
           {userInfo.address}
         </div>
-        <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[577px] absolute">
-          <div className="w-16 h-9 left-0 top-6 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
+        <div data-property-1="Default" className="w-16 h-9 left-[295px] top-[577px] absolute">
+          <div className="w-16 h-9 left-[-5px] top-6 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
             <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon'] cursor-pointer" onClick={handleAddressSearch}>검색</span>
           </div>
         </div>

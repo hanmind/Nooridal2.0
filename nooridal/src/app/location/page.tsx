@@ -96,50 +96,33 @@ export default function LocationPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center relative">
-      {showBackground && (
-        <div className="absolute inset-0">
-          <div className="absolute top-[5%] left-[10%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
-          <div className="absolute top-[15%] right-[15%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
-          <div className="absolute top-[25%] left-[20%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
-          <div className="absolute bottom-[35%] right-[25%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
-          <div className="absolute bottom-[25%] left-[15%] w-6 h-6 bg-white rounded-[5px] opacity-70"></div>
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
+      <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
+        {/* 헤더 */}
+        <div className="left-[175px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
+          위치
         </div>
-      )}
-
-      <div className="w-full max-w-[390px] flex flex-col items-center relative pb-28">
-        {/* Header */}
-        <div className="w-full relative">
-          <div className="text-center text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px] mt-[65px]">
-            위치
-          </div>
-          <button 
-            onClick={() => router.back()}
-            className="absolute left-[27px] top-[63px] text-center text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
-          >
-            &lt;
-          </button>
-        </div>
+        <button 
+          onClick={() => router.back()}
+          className="left-[24px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
+        >
+          &lt;
+        </button>
 
         {/* Current Location Section */}
-        <div className="w-[calc(100%-48px)] mt-[20px] p-4 bg-white rounded-xl shadow-sm">
-          {/* 위치 아이콘은 왼쪽에 유지하고 텍스트는 가운데 정렬 */}
-          <div className="flex items-start">
-            {/* 위치 아이콘 */}
+        <div className="w-[360px] h-[100px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+          <div className="flex items-start p-6">
             <div className="mr-4">
               <svg className="w-14 h-14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#000"/>
               </svg>
             </div>
             
-            {/* 텍스트 영역 - 가운데 정렬 */}
             <div className="flex-1 flex flex-col items-center">
-              {/* 현재 설정 위치 텍스트를 가운데에 배치 */}
-              <div className="text-center ml-[-60px] mb-2 -mt-2 ">
+              <div className="text-center ml-[-60px] mb-2 -mt-2">
                 <span className="text-sm font-['Do_Hyeon'] text-yellow-400">현재 설정 위치</span>
               </div>
               
-              {/* 주소를 가운데 정렬하고 수정 버튼을 오른쪽 끝에 배치 */}
               <div className="flex ml-[-30px] items-center justify-between w-full">
                 <div className="text-xl font-['Do_Hyeon'] text-center flex-1">
                   {getShortAddress(address)}
@@ -156,14 +139,14 @@ export default function LocationPage() {
         </div>
 
         {/* Menu Grid */}
-        <div className="grid grid-cols-2 gap-4 w-[calc(100%-48px)] mt-6">
+        <div className="grid grid-cols-2 gap-4 p-1 absolute left-[12px] top-[260px] w-[360px] ">
           {[
             { icon: '🏥', title: '산부인과', link: '/location/obstetrics' },
             { icon: '🏪', title: '편의시설', link: '/location/facilities' },
             { icon: '🚙', title: '교통약자\n이동 지원 센터', link: '/location/transport' },
             { icon: '📍', title: '지도', link: '/location/map' }
           ].map((item, index) => (
-            <div key={index} className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors h-[140px]" onClick={() => router.push(item.link)}>
+            <div key={index} className="bg-white p-6 rounded-[20px] shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors h-[140px]" onClick={() => router.push(item.link)}>
               <div className="text-3xl mb-2">{item.icon}</div>
               <div className="text-center font-['Do_Hyeon'] whitespace-pre-line">{item.title}</div>
             </div>
@@ -172,7 +155,9 @@ export default function LocationPage() {
       </div>
       
       {/* TabBar Component */}
-      <TabBar activeTab={activeTab} tabs={['chat', 'calendar', 'location', 'mypage']} onTabClick={handleTabClick} />
+      <div className="fixed bottom-0 left-0 right-0 bg-white">
+        <TabBar activeTab={activeTab} tabs={['chat', 'calendar', 'location', 'mypage']} onTabClick={handleTabClick} />
+      </div>
     </div>
   );
 } 
