@@ -394,31 +394,24 @@ export default function Login() {
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowIdFindModal(false)} />
           
           {/* 모달 컨테이너 */}
-          <div className="w-[360px] h-[500px] relative z-10">
-            {/* 배경 이미지 */}
-            <Image
-              className="w-full h-full object-cover absolute rounded-[30px]"
-              src="/images/logo/아이디찾기 배경.png"
-              alt="아이디 찾기 배경"
-              width={360}
-              height={500}
-            />
+          <div className="w-[400px] h-[100px] relative">
+            
 
             {/* 아이디 찾기 폼 */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center px-8 z-20">
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-8">
               {/* 제목과 설명 */}
-              <div className="bg-white/90 rounded-t-[20px] px-6 py-4 w-full">
-                <h2 className="text-xl font-['Do_Hyeon'] text-[#333333] text-center">아이디 찾기</h2>
+              <div className="bg-white rounded-t-[20px] px-5 py-6 w-full h-[110px]">
+                <h2 className="text-2xl font-['Do_Hyeon'] text-[#333333] text-center">아이디 찾기</h2>
                 <p className="text-sm font-['Do_Hyeon'] text-[#666666] mt-2 text-center">
                   회원정보에 등록한 정보로<br/>아이디를 찾아보세요
                 </p>
               </div>
 
               {/* 폼 컨테이너 */}
-              <div className="bg-white/90 rounded-b-[20px] p-6 shadow-lg w-full">
-                <div className="space-y-4">
+              <div className="bg-white rounded-b-[20px] p-10 shadow-lg w-full">
+                <div className="space-y-6 mt-[-25px]">
                   <div>
-                    <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">닉네임</label>
+                    <label className="block text-[#333333] text-m font-['Do_Hyeon'] mb-1">닉네임</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -436,7 +429,7 @@ export default function Login() {
                   </div>
 
                   <div>
-                    <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">전화번호</label>
+                    <label className="block text-[#333333] text-m font-['Do_Hyeon'] mb-1">전화번호</label>
                     <div className="relative">
                       <input
                         type="tel"
@@ -456,7 +449,7 @@ export default function Login() {
                   <div className="pt-4">
                     <button 
                       onClick={handleIdFind}
-                      className="w-full h-12 bg-[#FFE999] rounded-2xl text-base font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300"
+                      className="w-full h-12 mt-[-5px] bg-[#FFE999] rounded-2xl text-base font-['Do_Hyeon'] text-[#333333] hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300"
                     >
                       아이디 찾기
                     </button>
@@ -481,32 +474,25 @@ export default function Login() {
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowPwFindModal(false)} />
           
           {/* 모달 컨테이너 */}
-          <div className="w-[360px] h-[500px] relative z-10">
-            {/* 배경 이미지 */}
-            <Image
-              className="w-full h-full object-cover absolute rounded-[30px]"
-              src="/images/logo/아이디찾기 배경.png"
-              alt="비밀번호 찾기 배경"
-              width={360}
-              height={500}
-            />
+          <div className="w-[400px] h-[200px] relative">
+            
 
             {/* 비밀번호 찾기 폼 */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center px-8 z-20">
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-8">
               {/* 제목과 설명 */}
-              <div className="bg-white/90 rounded-t-[20px] px-6 py-4 w-full">
-                <h2 className="text-xl font-['Do_Hyeon'] text-[#333333] text-center">비밀번호 찾기</h2>
+              <div className="bg-white rounded-t-[20px] px-5 py-10 w-full h-[100px]">
+                <h2 className="text-2xl font-['Do_Hyeon'] text-[#333333] text-center">비밀번호 찾기</h2>
                 <p className="text-sm font-['Do_Hyeon'] text-[#666666] mt-2 text-center">
                   가입한 이메일로 인증번호를 받아보세요
                 </p>
               </div>
 
               {/* 폼 컨테이너 */}
-              <div className="bg-white/90 rounded-b-[20px] p-6 shadow-lg w-full">
-                <div className="space-y-4">
+              <div className="bg-white rounded-b-[20px] p-9 shadow-lg w-full mt-[-1px]">
+                <div className="space-y-7">
                   {!showVerificationCode && !showPwReset && (
                     <div>
-                      <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">이메일</label>
+                      <label className="block text-[#333333] text-m font-['Do_Hyeon'] mb-2">이메일</label>
                       <div className="relative">
                         <input
                           type="email"
@@ -526,7 +512,7 @@ export default function Login() {
 
                   {showVerificationCode && !showPwReset && (
                     <div>
-                      <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">인증번호</label>
+                      <label className="block text-[#333333] text-m font-['Do_Hyeon'] mb-1.5">인증번호</label>
                       <div className="relative">
                         <input
                           type="text"
@@ -547,7 +533,7 @@ export default function Login() {
                   {showPwReset && (
                     <>
                       <div>
-                        <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">새 비밀번호</label>
+                        <label className="block text-[#333333] text-m font-['Do_Hyeon'] mb-1.5">새 비밀번호</label>
                         <div className="relative">
                           <input
                             type="password"
@@ -564,7 +550,7 @@ export default function Login() {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[#333333] text-sm font-['Do_Hyeon'] mb-1.5">새 비밀번호 확인</label>
+                        <label className="block text-[#333333] text-m font-['Do_Hyeon'] mb-1.5">새 비밀번호 확인</label>
                         <div className="relative">
                           <input
                             type="password"
