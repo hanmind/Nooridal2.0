@@ -81,7 +81,32 @@ export default function MyPage() {
     router.push('/mypage/profile');
   };
 
-  const handlePregnancyInfoManagement = () => {
+  const handlePregnancyInfoManagement = async () => {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      console.error('Error fetching user session:', sessionError);
+      return;
+    }
+
+    const user = sessionData?.session?.user;
+    if (!user) {
+      console.error('User not logged in');
+      return;
+    }
+
+    const { data: pregnancyData, error: pregnancyError } = await supabase
+      .from('pregnancies')
+      .select('*')
+      .eq('userId', user.id)
+      .single();
+
+    if (pregnancyError) {
+      console.error('Error fetching pregnancy info:', pregnancyError.message);
+    } else {
+      console.log('Pregnancy info fetched successfully:', pregnancyData);
+      setPregnancyInfo(pregnancyData);
+    }
+
     router.push('/mypage/pregnancy-info');
   };
 
@@ -140,7 +165,8 @@ export default function MyPage() {
       high_risk: highRisk,
       baby_gender: babyGender,
       created_at: new Date().toISOString(),
-      user_id: user.id,
+      updated_at: new Date().toISOString(),
+      userId: user.id,
       guardian_id: user.id,
     };
 
@@ -187,23 +213,20 @@ export default function MyPage() {
           
           {/* 사용자 이름 */}
           <div className="left-[130px] top-[40px] absolute text-neutral-700 text-xl font-normal font-['Do_Hyeon']">
-            {name || ""}
+            <div className="flex items-center">
+              <div>{name || ""}</div>
+              {pregnancyInfo?.high_risk && (
+                <div className="ml-30 bg-red-500 text-white text-xs font-['Do_Hyeon'] px-2 py-1 rounded-full">
+                  고위험
+                </div>
+              )}
+            </div>
           </div>
           
           {/* 사용자 email */}
           <div className="left-[130px] top-[75px] absolute text-stone-500 text-m font-normal font-['Do_Hyeon']">
             {email || ""}
           </div>
-          
-          {/* 고위험 임신 표시 */}
-          {pregnancyInfo?.high_risk && (
-            <div className="flex items-center left-[105px] top-[70px] absolute">
-              <svg className="w-3 h-3 text-red-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <span className="text-red-600 text-[11px] font-normal font-['Do_Hyeon']">고위험 임신</span>
-            </div>
-          )}
           
           {/* 아기와 만나기까지, 출산 예정일 */}
           {pregnancyInfo ? (
@@ -218,7 +241,7 @@ export default function MyPage() {
               <div className="text-black text-lg font-normal font-['Do_Hyeon'] mt-6">
                 출산 예정일: {pregnancyInfo.due_date}
               </div>
-              <div className="flex items-center mt-8">
+              <div className="flex items-center mt-4">
                 <div className="w-full h-2 bg-gray-200 rounded-full relative">
                   <div
                     className="h-full bg-blue-500 rounded-full"
@@ -228,13 +251,12 @@ export default function MyPage() {
                     className="absolute -top-6 text-blue-500"
                     style={{ left: `calc(${(pregnancyInfo.current_week / 40) * 100}% - 8px)` }} // Adjust for icon width
                   >
-                    <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="w-4 h-4 inline-block" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
                       <circle cx="12" cy="9" r="2.5" />
                     </svg>
                     <div className="flex flex-col items-center text-center text-sm font-['Do_Hyeon'] mt-2">
-                      <span>{pregnancyInfo.current_week}</span>
-                      <span>주</span>
+                      <span>{pregnancyInfo.current_week}주</span>
                     </div>
                   </div>
                 </div>

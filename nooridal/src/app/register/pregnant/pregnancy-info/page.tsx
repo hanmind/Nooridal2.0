@@ -69,7 +69,7 @@ export default function PregnancyInfo() {
       current_week: currentWeek,
       high_risk: highRisk,
       created_at: new Date().toISOString(),
-      user_id: user.id,
+      userId: user.id,
       guardian_id: user.id,
       status: 'active' as 'active',
     };
@@ -89,10 +89,19 @@ export default function PregnancyInfo() {
   };
 
   const handleNext = async () => {
+    console.log('Current step:', currentStep);
+    console.log('Data at current step:', {
+      babyName,
+      expectedDate,
+      pregnancyWeek,
+      babyGender,
+      highRisk,
+    });
     if (currentStep === 4) {
-      router.push('/calendar');
+      console.log('Calling createPregnancy');
+      await createPregnancy();
+      router.push('/mypage'); // Navigate to My Page after registration
     } else {
-      console.log('Current step:', currentStep);
       if (currentStep === 1) {
         if (isPregnant) {
           setCurrentStep(2);
@@ -105,13 +114,8 @@ export default function PregnancyInfo() {
         setCurrentStep(3);
         console.log('Moving to step 3');
       } else if (currentStep === 3) {
-        router.push('/register/pregnant/pregnancy-info/baby-name');
         setCurrentStep(4);
         console.log('Moving to step 4');
-      } else if (currentStep === 4) {
-        router.push('/register/pregnant/pregnancy-info/expected-date');
-        console.log('Calling createPregnancy');
-        await createPregnancy();
       }
     }
   };
