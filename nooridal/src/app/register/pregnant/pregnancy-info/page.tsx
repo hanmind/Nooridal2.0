@@ -25,6 +25,7 @@ export default function PregnancyInfo() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [waitingForBaby, setWaitingForBaby] = useState(false);
   const [showHighRiskModal, setShowHighRiskModal] = useState(false);
+  const [isWeekSelectorOpen, setIsWeekSelectorOpen] = useState(false);
 
   useEffect(() => {
     fetchPregnancies();
@@ -37,10 +38,11 @@ export default function PregnancyInfo() {
   };
 
   const handlePrevious = () => {
-    if (currentStep === 2) {
-      router.push('/register/pregnant/pregnancy-info');
-    } else if (currentStep === 1) {
-    router.push('/login');
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      console.log('Moving to previous step:', currentStep - 1);
+    } else {
+      router.push('/login');
     }
   };
 
@@ -69,7 +71,7 @@ export default function PregnancyInfo() {
       current_week: currentWeek,
       high_risk: highRisk,
       created_at: new Date().toISOString(),
-      user_id: user.id,
+      user_auth_id: user.id,
       guardian_id: user.id,
       status: 'active' as 'active',
     };
@@ -89,10 +91,19 @@ export default function PregnancyInfo() {
   };
 
   const handleNext = async () => {
+    console.log('Current step:', currentStep);
+    console.log('Data at current step:', {
+      babyName,
+      expectedDate,
+      pregnancyWeek,
+      babyGender,
+      highRisk,
+    });
     if (currentStep === 4) {
-      router.push('/calendar');
+      console.log('Calling createPregnancy');
+      await createPregnancy();
+      router.push('/mypage'); // Navigate to My Page after registration
     } else {
-      console.log('Current step:', currentStep);
       if (currentStep === 1) {
         if (isPregnant) {
           setCurrentStep(2);
@@ -105,13 +116,8 @@ export default function PregnancyInfo() {
         setCurrentStep(3);
         console.log('Moving to step 3');
       } else if (currentStep === 3) {
-        router.push('/register/pregnant/pregnancy-info/baby-name');
         setCurrentStep(4);
         console.log('Moving to step 4');
-      } else if (currentStep === 4) {
-        router.push('/register/pregnant/pregnancy-info/expected-date');
-        console.log('Calling createPregnancy');
-        await createPregnancy();
       }
     }
   };
@@ -193,6 +199,16 @@ export default function PregnancyInfo() {
     return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
   };
 
+  const handleWeekSelect = (week: number) => {
+    setPregnancyWeek(week.toString());
+    const today = new Date();
+    const daysToAdd = (40 - week) * 7;
+    const dueDate = new Date(today.setDate(today.getDate() + daysToAdd));
+    setExpectedDate(dueDate.toISOString().split('T')[0]);
+    setIsWeekSelectorOpen(false);
+    setCurrentStep(4);
+  };
+
   return (
     <PregnancyFormLayout
       title="임신 정보를 입력해주세요"
@@ -203,16 +219,16 @@ export default function PregnancyInfo() {
       isNextDisabled={currentStep === 1 && !isPregnant}
     >
       {currentStep === 1 && (
-        <div className="w-full p-4 bg-[#FFF4BB] rounded-xl border border-[#FFE999] mb-4 flex items-center cursor-pointer">
-        <input
-          type="checkbox"
-          checked={isPregnant}
+        <div className="w-full p-4 bg-white rounded-full border-2 border-[#FFB6C1] mb-4 flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isPregnant}
             onChange={() => {
               setIsPregnant(!isPregnant);
               setWaitingForBaby(false);
             }}
-          className="w-4 h-4 mr-4"
-        />
+            className="w-4 h-4 mr-4"
+          />
           <span className="text-black font-['Do_Hyeon']">🤰🏻 뱃속에 아기가 있어요</span>
         </div>
       )}
@@ -225,7 +241,19 @@ export default function PregnancyInfo() {
             value={babyName}
             onChange={(e) => setBabyName(e.target.value)}
             placeholder="태명을 입력하세요"
-            className="mt-1 block w-full p-2.5 bg-[#FFF4BB] rounded-xl border border-yellow-300 text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFE999] focus:border-2 transition-colors"
+            className="mt-1 block w-full p-2.5 bg-white rounded-full border-2 border-[#FFB6C1] text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFB6C1] focus:border-2 transition-colors"
+            style={{
+              fontFamily: 'Do Hyeon, sans-serif',
+              backgroundColor: 'transparent',
+              borderRadius: '30px',
+              border: '2px solid #FFB6C1',
+              color: '#333',
+              padding: '10px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              fontSize: '16px',
+            }}
           />
           <div 
             className="mt-3 flex items-center cursor-pointer"
@@ -288,13 +316,45 @@ export default function PregnancyInfo() {
       {currentStep === 3 && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">현재 임신 주차</label>
-          <input
-            type="text"
-            value={pregnancyWeek}
-            onChange={(e) => setPregnancyWeek(e.target.value)}
-            placeholder="임신 주차를 입력하세요"
-            className="mt-1 block w-full p-2.5 bg-[#FFF4BB] rounded-xl border border-yellow-300 text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFE999] focus:border-2 transition-colors"
-          />
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsWeekSelectorOpen(!isWeekSelectorOpen)}
+              className="mt-1 block w-full p-2.5 bg-white rounded-full border-2 border-[#FFB6C1] text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFB6C1] focus:border-2 transition-colors"
+              style={{
+                fontFamily: 'Do Hyeon, sans-serif',
+                backgroundColor: 'transparent',
+                borderRadius: '30px',
+                border: '2px solid #FFB6C1',
+                color: '#333',
+                padding: '10px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontSize: '16px',
+              }}
+            >
+              {pregnancyWeek ? `${pregnancyWeek}주차` : '주차를 선택하세요'}
+            </button>
+            {isWeekSelectorOpen && (
+              <div className="absolute top-12 left-0 w-full bg-white border-2 border-[#FFB6C1] rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto">
+                <div className="py-1">
+                  {Array.from({ length: 40 }, (_, i) => (
+                    <button
+                      key={i + 1}
+                      type="button"
+                      onClick={() => handleWeekSelect(i + 1)}
+                      className={`w-full px-4 py-2 text-left font-['Do_Hyeon'] hover:bg-[#FFB6C1] transition-colors
+                        ${pregnancyWeek === (i + 1).toString() ? 'bg-[#FFB6C1] text-black' : 'text-gray-700'}
+                      `}
+                    >
+                      {i + 1}주차
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon'] mt-4">출산 예정일</label>
           <div className="relative">
@@ -303,7 +363,19 @@ export default function PregnancyInfo() {
               value={expectedDate}
               onClick={() => setShowCalendar(true)}
               placeholder="날짜를 선택해 주세요"
-              className="mt-1 block w-full p-2.5 bg-[#FFF4BB] rounded-xl border border-yellow-300 text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFE999] focus:border-2 transition-colors"
+              className="mt-1 block w-full p-2.5 bg-white rounded-full border-2 border-[#FFB6C1] text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFB6C1] focus:border-2 transition-colors"
+              style={{
+                fontFamily: 'Do Hyeon, sans-serif',
+                backgroundColor: 'transparent',
+                borderRadius: '30px',
+                border: '2px solid #FFB6C1',
+                color: '#333',
+                padding: '10px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontSize: '16px',
+              }}
               readOnly
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -484,8 +556,7 @@ export default function PregnancyInfo() {
                           key={index}
                           onClick={() => handleDateSelect(day.date)}
                           disabled={!day.isCurrentMonth}
-                          className={`
-                            w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
+                          className={`                            w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
                             ${day.isCurrentMonth
                               ? day.date.toISOString().split('T')[0] === lastPeriodDate
                                 ? 'bg-[#FFE999] text-gray-900 font-bold'
@@ -519,12 +590,12 @@ export default function PregnancyInfo() {
       )}
 
       {currentStep === 4 && (
-        <div className="mb-4 flex items-center cursor-pointer bg-red-100 p-2 rounded">
+        <div className="mb-4 flex items-center justify-center cursor-pointer bg-white p-2 rounded-full border-2 border-[#FFB6C1]">
           <input
             type="checkbox"
             checked={highRisk}
             onChange={() => setShowHighRiskModal(true)}
-            className={`w-4 h-6 mr-2 rounded border-gray-300 ${highRisk ? 'bg-red-100' : ''}`}
+            className={`w-4 h-6 mr-2 rounded border-gray-300 ${highRisk ? 'bg-[#FFB6C1]' : ''}`}
           />
           <span className="text-red-500 text-sm font-['Do_Hyeon']">고위험 임신입니다</span>
         </div>
@@ -556,7 +627,7 @@ export default function PregnancyInfo() {
               누리달에서는 고위험 임신부를 위한 맞춤 서비스를 제공해 드립니다.
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-center">
               <button
                 onClick={() => {
                   setShowHighRiskModal(false);
@@ -573,3 +644,4 @@ export default function PregnancyInfo() {
     </PregnancyFormLayout>
   );
 } 
+

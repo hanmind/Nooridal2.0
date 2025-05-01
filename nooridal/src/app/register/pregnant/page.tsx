@@ -77,8 +77,8 @@ export default function PregnantSignup() {
         // Supabase에서 중복 아이디 확인 - 올바른 방식으로 쿼리 구성
         const { data, error } = await supabase
           .from('users')
-          .select('userId')
-          .eq('userId', value);
+          .select('user_auth_id')
+          .eq('user_auth_id', value);
           
         if (error) {
           throw error;
@@ -283,7 +283,7 @@ export default function PregnantSignup() {
           id: userData.user.id,
           email,
           name,
-          userId,
+          user_auth_id: userId,
           phone_number: cleanPhoneNumber, // 하이픈 제거된 번호 저장
           address, // Use just the main address
           user_type: "pregnant", // 임산부로 설정

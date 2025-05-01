@@ -156,8 +156,8 @@ export default function ProfileManagement() {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('userId')
-        .eq('userId', tempUserId)
+        .select('user_auth_id')
+        .eq('user_auth_id', tempUserId)
         .neq('email', userInfo.email) // 현재 사용자 제외
         .single();
 

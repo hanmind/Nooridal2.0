@@ -161,12 +161,12 @@ export default function PregnancyInfo() {
         const { error: updateError } = await supabase
           .from('pregnancies')
           .update({
-            gender: formData.gender,
+            baby_gender: formData.gender,
             baby_name: tempBabyName,
             current_week: parseInt(formData.pregnancyWeek),
             due_date: formData.dueDate,
             high_risk: formData.isHighRisk,
-            days_until_birth: formData.daysUntilBirth
+            
           })
           .eq('user_id', user.id);
 
