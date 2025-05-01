@@ -53,7 +53,7 @@ export default function MyPage() {
         const { data: pregnancyData, error: pregnancyError } = await supabase
           .from('pregnancies')
           .select('baby_name, due_date, current_week, high_risk')
-          .eq('userId', user.id)
+          .eq('user_id', user.id)
           .maybeSingle();
 
         if (pregnancyError) {
@@ -97,7 +97,7 @@ export default function MyPage() {
     const { data: pregnancyData, error: pregnancyError } = await supabase
       .from('pregnancies')
       .select('*')
-      .eq('userId', user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (pregnancyError) {
@@ -166,7 +166,7 @@ export default function MyPage() {
       baby_gender: babyGender,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      userId: user.id,
+      user_id: user.id,
       guardian_id: user.id,
     };
 

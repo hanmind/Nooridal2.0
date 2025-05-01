@@ -83,7 +83,7 @@ export default function PregnancyInfo() {
         const { data: pregnancyData, error: pregnancyError } = await supabase
           .from('pregnancies')
           .select('*')
-          .eq('userId', user.id)
+          .eq('user_id', user.id)
           .single();
 
         if (pregnancyError) {
@@ -168,7 +168,7 @@ export default function PregnancyInfo() {
             high_risk: formData.isHighRisk,
             
           })
-          .eq('userId', user.id);
+          .eq('user_id', user.id);
 
         if (updateError) throw updateError;
 
