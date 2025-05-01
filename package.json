@@ -8,6 +8,7 @@
     "dev": "cd nooridal && npm run dev",
     "build": "cd nooridal && npm run build",
     "start": "cd nooridal && npm run start",
-    "lint": "cd nooridal && npm run lint"
+    "lint": "cd nooridal && npm run lint",
+    "install": "cd nooridal && npm install"
   }
 }
