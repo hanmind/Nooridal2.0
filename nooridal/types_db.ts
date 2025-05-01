@@ -232,45 +232,45 @@ export type Database = {
           baby_gender: string | null
           baby_name: string | null
           created_at: string | null
-          current_week: number | null
+          current_week: string | null
           due_date: string | null
           guardian_id: string | null
           high_risk: boolean | null
           id: string
           status: Database["public"]["Enums"]["pregnancy_status"]
           updated_at: string | null
-          userId: string | null
+          user_id: string | null
         }
         Insert: {
           baby_gender?: string | null
           baby_name?: string | null
           created_at?: string | null
-          current_week?: number | null
+          current_week?: string | null
           due_date?: string | null
           guardian_id?: string | null
           high_risk?: boolean | null
           id?: string
           status?: Database["public"]["Enums"]["pregnancy_status"]
           updated_at?: string | null
-          userId?: string | null
+          user_id?: string | null
         }
         Update: {
           baby_gender?: string | null
           baby_name?: string | null
           created_at?: string | null
-          current_week?: number | null
+          current_week?: string | null
           due_date?: string | null
           guardian_id?: string | null
           high_risk?: boolean | null
           id?: string
           status?: Database["public"]["Enums"]["pregnancy_status"]
           updated_at?: string | null
-          userId?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "pregnancies_userId_fkey"
-            columns: ["userId"]
+            foreignKeyName: "pregnancies_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -320,8 +320,8 @@ export type Database = {
           phone_number: string | null
           profile_image_url: string | null
           updated_at: string | null
+          user_auth_id: string
           user_type: Database["public"]["Enums"]["user_type"]
-          userId: string
         }
         Insert: {
           address?: string | null
@@ -333,8 +333,8 @@ export type Database = {
           phone_number?: string | null
           profile_image_url?: string | null
           updated_at?: string | null
+          user_auth_id: string
           user_type: Database["public"]["Enums"]["user_type"]
-          userId: string
         }
         Update: {
           address?: string | null
@@ -346,8 +346,8 @@ export type Database = {
           phone_number?: string | null
           profile_image_url?: string | null
           updated_at?: string | null
+          user_auth_id?: string
           user_type?: Database["public"]["Enums"]["user_type"]
-          userId?: string
         }
         Relationships: []
       }
