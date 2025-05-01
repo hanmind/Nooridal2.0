@@ -71,7 +71,7 @@ export default function PregnancyInfo() {
       current_week: currentWeek,
       high_risk: highRisk,
       created_at: new Date().toISOString(),
-      user_auth_id: user.id,
+      user_id: user.id,
       guardian_id: user.id,
       status: 'active' as 'active',
     };
