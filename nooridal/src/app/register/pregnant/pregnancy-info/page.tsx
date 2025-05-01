@@ -71,7 +71,7 @@ export default function PregnancyInfo() {
       current_week: currentWeek,
       high_risk: highRisk,
       created_at: new Date().toISOString(),
-      user_id: user.id,
+      user_auth_id: user.id,
       guardian_id: user.id,
       status: 'active' as 'active',
     };
@@ -627,7 +627,7 @@ export default function PregnancyInfo() {
               누리달에서는 고위험 임신부를 위한 맞춤 서비스를 제공해 드립니다.
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-center">
               <button
                 onClick={() => {
                   setShowHighRiskModal(false);
