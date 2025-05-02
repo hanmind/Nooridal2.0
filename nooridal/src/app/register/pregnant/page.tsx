@@ -283,7 +283,7 @@ export default function PregnantSignup() {
           id: userData.user.id,
           email,
           name,
-          user_id: userId,
+          user_auth_id: userId,
           phone_number: cleanPhoneNumber, // 하이픈 제거된 번호 저장
           address, // Use just the main address
           user_type: "pregnant", // 임산부로 설정

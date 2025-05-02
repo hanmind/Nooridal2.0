@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useProfile } from "@/app/context/ProfileContext";
 import { useAddress } from "@/app/context/AddressContext";
-import { supabase } from "@/utils/supabase";
+import { supabase } from "@/app/lib/supabase";
 
 declare global {
   interface Window {
@@ -49,10 +49,12 @@ export default function ProfileManagement() {
   const [userInfo, setUserInfo] = useState({
     name: '',
     email: '',
-    userId: '',
+    user_auth_id: '',
     phoneNumber: '',
-    address: ''
+    address: '',
+    invitation_code: ''
   });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -75,9 +77,10 @@ export default function ProfileManagement() {
           setUserInfo({
             name: user.user_metadata.full_name || "",
             email: user.email || '',
-            userId: user.id || '',
+            user_auth_id: user.id || '',
             phoneNumber: user.user_metadata.phone || '',
-            address: user.user_metadata.address || ''
+            address: user.user_metadata.address || '',
+            invitation_code: user.user_metadata.invitation_code || ''
           });
           setTempUserId(user.id || '');
           setTempPhoneNumber(user.user_metadata.phone || '');
@@ -88,19 +91,20 @@ export default function ProfileManagement() {
             .from('users')
             .select('*')
             .eq('id', user.id)
-            .single();
+            .maybeSingle();
 
           if (userError) {
             console.error('Error fetching user data:', userError);
           } else if (userData) {
-            setUserInfo((prev: typeof userInfo) => ({
-              ...prev,
-              name: userData.name || prev.name,
-              userId: userData.userId || prev.userId,
-              phoneNumber: userData.phone_number || prev.phoneNumber,
-              address: userData.address || prev.address
-            }));
-            setTempUserId(userData.userId || userInfo.userId);
+            setUserInfo({
+              name: userData.name || '',
+              email: userData.email || '',
+              user_auth_id: userData.user_auth_id || '',
+              phoneNumber: userData.phone_number || '',
+              address: userData.address || '',
+              invitation_code: userData.invitation_code || ''
+            });
+            setTempUserId(userData.user_auth_id || userInfo.user_auth_id);
             setTempPhoneNumber(userData.phone_number || userInfo.phoneNumber);
           }
         }
@@ -150,26 +154,35 @@ export default function ProfileManagement() {
 
   const checkIdDuplicate = async () => {
     if (!tempUserId.trim()) {
+      alert("아이디를 입력해주세요.");
       return;
     }
 
     try {
-      const { data, error } = await supabase
+      console.log("Checking ID duplicate for:", tempUserId);
+      const { data, error, status } = await supabase
         .from('users')
         .select('user_auth_id')
         .eq('user_auth_id', tempUserId)
         .neq('email', userInfo.email) // 현재 사용자 제외
-        .single();
+        .maybeSingle(); // Use maybeSingle to handle no rows case
 
-      if (error && error.code === 'PGRST116') {
-        // 데이터가 없음 = 중복 아님
-        setIdDuplicate(false);
-        setUserInfo(prev => ({ ...prev, userId: tempUserId }));
-        alert("사용 가능한 아이디입니다.");
+      if (error) {
+        console.error('Supabase error:', error);
+        if (status === 406) {
+          alert('서버에서 요청을 처리할 수 없습니다. 요청 형식을 확인하세요.');
+        } else {
+          alert('중복 확인 중 오류가 발생했습니다.');
+        }
       } else if (data) {
         // 데이터가 있음 = 중복
         setIdDuplicate(true);
         alert("이미 사용 중인 아이디입니다.");
+      } else {
+        // 데이터가 없음 = 중복 아님
+        setIdDuplicate(false);
+        setUserInfo(prev => ({ ...prev, user_auth_id: tempUserId }));
+        alert("사용 가능한 아이디입니다.");
       }
     } catch (error) {
       console.error('아이디 중복 확인 중 오류 발생:', error);
@@ -211,26 +224,34 @@ export default function ProfileManagement() {
     }
 
     try {
-      const { data, error } = await supabase
+      console.log("Checking phone number duplicate for:", tempPhoneNumber);
+      const { data, error, status } = await supabase
         .from('users')
         .select('phone_number')
         .eq('phone_number', tempPhoneNumber.replace(/-/g, ''))
         .neq('email', userInfo.email) // 현재 사용자 제외
-        .single();
+        .maybeSingle(); // Use maybeSingle to handle no rows case
 
-      if (error && error.code === 'PGRST116') {
-        // 데이터가 없음 = 중복 아님
-        setPhoneDuplicate(false);
-        setUserInfo(prev => ({ ...prev, phoneNumber: tempPhoneNumber }));
-        alert("사용 가능한 전화번호입니다.");
+      if (error) {
+        console.error('Supabase error:', error);
+        if (status === 406) {
+          alert('서버에서 요청을 처리할 수 없습니다. 요청 형식을 확인하세요.');
+        } else {
+          alert('전화번호 중복 확인 중 오류가 발생했습니다.');
+        }
       } else if (data) {
         // 데이터가 있음 = 중복
         setPhoneDuplicate(true);
         alert("이미 등록된 전화번호입니다.");
+      } else {
+        // 데이터가 없음 = 중복 아님
+        setPhoneDuplicate(false);
+        setUserInfo(prev => ({ ...prev, phoneNumber: tempPhoneNumber }));
+        alert("사용 가능한 전화번호입니다.");
       }
     } catch (error) {
       console.error('전화번호 중복 확인 중 오류 발생:', error);
-      alert('중복 확인 중 오류가 발생했습니다.');
+      alert('전화번호 중복 확인 중 오류가 발생했습니다.');
     }
 
     setTimeout(() => {
@@ -239,7 +260,7 @@ export default function ProfileManagement() {
   };
 
   const copyInviteCode = () => {
-    navigator.clipboard.writeText(inviteCode)
+    navigator.clipboard.writeText(userInfo.invitation_code)
       .then(() => {
         setCopySuccess(true);
         setTimeout(() => {
@@ -297,9 +318,10 @@ export default function ProfileManagement() {
           .from('users')
           .update({
             name: userInfo.name,
-            userId: userInfo.userId,
+            user_auth_id: userInfo.user_auth_id,
             phone_number: userInfo.phoneNumber,
             address: userInfo.address,
+            invitation_code: userInfo.invitation_code
           })
           .eq('id', user.id);
 
@@ -341,6 +363,27 @@ export default function ProfileManagement() {
     } catch (error) {
       console.error('비밀번호 변경 중 오류 발생:', error);
       setPasswordError("비밀번호 변경에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from('users')
+          .delete()
+          .eq('id', user.id);
+
+        if (error) throw error;
+
+        await supabase.auth.signOut();
+        alert('계정이 삭제되었습니다.');
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error('계정 삭제 중 오류 발생:', error);
+      alert('계정 삭제에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -451,7 +494,7 @@ export default function ProfileManagement() {
           type="text"
           value={userInfo.name}
           onChange={e => setUserInfo(prev => ({ ...prev, name: e.target.value }))}
-          className="w-36 h-9 left-[209px] top-[184px] absolute bg-white rounded-lg border border-zinc-300 px-3 text-black text-base font-['Do_Hyeon'] focus:outline-none focus:border-sky-400"
+          className="w-36 h-9 left-[209px] top-[184px] absolute bg-white rounded-lg border border-zinc-300 px-3 text-black text-base font-['Do_Hyeon'] focus:outline-none"
         />
 
         {/* 초대 코드 */}
@@ -461,19 +504,19 @@ export default function ProfileManagement() {
             className="w-6 h-6 cursor-pointer ml-auto"
           >
             {copySuccess ? (
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 12l2 2 4-4" stroke="green" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 21H8V7H19V21ZM16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5Z" fill="green"/>
               </svg>
             ) : (
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="#6366F1"/>
+                <path d="M19 21H8V7H19V21ZM16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5Z" fill="#6366F1"/>
               </svg>
             )}
           </button>
         </div>
         <div className="left-[158px] top-[178px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">이 름</div>
         <div className="left-[157px] top-[227px] absolute text-center justify-start text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px]">초대코드</div>
-        <div className="w-20 h-4 left-[221px] top-[227px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">{inviteCode}</div>
+        <div className="w-20 h-4 left-[221px] top-[227px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">{userInfo.invitation_code}</div>
 
         
         {/* 아이디 */}
@@ -495,7 +538,7 @@ export default function ProfileManagement() {
             className="w-52 h-11 left-[45px] top-[305px] absolute text-left justify-start text-black text-s font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer"
             onClick={handleIdClick}
           >
-            {userInfo.userId}
+            {userInfo.user_auth_id}
           </div>
         )}
         <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[305px] absolute" onClick={checkIdDuplicate}>
@@ -652,13 +695,36 @@ export default function ProfileManagement() {
         {/* Center the text inside the edit button and navigate back to @page.tsx on click */}
         <button 
           onClick={handleSaveChanges}
-          className="w-20 h-10 left-[50%] transform -translate-x-1/2 top-[670px] absolute bg-sky-200 rounded-full flex items-center justify-center text-black text-m font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
+          className="w-70 h-10 left-[50%] transform -translate-x-1/2 top-[670px] absolute bg-blue-300 rounded-full flex items-center justify-center text-white text-m font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
         >
           수정
         </button>
 
         {/* 탈퇴하기 */}
-        <div className="w-36 h-6 left-[120px] top-[740px] absolute text-center justify-start text-neutral-400/60 text-base font-normal font-['Do_Hyeon'] leading-[50px]">탈퇴하기</div>
+        <div className="w-36 h-6 left-[120px] top-[740px] absolute text-center justify-start text-neutral-400/60 text-base font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10" onClick={() => setShowDeleteModal(true)}>탈퇴하기</div>
+
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-neutral-400/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-3xl p-6 w-80 relative">
+              <h3 className="text-xl font-['Do_Hyeon'] text-center mb-4">정말 탈퇴하시겠어요?</h3>
+              <p className="text-center font-['Do_Hyeon'] text-sm mb-6">탈퇴 버튼 선택 시, 계정 및 정보는 삭제되며 복구되지 않습니다.</p>
+              <div className="flex justify-around">
+                <button
+                  onClick={handleDeleteAccount}
+                  className="bg-red-400 text-white py-3 px-6 rounded-full font-['Do_Hyeon']"
+                >
+                  탈퇴
+                </button>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="bg-gray-300 text-black py-3 px-6 rounded-full font-['Do_Hyeon']"
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 하단 네비게이션 바 */}
         <div className="absolute bottom-0 w-full">

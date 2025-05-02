@@ -41,7 +41,7 @@ export default function MyPage() {
           .from('users')
           .select('name')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         if (userError) {
           console.error('사용자 정보를 가져오는데 실패했습니다:', userError);
