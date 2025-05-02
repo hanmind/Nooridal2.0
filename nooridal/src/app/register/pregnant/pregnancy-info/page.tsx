@@ -354,7 +354,7 @@ export default function PregnancyInfo() {
                 </div>
               </div>
             )}
-          </div>
+            </div>
 
           <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon'] mt-4">출산 예정일</label>
           <div className="relative">
@@ -409,7 +409,7 @@ export default function PregnancyInfo() {
                   </button>
                   <div className="text-base font-['Do_Hyeon'] text-gray-900">
                     {formatYearMonth(currentMonth)}
-                  </div>
+              </div>
                   <button
                     onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))}
                     className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
@@ -418,7 +418,7 @@ export default function PregnancyInfo() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
-                </div>
+            </div>
 
                 <div className="grid grid-cols-7 mb-1">
                   {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
@@ -431,9 +431,9 @@ export default function PregnancyInfo() {
                       }`}
                     >
                       {day}
-                    </div>
+              </div>
                   ))}
-                </div>
+            </div>
 
                 <div className="grid grid-cols-7 gap-0.5">
                   {generateCalendarDays().map((day, index) => (
@@ -457,7 +457,7 @@ export default function PregnancyInfo() {
                       {day.date.getDate()}
                     </button>
                   ))}
-                </div>
+              </div>
 
                 <div className="mt-3 flex justify-center">
                   <button
@@ -466,7 +466,7 @@ export default function PregnancyInfo() {
                   >
                     취소
                   </button>
-                </div>
+            </div>
               </div>
             </div>
           )}
@@ -574,13 +574,13 @@ export default function PregnancyInfo() {
                     </div>
 
                     <div className="mt-3 flex justify-center">
-                      <button
+            <button
                         onClick={() => setShowCalendar(false)}
                         className="px-6 py-2 bg-gray-200 text-gray-700 rounded-full font-['Do_Hyeon'] hover:bg-gray-300 transition-colors text-sm"
-                      >
+            >
                         취소
-                      </button>
-                    </div>
+            </button>
+          </div>
                   </div>
                 </div>
               )}
@@ -638,7 +638,7 @@ export default function PregnancyInfo() {
                 <span className="text-gray-900 text-sm font-['Do_Hyeon']">확인</span>
               </button>
             </div>
-          </div>
+        </div>
       </div>
       )}
     </PregnancyFormLayout>

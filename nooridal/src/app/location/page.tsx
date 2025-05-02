@@ -102,12 +102,7 @@ export default function LocationPage() {
         <div className="left-[175px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
           위치
         </div>
-        <button 
-          onClick={() => router.back()}
-          className="left-[24px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
-        >
-          &lt;
-        </button>
+        
 
         {/* Current Location Section */}
         <div className="w-[360px] h-[100px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
@@ -141,10 +136,10 @@ export default function LocationPage() {
         {/* Menu Grid */}
         <div className="grid grid-cols-2 gap-4 p-1 absolute left-[12px] top-[260px] w-[360px] ">
           {[
-            { icon: '🏥', title: '산부인과', link: '/location/obstetrics' },
-            { icon: '🏪', title: '편의시설', link: '/location/facilities' },
-            { icon: '🚙', title: '교통약자\n이동 지원 센터', link: '/location/transport' },
-            { icon: '📍', title: '지도', link: '/location/map' }
+            { icon: '🏥', title: '병원', link: '/location/hospital' },
+            { icon: '🏪', title: '편의 시설', link: '/location/facilities' },
+            { icon: '🚙', title: '이동 지원', link: '/location/transport' },
+            { icon: '🎀', title: '복지', link: '/location/welfare' }
           ].map((item, index) => (
             <div key={index} className="bg-white p-6 rounded-[20px] shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors h-[140px]" onClick={() => router.push(item.link)}>
               <div className="text-3xl mb-2">{item.icon}</div>
