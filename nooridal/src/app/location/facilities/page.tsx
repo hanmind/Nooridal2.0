@@ -79,9 +79,13 @@ export default function FacilitiesPage() {
   // 카카오맵 스크립트 로드
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_MAP_API_KEY&libraries=services`;
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services,clusterer&autoload=false&appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_REST_API_KEY}`;
     script.async = true;
-    script.onload = () => setMapLoaded(true);
+    script.onload = () => {
+      window.kakao.maps.load(() => {
+        setMapLoaded(true);
+      });
+    };
     document.head.appendChild(script);
 
     return () => {
@@ -95,11 +99,33 @@ export default function FacilitiesPage() {
   useEffect(() => {
     if (mapLoaded && window.kakao && window.kakao.maps && showMap) {
       const container = document.getElementById('map');
+      if (!container) return;
+
+      // 지도 컨테이너 크기 설정
+      container.style.width = '100%';
+      container.style.height = '400px';
+
       const options = {
         center: new window.kakao.maps.LatLng(37.566826, 126.9786567),
         level: 3
       };
       const map = new window.kakao.maps.Map(container, options);
+
+      // 줌 컨트롤 추가
+      const zoomControl = new window.kakao.maps.ZoomControl();
+      map.addControl(zoomControl, window.kakao.maps.ControlPosition.RIGHT);
+
+      // 지도 타입 컨트롤 추가
+      const mapTypeControl = new window.kakao.maps.MapTypeControl();
+      map.addControl(mapTypeControl, window.kakao.maps.ControlPosition.TOPRIGHT);
+
+      // 마커 클러스터러 생성
+      const clusterer = new window.kakao.maps.MarkerClusterer({
+        map: map,
+        averageCenter: true,
+        minLevel: 10,
+        gridSize: 60
+      });
 
       // 주소로 좌표 검색
       const geocoder = new window.kakao.maps.services.Geocoder();
@@ -107,18 +133,100 @@ export default function FacilitiesPage() {
         if (status === window.kakao.maps.services.Status.OK) {
           const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
           
-          // 마커 생성
-          const marker = new window.kakao.maps.Marker({
+          // 현재 위치 마커 생성
+          const currentMarker = new window.kakao.maps.Marker({
             map: map,
-            position: coords
+            position: coords,
+            image: new window.kakao.maps.MarkerImage(
+              'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
+              new window.kakao.maps.Size(24, 35)
+            )
           });
+
+          // 주변 시설 검색
+          const places = new window.kakao.maps.services.Places();
+          const searchOptions = {
+            location: coords,
+            radius: 1000, // 1km 반경
+            sort: window.kakao.maps.services.SortBy.DISTANCE
+          };
+
+          // 선택된 시설 유형에 따라 검색 키워드 설정
+          let keyword = '';
+          if (selectedType === 'locker') {
+            keyword = '보관함';
+          } else if (selectedType === 'discount') {
+            keyword = '할인점';
+          }
+
+          places.keywordSearch(keyword, (data: any, status: any) => {
+            if (status === window.kakao.maps.services.Status.OK) {
+              const markers = data.map((place: any) => {
+                const marker = new window.kakao.maps.Marker({
+                  position: new window.kakao.maps.LatLng(place.y, place.x),
+                  map: map
+                });
+
+                // 마커 클릭 시 정보창 표시
+                window.kakao.maps.event.addListener(marker, 'click', () => {
+                  const infowindow = new window.kakao.maps.InfoWindow({
+                    content: `<div style="padding:5px;font-size:12px;">${place.place_name}<br>${place.road_address_name}</div>`
+                  });
+                  infowindow.open(map, marker);
+                });
+
+                return marker;
+              });
+
+              // 클러스터러에 마커 추가
+              clusterer.addMarkers(markers);
+            }
+          }, searchOptions);
 
           // 지도 중심 이동
           map.setCenter(coords);
+
+          // 현재 위치 정보 표시
+          const infoWindow = new window.kakao.maps.InfoWindow({
+            content: `<div style="padding:5px;">현재 위치</div>`,
+            position: coords
+          });
+          infoWindow.open(map, currentMarker);
         }
       });
+
+      // 현재 위치 표시 기능
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const locPosition = new window.kakao.maps.LatLng(lat, lng);
+            
+            // 현재 위치 마커 생성
+            const currentLocationMarker = new window.kakao.maps.Marker({
+              map: map,
+              position: locPosition,
+              image: new window.kakao.maps.MarkerImage(
+                'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+                new window.kakao.maps.Size(24, 35)
+              )
+            });
+
+            // 현재 위치 정보 표시
+            const currentInfoWindow = new window.kakao.maps.InfoWindow({
+              content: `<div style="padding:5px;">현재 위치</div>`,
+              position: locPosition
+            });
+            currentInfoWindow.open(map, currentLocationMarker);
+          },
+          (error) => {
+            console.error('현재 위치를 가져올 수 없습니다:', error);
+          }
+        );
+      }
     }
-  }, [mapLoaded, address, showMap]);
+  }, [mapLoaded, address, showMap, selectedType]);
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
