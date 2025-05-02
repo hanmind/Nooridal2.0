@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useAddress } from "@/app/context/AddressContext";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 // 카카오맵 타입 정의
 declare global {
@@ -11,12 +11,10 @@ declare global {
   }
 }
 
-export default function FacilitiesPage() {
+export default function WelfarePage() {
   const router = useRouter();
   const { address, setAddress } = useAddress();
   const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const [showMap, setShowMap] = useState(false);
 
   // 주소를 동까지만 표시하는 함수
   const getShortAddress = (fullAddress: string) => {
@@ -61,71 +59,27 @@ export default function FacilitiesPage() {
     }
   };
 
-  const facilityTypes = [
+  const welfareTypes = [
     {
-      id: 'locker',
-      title: '물품 보관함',
-      icon: '📦',
-      description: '일반, 냉장, 대형 보관함'
+      id: 'career',
+      title: '여성 경력 단절 사업',
+      icon: '💼',
+      description: '경력 단절 여성 재취업 지원'
     },
     {
-      id: 'discount',
-      title: '할인업소',
-      icon: '🏪',
-      description: '임산부 할인 혜택 제공 업소'
+      id: 'parental',
+      title: '육아 휴직 정보',
+      icon: '👶',
+      description: '육아 휴직 제도 및 지원 정보'
     }
   ];
-
-  // 카카오맵 스크립트 로드
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_MAP_API_KEY&libraries=services`;
-    script.async = true;
-    script.onload = () => setMapLoaded(true);
-    document.head.appendChild(script);
-
-    return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-    };
-  }, []);
-
-  // 카카오맵 초기화
-  useEffect(() => {
-    if (mapLoaded && window.kakao && window.kakao.maps && showMap) {
-      const container = document.getElementById('map');
-      const options = {
-        center: new window.kakao.maps.LatLng(37.566826, 126.9786567),
-        level: 3
-      };
-      const map = new window.kakao.maps.Map(container, options);
-
-      // 주소로 좌표 검색
-      const geocoder = new window.kakao.maps.services.Geocoder();
-      geocoder.addressSearch(address, (result: any, status: any) => {
-        if (status === window.kakao.maps.services.Status.OK) {
-          const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-          
-          // 마커 생성
-          const marker = new window.kakao.maps.Marker({
-            map: map,
-            position: coords
-          });
-
-          // 지도 중심 이동
-          map.setCenter(coords);
-        }
-      });
-    }
-  }, [mapLoaded, address, showMap]);
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
         {/* 헤더 */}
-        <div className="left-[155px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
-          편의 시설
+        <div className="left-[175px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
+          복지
         </div>
         <button 
           onClick={() => router.back()}
@@ -163,18 +117,18 @@ export default function FacilitiesPage() {
           </div>
         </div>
 
-        {/* 편의 시설 유형 선택 */}
+        {/* 복지 유형 선택 */}
         <div className="absolute left-[12px] top-[230px] w-[360px] space-y-4">
-          {facilityTypes.map((type) => (
+          {welfareTypes.map((type) => (
             <div key={type.id}>
-              {type.id === 'locker' && (
+              {type.id === 'career' && (
                 <div className="border-t border-dashed border-gray-300 my-6" />
               )}
               <div
                 className={`p-6 rounded-3xl shadow-sm cursor-pointer transition-all duration-300 ${
                   selectedType === type.id
-                    ? 'bg-yellow-100 border-2 border-yellow-200'
-                    : 'bg-white hover:bg-yellow-50'
+                    ? 'bg-purple-100 border-2 border-purple-200'
+                    : 'bg-white hover:bg-purple-50'
                 }`}
                 onClick={() => setSelectedType(type.id)}
               >
@@ -190,8 +144,8 @@ export default function FacilitiesPage() {
           ))}
         </div>
 
-        {/* 선택된 편의 시설 유형에 따른 추가 정보 표시 */}
-        {selectedType && !showMap && (
+        {/* 선택된 복지 유형에 따른 추가 정보 표시 */}
+        {selectedType && (
           <>
             {/* 반투명 배경 */}
             <div 
@@ -202,21 +156,19 @@ export default function FacilitiesPage() {
             {/* 정보 상자 */}
             <div className="absolute left-[12px] top-[200px] w-[360px] p-8 bg-white rounded-3xl shadow-sm z-20">
               <div className="text-center font-['Do_Hyeon'] text-2xl mb-8">
-                {facilityTypes.find(t => t.id === selectedType)?.title} 정보
+                {welfareTypes.find(t => t.id === selectedType)?.title}
               </div>
               <div className="space-y-4">
-                <div 
-                  className="p-4 bg-yellow-100 rounded-xl cursor-pointer"
-                  onClick={() => setShowMap(true)}
-                >
-                  <div className="font-['Do_Hyeon']">📍 주변 시설 찾기</div>
-                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">가까운 시설을 찾아보세요</div>
+                
+                <div className="p-4 bg-purple-50 rounded-xl">
+                  <div className="font-['Do_Hyeon']">🕹️ 정보 찾기</div>
+                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">관련 정보를 찾아드려요</div>
                 </div>
-                <div className="p-4 bg-yellow-100 rounded-xl">
-                  <div className="font-['Do_Hyeon']">📱 예약하기</div>
-                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">온라인으로 예약하세요</div>
+                <div className="p-4 bg-purple-50 rounded-xl">
+                  <div className="font-['Do_Hyeon']">📱 신청하기</div>
+                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">온라인으로 신청하세요</div>
                 </div>
-                <div className="p-4 bg-yellow-100 rounded-xl">
+                <div className="p-4 bg-purple-50 rounded-xl">
                   <div className="font-['Do_Hyeon']">💬 상담하기</div>
                   <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문 상담원과 상담하세요</div>
                 </div>
@@ -226,43 +178,10 @@ export default function FacilitiesPage() {
               <div className="flex justify-center mt-6">
                 <button
                   onClick={() => setSelectedType(null)}
-                  className="px-6 py-2 bg-yellow-200 text-gray-900 rounded-full font-['Do_Hyeon'] hover:bg-lime-300 transition-colors"
+                  className="px-6 py-2 bg-purple-200 text-gray-900 rounded-full font-['Do_Hyeon'] hover:bg-purple-300 transition-colors"
                 >
                   닫기
                 </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* 카카오맵 표시 */}
-        {showMap && (
-          <>
-            {/* 반투명 배경 */}
-            <div 
-              className="fixed inset-0 bg-black/50 z-10"
-              onClick={() => setShowMap(false)}
-            />
-            
-            {/* 지도 컨테이너 */}
-            <div className="absolute left-[12px] top-[200px] w-[360px] h-[500px] bg-white rounded-3xl shadow-sm z-20 p-4">
-              <div className="flex justify-between items-center mb-4">
-                <div className="text-xl font-['Do_Hyeon']">
-                  주변 시설 지도
-                </div>
-                <button
-                  onClick={() => setShowMap(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✕
-                </button>
-              </div>
-              <div id="map" className="w-full h-[400px] rounded-xl overflow-hidden">
-                {!mapLoaded && (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
-                  </div>
-                )}
               </div>
             </div>
           </>
