@@ -215,7 +215,7 @@ export default function PregnantSignup() {
 
       // 2. users 테이블에 추가 정보 저장
       const newUser = {
-        user_auth_id: userId,
+        user_auth_id: userData.user.id,
         name: name,
         email: email,
         phone_number: cleanPhoneNumber,
