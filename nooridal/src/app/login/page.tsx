@@ -43,12 +43,31 @@ export default function Login() {
   const [rememberLogin, setRememberLogin] = useState(false);
   const router = useRouter();
 
-  const handleIdFind = () => {
-    // 실제로는 서버에서 아이디를 조회하는 로직이 들어갈 것입니다.
-    // 여기서는 예시로 "test123"이라는 아이디를 찾았다고 가정합니다.
-    const id = "test123";
-    setFoundId(id);
-    setShowFoundId(true);
+  const handleIdFind = async () => {
+    console.log('Find ID button clicked');
+    console.log('Nickname:', nickname);
+    console.log('Phone Number:', phoneNumber);
+    try {
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('user_auth_id')
+        .eq('name', nickname)
+        .eq('phone_number', phoneNumber)
+        .single();
+
+      if (error || !userData) {
+        console.log('Error or no user data found:', error);
+        alert('아이디를 찾을 수 없습니다.');
+        return;
+      }
+
+      const maskedId = userData.user_auth_id.slice(0, 3) + '*'.repeat(userData.user_auth_id.length - 3);
+      setFoundId(maskedId);
+      setShowFoundId(true);
+    } catch (error) {
+      console.error('아이디 찾기 오류:', error);
+      alert('아이디 찾기 중 오류가 발생했습니다.');
+    }
   };
 
   const handlePwFindRequest = () => {
@@ -228,7 +247,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-[#FFF4BB] to-[#FFE999] flex flex-col">
+    <div className={`min-h-screen w-full ${showFoundId ? 'backdrop-blur-sm' : ''} bg-gradient-to-b from-[#FFF4BB] to-[#FFE999] flex flex-col`}>
       {/* 메인 컨텐츠 영역 */}
       <div className="flex-1 w-full flex flex-col items-center justify-center px-4">
         {/* 로고 */}
@@ -618,8 +637,27 @@ export default function Login() {
 
       {/* 풋바 */}
       <div className="w-full h-[60px] flex items-center justify-center mt-auto">
-        <p className="text-sm text-[#666666] font-['Do_Hyeon']">© 2024 누리달. All rights reserved.</p>
+        <p className="text-sm text-[#666666] font-['Do_Hyeon']">© 2025 누리달. All rights reserved.</p>
       </div>
+
+      {/* 아이디 찾기 결과 모달 */}
+      {showFoundId && (
+        <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white p-10 rounded-lg shadow-lg w-90 text-center">
+            <p className="text-xl font-bold mb-4 font-['Do_Hyeon']">아이디 찾기 결과</p>
+            <h2 className="mb-4 text-m font-['Do_Hyeon']">아이디: {foundId}</h2>
+            <button 
+              onClick={() => {
+                setShowFoundId(false);
+                router.push('/login');
+              }}
+              className="bg-[#FFE999] text-[#333333] px-4 py-2 font-['Do_Hyeon'] rounded hover:bg-[#FFD966]"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

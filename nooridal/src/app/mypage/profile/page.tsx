@@ -55,6 +55,7 @@ export default function ProfileManagement() {
     invitation_code: ''
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const isSocialLogin = true; // This should be set based on your logic
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -387,6 +388,11 @@ export default function ProfileManagement() {
     }
   };
 
+  // Adjust the masked user ID to fit within the input field
+  const maxVisibleLength = 8; // Number of visible characters
+  const totalLength = 12; // Total length of the user ID field
+  const maskedUserId = userInfo.user_auth_id.slice(0, maxVisibleLength) + '*'.repeat(totalLength - maxVisibleLength);
+
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
@@ -520,7 +526,9 @@ export default function ProfileManagement() {
 
         
         {/* 아이디 */}
-        <div className={`w-[250px] h-11 left-[30px] top-[308px] absolute rounded-[10px] border ${idDuplicate === true ? 'bg-red-100 border-red-300' : idDuplicate === false ? 'bg-green-100 border-green-300' : 'bg-white border-zinc-300'}`} />
+        <div className="w-[250px] h-11 left-[30px] top-[308px] absolute bg-gray-200 rounded-[10px] border border-zinc-300 flex items-center pl-4 text-gray-500 text-s font-normal font-['Do_Hyeon'] cursor-not-allowed">
+          {maskedUserId}
+        </div>
         <div className="w-24 h-5 left-[35px] top-[272px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">아이디</div>
         {isEditingId ? (
           <div className="w-[250px] h-11 left-[30px] top-[308px] absolute flex items-center">
@@ -535,27 +543,26 @@ export default function ProfileManagement() {
           </div>
         ) : (
           <div 
-            className="w-52 h-11 left-[45px] top-[305px] absolute text-left justify-start text-black text-s font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer"
-            onClick={handleIdClick}
+            className="w-52 h-11 left-[45px] top-[305px] absolute text-left justify-start text-gray-500 text-s font-normal font-['Do_Hyeon'] leading-[50px]"
           >
-            {userInfo.user_auth_id}
+            
           </div>
         )}
-        <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[305px] absolute" onClick={checkIdDuplicate}>
-          <div className="w-16 h-9 left-[-10px] top-2 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
+        <div data-property-1="Default" className="w-16 h-9 left-[300px] top-[305px] absolute">
+          <div className={`w-16 h-9 left-[-10px] top-2 absolute ${isSocialLogin ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#FFE999] hover:bg-[#FFD966]'} rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center`}>
             <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">중복확인</span>
           </div>
         </div>
 
         {/* 비밀번호 */}
-        <div className="w-[250px] h-11 left-[30px] top-[380px] absolute bg-white rounded-[10px] border border-zinc-300" />
-        <div className="w-24 h-5 left-[35px] top-[344px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">비밀번호</div>
-        <div className="w-52 h-11 left-[45px] top-[378px] absolute text-left justify-start text-neutral-400 text-s font-normal font-['Do_Hyeon'] leading-[50px]">
+        <div className="w-[250px] h-11 left-[30px] top-[380px] absolute bg-gray-200 rounded-[10px] border border-zinc-300 flex items-center pl-4 text-neutral-400 text-s font-normal font-['Do_Hyeon'] cursor-not-allowed">
           {'*'.repeat(passwordLength)}
         </div>
+        <div className="w-24 h-5 left-[35px] top-[344px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">비밀번호</div>
         <button
-          onClick={() => setShowPasswordModal(true)}
-          className="w-16 h-9 left-[290px] top-[384px] absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
+          onClick={() => !isSocialLogin && setShowPasswordModal(true)}
+          className={`w-16 h-9 left-[290px] top-[384px] absolute ${isSocialLogin ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#FFE999] hover:bg-[#FFD966]'} rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center`}
+          disabled={isSocialLogin}
         >
           <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">변경하기</span>
         </button>

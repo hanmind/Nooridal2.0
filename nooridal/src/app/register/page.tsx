@@ -17,7 +17,8 @@ export default function Register() {
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
-        {/* 배경 이미지 */}
+        {/* 배경 이미지 제거 */}
+        {/*
         <Image
           src="/images/logo/아이디찾기 배경.png"
           alt="배경"
@@ -25,29 +26,30 @@ export default function Register() {
           className="object-cover z-0"
           priority
         />
+        */}
         
         <div className="items-center w-80 h-[400px] left-[30px] top-[220px] absolute bg-white rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] z-10" />
         
         {/* 누리달 로고 */}
         <Image
           className="w-32 h-14 left-[125px] top-[100px] absolute z-20"
-          src="/images/logo/누리달.png"
+          src="/images/logo/로고 구름.png"
           alt="누리달"
-          width={134}
-          height={55}
+          width={180}
+          height={72}
         />
 
-        <div className="w-full flex flex-col items-center absolute top-[260px] z-20">
+        <div className="w-full flex flex-col items-center absolute top-[240px] z-20">
           <div className="text-2xl font-['Do_Hyeon'] mb-14">회원가입</div>
           <button 
             onClick={handlePregnantClick}
-            className="w-64 h-16 mb-6 bg-[#B7E5FF] rounded-[30px] shadow-lg hover:bg-[#A3D9F9] hover:scale-105 transition-all"
+            className="w-64 h-16 mb-6 bg-[#FADADD] rounded-[30px] shadow-lg hover:bg-[#F8C8DC] hover:scale-105 transition-transform duration-300"
           >
             <span className="text-black text-xl font-['Do_Hyeon']">임산부</span>
           </button>
           <button
             onClick={handleGuardianClick}
-            className="w-64 h-16 mb- bg-[#B7E5FF] rounded-[30px] shadow-lg hover:bg-[#A3D9F9] hover:scale-105 transition-all"
+            className="w-64 h-16 mb-6 bg-white border-2 border-[#FADADD] rounded-[30px] shadow-lg hover:bg-[#F8C8DC] hover:scale-105 transition-transform duration-300"
           >
             <span className="text-black text-xl font-['Do_Hyeon']">보호자</span>
           </button>
