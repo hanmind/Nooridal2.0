@@ -7,7 +7,7 @@ import { supabase } from "../../lib/supabase";
 
 interface FormData {
   babyName: string;
-  gender: "male" | "female" | "unknown" | "";
+  gender: "남자" | "여자" | "모름" | "";
   pregnancyWeek: string;
   dueDate: string;
   isHighRisk: boolean;
@@ -16,23 +16,21 @@ interface FormData {
 
 export default function PregnancyInfo() {
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isWeekSelectorOpen, setIsWeekSelectorOpen] = useState<boolean>(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [isGenderSelectorOpen, setIsGenderSelectorOpen] = useState<boolean>(false);
   const [tempBabyName, setTempBabyName] = useState<string>("");
-  
+
   const [formData, setFormData] = useState<FormData>({
     babyName: "",
     gender: "",
     pregnancyWeek: "*",
     dueDate: "",
     isHighRisk: true,
-    daysUntilBirth: undefined
+    daysUntilBirth: undefined,
   });
 
-  const weeks: number[] = Array.from({length: 40}, (_, i) => i + 1);
+  const weeks: number[] = Array.from({ length: 40 }, (_, i) => i + 1);
 
   // 임신 주차에 따른 출산 예정일 계산
   const calculateDueDate = (week: number): string => {
@@ -40,11 +38,11 @@ export default function PregnancyInfo() {
     const pregnancyStart = new Date(today);
     const weeksInMilliseconds = (week - 1) * 7 * 24 * 60 * 60 * 1000;
     pregnancyStart.setTime(today.getTime() - weeksInMilliseconds);
-    
+
     const dueDate = new Date(pregnancyStart);
     dueDate.setDate(pregnancyStart.getDate() + 280); // 40주 = 280일
-    
-    return dueDate.toISOString().split('T')[0];
+
+    return dueDate.toISOString().split("T")[0];
   };
 
   // 출산 예정일에 따른 임신 주차 계산
@@ -53,11 +51,11 @@ export default function PregnancyInfo() {
     const due = new Date(dueDate);
     const pregnancyStart = new Date(due);
     pregnancyStart.setDate(due.getDate() - 280); // 40주 = 280일
-    
+
     const diffTime = today.getTime() - pregnancyStart.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     const currentWeek = Math.floor(diffDays / 7) + 1;
-    
+
     return Math.min(Math.max(1, currentWeek), 40); // 1주에서 40주 사이로 제한
   };
 
@@ -71,34 +69,42 @@ export default function PregnancyInfo() {
 
   useEffect(() => {
     const fetchPregnancyInfo = async () => {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
       if (sessionError) {
-        console.error('사용자 세션을 가져오는 중 오류 발생:', sessionError);
+        console.error("사용자 세션을 가져오는 중 오류 발생:", sessionError);
         return;
       }
 
       const user = sessionData?.session?.user;
       if (user) {
-        console.log('Fetching pregnancy info for user:', user.id);
+        console.log("Fetching pregnancy info for user:", user.id);
         const { data: pregnancyData, error: pregnancyError } = await supabase
-          .from('pregnancies')
-          .select('*')
-          .eq('user_id', user.id)
+          .from("pregnancies")
+          .select("*")
+          .eq("user_id", user.id)
           .single();
 
         if (pregnancyError) {
-          console.error('임신 정보를 가져오는 중 오류 발생:', pregnancyError.message);
+          console.error(
+            "임신 정보를 가져오는 중 오류 발생:",
+            pregnancyError.message
+          );
         } else {
-          console.log('임신 정보가 성공적으로 가져와졌습니다:', pregnancyData);
+          console.log("임신 정보가 성공적으로 가져와졌습니다:", pregnancyData);
           if (pregnancyData) {
-            const daysUntilBirth = calculateDaysUntilBirth(pregnancyData.due_date);
-            const babyName = pregnancyData.baby_name || '';
+            const daysUntilBirth = calculateDaysUntilBirth(
+              pregnancyData.due_date
+            );
+            const babyName = pregnancyData.baby_name || "";
             setTempBabyName(babyName);
             setFormData({
               babyName: babyName,
-              gender: pregnancyData.gender || '',
+              gender: pregnancyData.baby_gender || "",
               pregnancyWeek: (pregnancyData.current_week || 1).toString(),
-              dueDate: pregnancyData.due_date || new Date().toISOString().split('T')[0],
+              dueDate:
+                pregnancyData.due_date ||
+                new Date().toISOString().split("T")[0],
               isHighRisk: pregnancyData.high_risk || false,
               daysUntilBirth: daysUntilBirth,
             });
@@ -116,125 +122,101 @@ export default function PregnancyInfo() {
     if (selectedWeek && selectedWeek !== "") {
       const calculatedDueDate = calculateDueDate(parseInt(selectedWeek));
       const daysUntil = calculateDaysUntilBirth(calculatedDueDate);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         pregnancyWeek: selectedWeek,
         dueDate: calculatedDueDate,
-        daysUntilBirth: daysUntil
+        daysUntilBirth: daysUntil,
       }));
     }
     setIsWeekSelectorOpen(false);
   };
 
-  // 출산 예정일 변경 핸들러
-  const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const selectedDate = e.target.value;
-    if (selectedDate) {
-      const calculatedWeek = calculatePregnancyWeek(selectedDate);
-      const daysUntil = calculateDaysUntilBirth(selectedDate);
-      setFormData(prev => ({
-        ...prev,
-        dueDate: selectedDate,
-        pregnancyWeek: calculatedWeek.toString(),
-        daysUntilBirth: daysUntil
-      }));
-    }
-  };
-
-  const handleGenderChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newGender = e.target.value as FormData['gender'];
-    setFormData(prev => ({
-      ...prev,
-      gender: newGender
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
       if (sessionError) throw sessionError;
 
       const user = sessionData?.session?.user;
       if (user) {
-        console.log('Updating pregnancy info for user:', user.id);
+        console.log("Updating pregnancy info for user:", user.id);
         const { error: updateError } = await supabase
-          .from('pregnancies')
+          .from("pregnancies")
           .update({
             baby_gender: formData.gender,
             baby_name: tempBabyName,
-            current_week: parseInt(formData.pregnancyWeek),
+            current_week: formData.pregnancyWeek,
             due_date: formData.dueDate,
             high_risk: formData.isHighRisk,
-            
           })
-          .eq('user_id', user.id);
+          .eq("user_id", user.id);
 
         if (updateError) throw updateError;
 
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          babyName: tempBabyName
+          babyName: tempBabyName,
         }));
 
-        console.log('임신 정보가 성공적으로 업데이트되었습니다.');
-        alert('임신 정보가 성공적으로 저장되었습니다.');
-        router.push('/mypage');
+        console.log("임신 정보가 성공적으로 업데이트되었습니다.");
+        alert("임신 정보가 성공적으로 저장되었습니다.");
+        router.push("/mypage");
       }
-    } catch (error: any) {
-      console.error('임신 정보를 업데이트하는 중 오류 발생:', error.message);
-      alert('임신 정보 저장에 실패했습니다. 다시 시도해주세요.');
+    } catch (error) {
+      console.error(
+        "임신 정보를 업데이트하는 중 오류 발생:",
+        (error as Error).message
+      );
+      alert("임신 정보 저장에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
   // 오늘 날짜 기준 최소/최대 선택 가능 날짜 계산
-  const today = new Date();
-  const minDate = new Date(today);
-  minDate.setDate(today.getDate()); // 오늘부터 선택 가능
-  const maxDate = new Date(today);
-  maxDate.setDate(today.getDate() + 280); // 최대 40주
-
-  const minDateString = minDate.toISOString().split('T')[0];
-  const maxDateString = maxDate.toISOString().split('T')[0];
+  // const today = new Date(); // Linter: unused
+  // const minDate = new Date(today); // Linter: unused
+  // minDate.setDate(today.getDate()); // 오늘부터 선택 가능
+  // const maxDate = new Date(today); // Linter: unused
 
   // 달력에 표시할 날짜 생성
   const generateCalendarDays = () => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
-    
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    
+
     const days = [];
-    
+
     // 이전 달의 마지막 날짜들
     const prevMonthLastDate = new Date(year, month, 0).getDate();
     const firstDayOfWeek = firstDay.getDay();
-    
+
     for (let i = firstDayOfWeek - 1; i >= 0; i--) {
       days.push({
         date: new Date(year, month - 1, prevMonthLastDate - i),
-        isCurrentMonth: false
+        isCurrentMonth: false,
       });
     }
-    
+
     // 현재 달의 날짜들
     for (let i = 1; i <= lastDay.getDate(); i++) {
       days.push({
         date: new Date(year, month, i),
-        isCurrentMonth: true
+        isCurrentMonth: true,
       });
     }
-    
+
     // 다음 달의 시작 날짜들
     const remainingDays = 42 - days.length; // 6주 달력을 위해
     for (let i = 1; i <= remainingDays; i++) {
       days.push({
         date: new Date(year, month + 1, i),
-        isCurrentMonth: false
+        isCurrentMonth: false,
       });
     }
-    
+
     return days;
   };
 
@@ -245,117 +227,162 @@ export default function PregnancyInfo() {
 
   // 이전/다음 달 이동
   const changeMonth = (offset: number) => {
-    const newDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1);
+    const newDate = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + offset,
+      1
+    );
     setCurrentMonth(newDate);
   };
 
   // 날짜 선택 핸들러
   const handleDateSelect = (date: Date) => {
-    const selectedDate = date.toISOString().split('T')[0];
+    const selectedDate = date.toISOString().split("T")[0];
     const calculatedWeek = calculatePregnancyWeek(selectedDate);
     const daysUntil = calculateDaysUntilBirth(selectedDate);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       dueDate: selectedDate,
       pregnancyWeek: calculatedWeek.toString(),
-      daysUntilBirth: daysUntil
+      daysUntilBirth: daysUntil,
     }));
     setShowCalendar(false);
   };
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      
       <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
         <div className="w-[360px] h-[580px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           <div className="p-8">
-            <Image 
+            <Image
               src="/images/logo/달달.png"
               alt="달달 이미지"
               width={54}
               height={63}
               className="mx-auto mb-4"
             />
-            
+
             <div className="text-center text-xl font-['Do_Hyeon'] mb-12">
-              {formData.babyName ? `${formData.babyName} 엄마의 임신 정보` : '엄마의 임신 정보'}
+              {formData.babyName
+                ? `${formData.babyName} 엄마의 임신 정보`
+                : "엄마의 임신 정보"}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-7">
               <div className="flex items-center justify-between">
-                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">태명</label>
+                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
+                  태명
+                </label>
                 <input
                   type="text"
                   value={tempBabyName}
                   onChange={(e) => setTempBabyName(e.target.value)}
                   className={`w-40 px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white focus:outline-none transition-colors duration-300
-                    ${tempBabyName ? 'border-sky-200 focus:border-sky-300' : 'border-gray-200 focus:border-sky-200'}`}
+                    ${
+                      tempBabyName
+                        ? "border-sky-200 focus:border-sky-300"
+                        : "border-gray-200 focus:border-sky-200"
+                    }`}
                   placeholder="태명을 입력하세요"
                 />
               </div>
               <div className="flex items-center justify-between">
-                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">성별</label>
+                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
+                  성별
+                </label>
                 <div className="flex space-x-1">
                   <button
                     type="button"
-                    onClick={() => setFormData({...formData, gender: 'male'})}
+                    onClick={() => setFormData({ ...formData, gender: "남자" })}
                     className={`px-3 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 ease-in-out outline-none
-                      ${formData.gender === 'male' 
-                        ? 'bg-sky-200 text-gray-700 border-2 border-sky-200' 
-                        : 'bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50'}`}
+                      ${
+                        formData.gender === "남자"
+                          ? "bg-sky-200 text-gray-700 border-2 border-sky-200"
+                          : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
+                      }`}
                   >
                     남아
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData({...formData, gender: 'female'})}
+                    onClick={() => setFormData({ ...formData, gender: "여자" })}
                     className={`px-3 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 ease-in-out outline-none
-                      ${formData.gender === 'female' 
-                        ? 'bg-red-200 text-gray-700 border-2 border-red-200' 
-                        : 'bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50'}`}
+                      ${
+                        formData.gender === "여자"
+                          ? "bg-red-200 text-gray-700 border-2 border-red-200"
+                          : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
+                      }`}
                   >
                     여아
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData({...formData, gender: 'unknown'})}
+                    onClick={() => setFormData({ ...formData, gender: "모름" })}
                     className={`px-3 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 ease-in-out outline-none
-                      ${formData.gender === 'unknown' 
-                        ? 'bg-gray-200 text-gray-700 border-2 border-gray-200' 
-                        : 'bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50'}`}
+                      ${
+                        formData.gender === "모름"
+                          ? "bg-gray-200 text-gray-700 border-2 border-gray-200"
+                          : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
+                      }`}
                   >
                     모름
                   </button>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">현재 임신 주차</label>
+                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
+                  현재 임신 주차
+                </label>
                 <div className="relative w-40">
                   <button
                     type="button"
                     onClick={() => setIsWeekSelectorOpen(!isWeekSelectorOpen)}
                     className={`w-full px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center transition-colors duration-300
-                      ${formData.pregnancyWeek !== "*" ? 'border-sky-200' : 'border-gray-200'}`}
+                      ${
+                        formData.pregnancyWeek !== "*"
+                          ? "border-sky-200"
+                          : "border-gray-200"
+                      }`}
                   >
-                    <span>{formData.pregnancyWeek !== "*" ? `${formData.pregnancyWeek}주차` : "선택"}</span>
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    <span>
+                      {formData.pregnancyWeek !== "*"
+                        ? `${formData.pregnancyWeek}주차`
+                        : "선택"}
+                    </span>
+                    <svg
+                      className="w-4 h-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </button>
-                  
+
                   {isWeekSelectorOpen && (
                     <div className="absolute top-12 left-0 w-full bg-white border-2 border-sky-200 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto">
                       <div className="py-1">
-                        {weeks.map(week => (
+                        {weeks.map((week) => (
                           <button
                             key={week}
                             type="button"
                             onClick={() => {
-                              const e = { target: { value: week.toString() } } as any;
-                              handleWeekChange(e);
+                              const e = { target: { value: week.toString() } };
+                              handleWeekChange(
+                                e as ChangeEvent<HTMLSelectElement>
+                              );
                             }}
                             className={`w-full px-4 py-2 text-left font-['Do_Hyeon'] hover:bg-sky-100 transition-colors
-                              ${formData.pregnancyWeek === week.toString() ? 'bg-sky-200 text-black' : 'text-gray-700'}
+                              ${
+                                formData.pregnancyWeek === week.toString()
+                                  ? "bg-sky-200 text-black"
+                                  : "text-gray-700"
+                              }
                             `}
                           >
                             {week}주차
@@ -367,27 +394,47 @@ export default function PregnancyInfo() {
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">출산 예정일</label>
+                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
+                  출산 예정일
+                </label>
                 <div className="relative w-40">
                   <button
                     type="button"
                     onClick={() => setShowCalendar(true)}
                     className={`w-full px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center transition-colors duration-300
-                      ${formData.dueDate ? 'border-sky-200' : 'border-gray-200'}`}
+                      ${
+                        formData.dueDate ? "border-sky-200" : "border-gray-200"
+                      }`}
                   >
                     <span>{formData.dueDate || "선택"}</span>
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                      className="w-4 h-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
                   </button>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">고위험 임신</label>
+                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
+                  고위험 임신
+                </label>
                 <input
                   type="checkbox"
+                  id="highRiskCheckbox"
+                  aria-label="고위험 임신 여부"
                   checked={formData.isHighRisk}
-                  onChange={(e) => setFormData({...formData, isHighRisk: e.target.checked})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, isHighRisk: e.target.checked })
+                  }
                   className="w-4 h-4"
                 />
               </div>
@@ -404,20 +451,19 @@ export default function PregnancyInfo() {
         <div className="left-[148px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
           내 임신 정보
         </div>
-        <button 
+        <button
           onClick={() => router.back()}
           className="left-[24px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
         >
           &lt;
         </button>
 
-        
         {/* 커스텀 달력 모달 */}
         {showCalendar && (
           <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div 
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm" 
-              onClick={() => setShowCalendar(false)} 
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setShowCalendar(false)}
             />
             <div className="bg-white p-4 rounded-2xl shadow-lg w-[320px] relative z-10 mx-4">
               <div className="text-center mb-4">
@@ -430,10 +476,21 @@ export default function PregnancyInfo() {
               <div className="flex justify-between items-center mb-3">
                 <button
                   onClick={() => changeMonth(-1)}
+                  aria-label="이전 달"
                   className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
                 >
-                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  <svg
+                    className="w-5 h-5 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    />
                   </svg>
                 </button>
                 <div className="text-base font-['Do_Hyeon'] text-gray-900">
@@ -441,28 +498,43 @@ export default function PregnancyInfo() {
                 </div>
                 <button
                   onClick={() => changeMonth(1)}
+                  aria-label="다음 달"
                   className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
                 >
-                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  <svg
+                    className="w-5 h-5 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               </div>
 
               {/* 요일 헤더 */}
               <div className="grid grid-cols-7 mb-1">
-                {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
-                  <div
-                    key={day}
-                    className={`text-center text-sm font-['Do_Hyeon'] py-1 ${
-                      index === 0 ? 'text-red-500' :
-                      index === 6 ? 'text-blue-500' :
-                      'text-gray-600'
-                    }`}
-                  >
-                    {day}
-                  </div>
-                ))}
+                {["일", "월", "화", "수", "목", "금", "토"].map(
+                  (day, index) => (
+                    <div
+                      key={day}
+                      className={`text-center text-sm font-['Do_Hyeon'] py-1 ${
+                        index === 0
+                          ? "text-red-500"
+                          : index === 6
+                          ? "text-blue-500"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {day}
+                    </div>
+                  )
+                )}
               </div>
 
               {/* 달력 날짜 */}
@@ -474,14 +546,16 @@ export default function PregnancyInfo() {
                     disabled={!day.isCurrentMonth}
                     className={`
                       w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
-                      ${day.isCurrentMonth
-                        ? day.date.toISOString().split('T')[0] === formData.dueDate
-                          ? 'bg-[#FFE999] text-gray-900 font-bold'
-                          : 'hover:bg-gray-100 text-gray-900'
-                        : 'text-gray-400'
+                      ${
+                        day.isCurrentMonth
+                          ? day.date.toISOString().split("T")[0] ===
+                            formData.dueDate
+                            ? "bg-[#FFE999] text-gray-900 font-bold"
+                            : "hover:bg-gray-100 text-gray-900"
+                          : "text-gray-400"
                       }
-                      ${day.date.getDay() === 0 ? 'text-red-500' : ''}
-                      ${day.date.getDay() === 6 ? 'text-blue-500' : ''}
+                      ${day.date.getDay() === 0 ? "text-red-500" : ""}
+                      ${day.date.getDay() === 6 ? "text-blue-500" : ""}
                       disabled:opacity-50 disabled:cursor-not-allowed
                     `}
                   >
@@ -505,4 +579,4 @@ export default function PregnancyInfo() {
       </div>
     </div>
   );
-} 
+}
