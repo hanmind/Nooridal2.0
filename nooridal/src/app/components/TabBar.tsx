@@ -1,9 +1,10 @@
 import React from 'react';
+import { Tab } from '../chat/page';
 
 interface TabBarProps {
-  activeTab: string;
-  tabs: string[];
-  onTabClick: (tab: string) => void;
+  activeTab: Tab;
+  tabs: Tab[];
+  onTabClick: (tab: Tab) => void;
 }
 
 const TabBar: React.FC<TabBarProps> = ({ activeTab, tabs, onTabClick }) => {

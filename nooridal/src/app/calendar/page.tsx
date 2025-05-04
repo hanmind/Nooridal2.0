@@ -17,6 +17,8 @@ const generateInvitationCode = () => {
   return code;
 };
 
+type Tab = 'chat' | 'calendar' | 'location' | 'mypage';
+
 export default function CalendarPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("calendar");
@@ -155,7 +157,7 @@ export default function CalendarPage() {
     );
   }
 
-  const handleTabClick = (tab: string) => {
+  const handleTabClick = (tab: Tab) => {
     setActiveTab(tab);
     if (tab === "chat") {
       window.location.href = "/chat";
@@ -173,8 +175,8 @@ export default function CalendarPage() {
       <Calendar />
       {/* TabBar Component */}
       <TabBar
-        activeTab={activeTab}
-        tabs={["chat", "calendar", "location", "mypage"]}
+        activeTab={activeTab as Tab}
+        tabs={["chat", "calendar", "location", "mypage"] as Tab[]}
         onTabClick={handleTabClick}
       />
     </main>

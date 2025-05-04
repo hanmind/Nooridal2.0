@@ -148,7 +148,7 @@ export default function PregnantSignup() {
   const handlePostcodeSearch = () => {
     if ((window as any).daum && (window as any).daum.Postcode) {
       new (window as any).daum.Postcode({
-        // @ts-expect-error - Daum Postcode API types are not readily available, using any temporarily
+
         oncomplete: function (data: any) {
           // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분
           let addr = ""; // 주소 변수

@@ -6,11 +6,12 @@ import { useState, useEffect } from "react";
 import { useAddress } from "../context/AddressContext";
 import TabBar from '../components/TabBar';
 
-// 타입 정의 제거
+// Define the Tab type
+export type Tab = 'chat' | 'calendar' | 'location' | 'mypage';
 
 export default function LocationPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('location');
+  const [activeTab, setActiveTab] = useState<Tab>('location');
   const [showBackground, setShowBackground] = useState(false);
   const { address, setAddress, isLoaded } = useAddress();
 
@@ -46,7 +47,7 @@ export default function LocationPage() {
   }, []);
 
   const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
+    setActiveTab(tab as Tab);
     if (tab === 'chat') {
       router.push('/chat');
     } else if (tab === 'calendar') {

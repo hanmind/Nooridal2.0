@@ -440,7 +440,7 @@ export default function PregnancyInfo() {
               </div>
               <button
                 type="submit"
-                className="w-20 h-10 left-[50%] transform -translate-x-1/2 top-[520px] absolute bg-sky-200 rounded-full flex items-center justify-center text-black text-m font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
+                className="w-70 h-10 left-[50%] transform -translate-x-1/2 top-[520px] absolute bg-blue-300 rounded-full flex items-center justify-center text-white text-m font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
               >
                 수정
               </button>
