@@ -351,13 +351,13 @@ export default function ChatPage() {
     >
       {/* Header with rounded bottom */}
       <div className="w-full h-[140px] flex items-center justify-center bg-white shadow-md rounded-b-3xl relative mt-[-10px]">
-        <div className="absolute left-[60px] top-[75px] flex items-center">
+        <div className="absolute left-[60px] top-[80px] flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            className="w-6 h-6 mr-2 cursor-pointer"
+            className="w-8 h-8 mr-2 cursor-pointer"
             onClick={() => setShowCalendar(!showCalendar)}
           >
             <path
@@ -368,7 +368,7 @@ export default function ChatPage() {
             />
           </svg>
         </div>
-        <div className="left-[175px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
+        <div className="left-[175px] top-[75px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
           채팅
         </div>
       </div>
@@ -429,19 +429,19 @@ export default function ChatPage() {
             className="ml-2 w-16 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-md hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg
-              xmlns="http://www.w3.org/2000/svg"
+          xmlns="http://www.w3.org/2000/svg" 
               fill="none"
-              viewBox="0 0 24 24"
+          viewBox="0 0 24 24" 
               stroke="currentColor"
               className="w-6 h-6"
-            >
-              <path
+        >
+          <path 
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
                 d="M2.5 19.5l19-7-19-7v7l13 0-13 0v7z"
-              />
-            </svg>
+          />
+        </svg>
           </button>
         </div>
       </form>
@@ -464,7 +464,7 @@ export default function ChatPage() {
               <div className="text-base font-light font-['Do_Hyeon'] text-gray-500">
                 원하시는 날짜의 대화 내역을 확인해보세요
               </div>
-            </div>
+        </div>
 
             <div className="flex justify-between items-center mb-3">
               <button
@@ -538,8 +538,8 @@ export default function ChatPage() {
                     {day}
                   </div>
                 )
-              )}
-            </div>
+        )}
+      </div>
 
             <div className="grid grid-cols-7 gap-0.5">
               {generateCalendarDays().map((day, index) => (
@@ -579,4 +579,4 @@ export default function ChatPage() {
       )}
     </div>
   );
-}
+} 
