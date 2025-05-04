@@ -7,6 +7,8 @@ import { useState, useEffect } from "react";
 import TabBar from "../components/TabBar";
 import { supabase } from "../../utils/supabase"; // Adjust the import path as needed
 
+type Tab = 'chat' | 'calendar' | 'location' | 'mypage';
+
 export default function MyPage() {
   const router = useRouter();
   const { profileImage } = useProfile();
@@ -188,21 +190,16 @@ export default function MyPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
-        {/* 헤더 */}
-        <div className="left-[155px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
-          마이페이지
+      <div className="w-108 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
+        <div className="w-full h-[140px] flex items-center justify-center bg-white shadow-md rounded-b-3xl relative mt-[-10px]">
+          <div className="absolute inset-x-0 top-[75px] flex items-center justify-center">
+            <div className="left-[150px] top-[2px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
+              마이페이지
+            </div>
+          </div>
         </div>
-        <button
-          onClick={() => router.back()}
-          aria-label="뒤로 가기"
-          className="left-[24px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
-        >
-          &lt;
-        </button>
 
-        {/* 프로필 카드 */}
-        <div className="w-[360px] h-[280px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)] relative">
+        <div className="w-[360px] h-[280px] left-[21.5px] top-[24px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)] relative">
           {/* 프로필 원 */}
           <div className="w-24 h-24 left-[20px] top-[20px] absolute bg-gray-200 rounded-full overflow-hidden flex items-center justify-center">
             {profileImage ? (
@@ -254,19 +251,20 @@ export default function MyPage() {
                 style={{ height: "auto", padding: "10px 0" }}
               >
                 <span className="text-black text-lg font-normal font-['Do_Hyeon'] ">
-                  🍼 {pregnancyInfo?.baby_name || "사랑스러운 아기"} 만나기까지
+                  🍼 {pregnancyInfo?.baby_name || "사랑스러운 아기"} 세상에 나오기
                   {pregnancyInfo?.due_date
                     ? ` D-${Math.ceil(
                         (new Date(pregnancyInfo.due_date).setHours(0, 0, 0, 0) -
                           new Date().setHours(0, 0, 0, 0)) /
                           (1000 * 60 * 60 * 24)
-                      )}일`
+                      )}일`  
+                      
                     : "비밀"}
-                  🐥
+                   🐥
                 </span>
               </div>
-              <div className="text-black text-lg font-normal font-['Do_Hyeon'] mt-6">
-                출산 예정일: {pregnancyInfo.due_date}
+              <div className="text-black text-sm font-normal font-['Do_Hyeon'] mt-2 ml-[240px]">
+                {pregnancyInfo.due_date}
               </div>
               <div className="flex items-center mt-4">
                 <div className="w-full h-2 bg-gray-200 rounded-full relative">
@@ -299,10 +297,13 @@ export default function MyPage() {
                       />
                       <circle cx="12" cy="9" r="2.5" />
                     </svg>
-                    <div className="flex flex-col items-center text-center text-sm font-['Do_Hyeon'] mt-2">
-                      <span>{pregnancyInfo.current_week}주</span>
+                    <div className="flex items-center justify-center text-center text-s font-['Do_Hyeon'] mt-2">
+                      <span>{pregnancyInfo.current_week}</span>
                     </div>
                   </div>
+                </div>
+                <div className="absolute bottom-[-20px] left-[30px] text-gray-400 text-xs font-['Do_Hyeon']">
+                  주
                 </div>
               </div>
             </div>
@@ -326,8 +327,7 @@ export default function MyPage() {
           )}
         </div>
 
-        {/* 메뉴 카드 */}
-        <div className="w-[360px] h-62 left-[12px] top-[430px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+        <div className="w-[360px] h-62 left-[21.5px] top-[460px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           {/* 내 정보 관리 */}
           <div
             onClick={handleProfileManagement}
@@ -445,22 +445,19 @@ export default function MyPage() {
           </div>
         </div>
 
-        {/* 로그아웃 버튼 */}
         <button
           onClick={handleLogout}
-          className="absolute left-1/2 transform -translate-x-1/2 top-[690px] text-center text-gray-500 text-base font-normal font-['Do_Hyeon'] leading-[50px]"
+          className="absolute left-1/2 transform -translate-x-1/2 top-[720px] text-center text-gray-500 text-base font-normal font-['Do_Hyeon'] leading-[50px] w-full"
         >
           로그아웃
         </button>
       </div>
-      {/* TabBar Component */}
       <TabBar
-        activeTab={activeTab}
-        tabs={["chat", "calendar", "location", "mypage"]}
+        activeTab={activeTab as Tab}
+        tabs={['chat', 'calendar', 'location', 'mypage'] as Tab[]}
         onTabClick={handleTabClick}
       />
 
-      {/* 이미지 모달 */}
       {showImageModal && profileImage && (
         <div
           className="fixed z-50"

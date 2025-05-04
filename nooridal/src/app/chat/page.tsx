@@ -13,8 +13,10 @@ interface Message {
   conversationId?: string; // Dify conversation ID
 }
 
+export type Tab = 'chat' | 'calendar' | 'location' | 'mypage';
+
 export default function ChatPage() {
-  const [activeTab, setActiveTab] = useState("chat");
+  const [activeTab, setActiveTab] = useState<Tab>('chat');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -26,6 +28,10 @@ export default function ChatPage() {
   const [currentChatRoomId, setCurrentChatRoomId] = useState<string | null>(
     null
   ); // Supabase chat_rooms ID
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [expectedDate, setExpectedDate] = useState<string | null>(null);
+  const [selectedDateMessages, setSelectedDateMessages] = useState<Message[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null); // 메시지 목록 맨 아래로 스크롤하기 위한 ref
 
@@ -83,7 +89,7 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleTabClick = (tab: string) => {
+  const handleTabClick = (tab: Tab) => {
     setActiveTab(tab);
     if (tab === "chat") {
       window.location.href = "/chat";
@@ -96,13 +102,15 @@ export default function ChatPage() {
     }
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const closeSidebar = () => {
-    setIsSidebarOpen(false);
-  };
+  const blurs = [
+    { w: 24, h: 14, left: 260.61, top: 229 },
+    { w: 24, h: 14, left: 208, top: 241.8 },
+    { w: 24, h: 14, left: 267.63, top: 255.94 },
+    { w: 24, h: 14, left: 298.49, top: 237.75 },
+    { w: 12, h: 7, left: 333.57, top: 274.12 },
+    { w: 16, h: 14, left: 235.36, top: 252.57 },
+    { w: 16, h: 14, left: 232.55, top: 233.04 }
+  ];
 
   // 메시지 전송 핸들러
   const handleSendMessage = async (
@@ -257,46 +265,117 @@ export default function ChatPage() {
     }
   };
 
+  // Define 'closeSidebar' and 'toggleSidebar' as placeholders
+  const closeSidebar = () => { setIsSidebarOpen(false); };
+  const toggleSidebar = () => {};
+
+  // Function to generate calendar days
+  const generateCalendarDays = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const days = [];
+
+    const prevMonthLastDate = new Date(year, month, 0).getDate();
+    const firstDayOfWeek = firstDay.getDay();
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+      days.push({
+        date: new Date(year, month - 1, prevMonthLastDate - i),
+        isCurrentMonth: false,
+      });
+    }
+
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      days.push({
+        date: new Date(year, month, i),
+        isCurrentMonth: true,
+      });
+    }
+
+    const remainingDays = 42 - days.length;
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push({
+        date: new Date(year, month + 1, i),
+        isCurrentMonth: false,
+      });
+    }
+
+    return days;
+  };
+
+  // Function to format year and month
+  const formatYearMonth = (date: Date) => {
+    return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
+  };
+
+  // Update handleDateSelect function to connect with chat_rooms
+  const handleDateSelect = async (date: Date) => {
+    const selectedDate = date.toISOString().split("T")[0];
+    setExpectedDate(selectedDate);
+    setShowCalendar(false);
+
+    // Fetch messages for the selected date from chat_rooms
+    const { data: chatRoom, error: chatRoomError } = await supabase
+      .from('chat_rooms')
+      .select('id')
+      .eq('created_at', selectedDate)
+      .maybeSingle();
+
+    if (chatRoomError) {
+      console.error('Error fetching chat room:', chatRoomError);
+      return;
+    }
+
+    if (chatRoom) {
+      const { data: messages, error: messagesError } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('chat_room_id', chatRoom.id);
+
+      if (messagesError) {
+        console.error('Error fetching messages:', messagesError);
+      } else {
+        setSelectedDateMessages(messages || []);
+      }
+    } else {
+      console.log('No chat room found for the selected date.');
+      setSelectedDateMessages([]);
+    }
+  };
+
   return (
     <div
       className="min-h-screen flex flex-col"
       style={{ backgroundColor: "#FFF4BB" }}
     >
-      {/* 상단 바 및 사이드바 (기존 코드 유지) */}
-      <div
-        className="w-full h-[80px] relative flex items-center justify-center px-4"
-        onClick={closeSidebar}
-      >
-        {/* 배경 장식 요소 */}
-        <div className="w-32 h-20 left-[-63px] top-[1px] absolute bg-white rounded-full blur-[2px]" />
-        <div className="w-32 h-20 left-[-52px] top-[-10px] absolute bg-white rounded-full blur-[2px]" />
-        <div className="w-28 h-16 left-[-100px] top-[24.58px] absolute bg-white rounded-full blur-[2px]" />
-        <div className="w-28 h-14 left-[-80px] top-[54.05px] absolute bg-white rounded-full blur-[2px]" />
-        <div className="w-24 h-14 left-[-30px] top-[46px] absolute bg-white rounded-full blur-[2px]" />
-        <div className="w-28 h-16 left-0 top-[21px] absolute bg-white rounded-full blur-[2px]" />
-
-        <svg
-          className="w-10 h-10 text-gray-800 absolute left-4 top-1/2 transform -translate-y-1/2 cursor-pointer"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleSidebar();
-          }}
-          fill="#a6a6a6"
-        >
-          <path d="M8 9h6q.425 0 .713-.288T15 8t-.288-.712T14 7H8q-.425 0-.712.288T7 8t.288.713T8 9m0 4h3q.425 0 .713-.288T12 12t-.288-.712T11 11H8q-.425 0-.712.288T7 12t.288.713T8 13m9 4h-2q-.425 0-.712-.288T14 16t.288-.712T15 15h2v-2q0-.425.288-.712T18 12t.713.288T19 13v2h2q.425 0 .713.288T22 16t-.288.713T21 17h-2v2q0 .425-.288.713T18 20t-.712-.288T17 19zM6 17l-2.15 2.15q-.25.25-.55.125T3 18.8V5q0-.825.588-1.412T5 3h12q.825 0 1.413.588T19 5v4.35q0 .3-.213.488t-.512.162q-1.275-.05-2.437.388T13.75 11.75q-.9.925-1.35 2.088t-.4 2.437q.025.3-.175.513T11.35 17z" />
-        </svg>
-        <div className="text-center text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
+      {/* Header with rounded bottom */}
+      <div className="w-full h-[140px] flex items-center justify-center bg-white shadow-md rounded-b-3xl relative mt-[-10px]">
+        <div className="absolute left-[60px] top-[80px] flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            className="w-8 h-8 mr-2 cursor-pointer"
+            onClick={() => setShowCalendar(!showCalendar)}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H7l-4 4V7a2 2 0 012-2z"
+            />
+          </svg>
+        </div>
+        <div className="left-[175px] top-[75px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
           채팅
         </div>
       </div>
 
-      {/* 채팅 메시지 표시 영역 */}
-      <div className="flex-grow overflow-y-auto px-4 pt-4 pb-32">
-        {" "}
-        {/* 아래 입력창 높이만큼 padding-bottom */}
-        {messages.map((msg) => (
+      {/* Message Bubbles */}
+      <div className="flex-grow overflow-y-auto px-4 pt-8 pb-32">
+        {selectedDateMessages.map((msg) => (
           <div
             key={msg.id}
             className={`flex mb-4 ${
@@ -307,9 +386,9 @@ export default function ChatPage() {
               className={`max-w-[75%] px-4 py-2 rounded-lg shadow ${
                 msg.sender === "user"
                   ? "bg-yellow-300 text-neutral-800 rounded-br-none"
-                  : "bg-white text-neutral-700 rounded-bl-none"
+                  : "bg-blue-200 text-neutral-700 rounded-bl-none"
               }`}
-              style={{ fontFamily: "Do Hyeon, sans-serif" }} // 글꼴 적용
+              style={{ fontFamily: "Do Hyeon, sans-serif" }}
             >
               {/* AI 응답 중 로딩 표시 */}
               {msg.sender === "ai" && msg.text === "..." && isLoading ? (
@@ -330,123 +409,42 @@ export default function ChatPage() {
             </div>
           </div>
         ))}
-        {/* 스크롤 타겟 */}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 메시지 입력창과 전송 버튼 - 하단 고정 */}
-      <form
-        onSubmit={handleSendMessage}
-        className="fixed bottom-[85px] left-1/2 transform -translate-x-1/2 w-full max-w-md px-4 flex items-center z-10 bg-[#FFF4BB] pb-2 pt-1"
-      >
-        {" "}
-        {/* 배경색 및 패딩 추가 */}
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          disabled={isLoading}
-          className="flex-grow h-12 px-5 py-2 text-neutral-700 text-lg font-normal font-['Do_Hyeon'] bg-white rounded-full border-2 border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-300 shadow-md placeholder-gray-400 disabled:opacity-50"
-          placeholder={
-            isLoading ? "답변 생성 중..." : "궁금한 점을 물어보세요!"
-          }
-        />
-        <button
-          type="submit"
-          aria-label="메시지 전송"
-          disabled={isLoading || !inputValue.trim()}
-          className="ml-2 w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-white shadow-md hover:bg-yellow-500 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? (
+      {/* Input Field and Button */}
+      <form className="fixed bottom-28 left-0 w-full bg-transparent p-4 flex items-center justify-center">
+        <div className="flex items-center bg-white w-full max-w-lg rounded-full border border-gray-300">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            disabled={isLoading}
+            className="flex-grow h-10 px-5 py-2 text-neutral-700 text-base font-normal font-['Do_Hyeon'] bg-transparent rounded-full focus:outline-none placeholder-gray-400 disabled:opacity-50"
+            placeholder={isLoading ? "답변 생성 중..." : "궁금한 점을 물어보세요!"}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !inputValue.trim()}
+            className="ml-2 w-16 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-md hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <svg
-              className="animate-spin h-5 w-5 text-white"
-              xmlns="http://www.w3.org/2000/svg"
+          xmlns="http://www.w3.org/2000/svg" 
               fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-          ) : (
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
+          viewBox="0 0 24 24" 
               stroke="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
+              className="w-6 h-6"
+        >
+          <path 
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
+                strokeWidth="2"
                 d="M2.5 19.5l19-7-19-7v7l13 0-13 0v7z"
-              />
-            </svg>
-          )}
-        </button>
-      </form>
-
-      {/* 사이드바 (기존 코드 유지) */}
-      {isSidebarOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black bg-opacity-30 z-40" // 반투명 오버레이 추가
-            onClick={closeSidebar}
           />
-          <div
-            className="w-64 h-full bg-white shadow-lg fixed left-0 top-0 z-50 rounded-r-[20px]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {" "}
-            {/* 오른쪽 라운드 */}
-            {/* 사이드바 내용 */}
-            <div className="p-5">
-              <button
-                onClick={closeSidebar}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 19l-7-7 7-7"
-                  ></path>
-                </svg>
-              </button>
-              <h2 className="text-xl font-semibold font-['Do_Hyeon'] mt-10 mb-6">
-                대화 목록
-              </h2>
-              {/* TODO: 지난 대화 목록 불러와서 표시 */}
-              <div className="space-y-2">
-                <p className="text-gray-600 font-['Do_Hyeon'] p-2 rounded hover:bg-gray-100 cursor-pointer">
-                  2024-07-29 대화
-                </p>
-                <p className="text-gray-600 font-['Do_Hyeon'] p-2 rounded hover:bg-gray-100 cursor-pointer">
-                  2024-07-28 대화
-                </p>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+        </svg>
+          </button>
+        </div>
+      </form>
 
       {/* TabBar Component */}
       <TabBar
@@ -454,6 +452,131 @@ export default function ChatPage() {
         tabs={["chat", "calendar", "location", "mypage"]}
         onTabClick={handleTabClick}
       />
+
+      {showCalendar && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowCalendar(false)}
+          />
+          <div className="bg-white p-4 rounded-2xl shadow-lg w-full max-w-lg relative z-10 mx-4 mt-20 mb-28">
+            <div className="text-center mb-4">
+              <div className="text-base font-light font-['Do_Hyeon'] text-gray-500">
+                원하시는 날짜의 대화 내역을 확인해보세요
+              </div>
+        </div>
+
+            <div className="flex justify-between items-center mb-3">
+              <button
+                onClick={() =>
+                  setCurrentMonth(
+                    new Date(
+                      currentMonth.setMonth(currentMonth.getMonth() - 1)
+                    )
+                  )
+                }
+                aria-label="이전 달 보기"
+                className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+              <div className="text-base font-['Do_Hyeon'] text-gray-900">
+                {formatYearMonth(currentMonth)}
+              </div>
+              <button
+                onClick={() =>
+                  setCurrentMonth(
+                    new Date(
+                      currentMonth.setMonth(currentMonth.getMonth() + 1)
+                    )
+                  )
+                }
+                aria-label="다음 달 보기"
+                className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-7 mb-1">
+              {["일", "월", "화", "수", "목", "금", "토"].map(
+                (day, index) => (
+                  <div
+                    key={day}
+                    className={`text-center text-sm font-['Do_Hyeon'] py-1 ${
+                      index === 0
+                        ? "text-red-500"
+                        : index === 6
+                        ? "text-blue-500"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    {day}
+                  </div>
+                )
+        )}
+      </div>
+
+            <div className="grid grid-cols-7 gap-0.5">
+              {generateCalendarDays().map((day, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleDateSelect(day.date)}
+                  disabled={!day.isCurrentMonth}
+                  className={`
+                    w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
+                    ${
+                      day.isCurrentMonth
+                        ? day.date.toISOString().split("T")[0] === expectedDate
+                          ? "bg-[#FFE999] text-gray-900 font-bold"
+                          : "hover:bg-gray-100 text-gray-900"
+                        : "text-gray-400"
+                    }
+                    ${day.date.getDay() === 0 ? "text-red-500" : ""}
+                    ${day.date.getDay() === 6 ? "text-blue-500" : ""}
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                  `}
+                >
+                  {day.date.getDate()}
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-3 flex justify-center">
+              <button
+                onClick={() => setShowCalendar(false)}
+                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-full font-['Do_Hyeon'] hover:bg-gray-300 transition-colors text-sm"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+} 

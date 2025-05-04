@@ -135,37 +135,52 @@ const Calendar: React.FC = () => {
   const startLeft = 20; // 시작 위치
   
   return (
-    <div className="w-96 h-[874px] relative bg-'#FFF4BB'  overflow-hidden">
-      {/* 배경 장식 요소 오른쪽 */}
-      <div className="w-32 h-20 left-[-63px] top-[1px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-32 h-20 right-[-52px] top-[-10px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-28 h-16 right-[-100px] top-[24.58px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-28 h-14 right-[-80px] top-[54.05px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-24 h-14 right-[-30px] top-[46px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-28 h-16 right-0 top-[21px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="absolute right-[18px] top-[42px]">
-        {/* 상단 알람 버튼 */}
-        <div 
-          className="material-symbols--notifications-outline-rounded bg-neutral-400 cursor-pointer hover:opacity-80 transition-opacity" 
-          onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-          style={{
-            display: 'inline-block',
-            width: '36px',
-            height: '36px',
-            '--svg': 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath fill=\'%23000\' d=\'M5 19q-.425 0-.712-.288T4 18t.288-.712T5 17h1v-7q0-2.075 1.25-3.687T10.5 4.2v-.7q0-.625.438-1.062T12 2t1.063.438T13.5 3.5v.7q2 .5 3.25 2.113T18 10v7h1q.425 0 .713.288T20 18t-.288.713T19 19zm7 3q-.825 0-1.412-.587T10 20h4q0 .825-.587 1.413T12 22m-4-5h8v-7q0-1.65-1.175-2.825T12 6T9.175 7.175T8 10z\'/%3E%3C/svg%3E")',
-            backgroundColor: 'currentColor',
-            WebkitMaskImage: 'var(--svg)',
-            maskImage: 'var(--svg)',
-            WebkitMaskRepeat: 'no-repeat',
-            maskRepeat: 'no-repeat',
-            WebkitMaskSize: '100% 100%',
-            maskSize: '100% 100%'
-          } as React.CSSProperties}
-        />
+    <div className="w-102 h-[874px] relative bg-'#FFF4BB'  overflow-hidden">
+      {/* Add the rectangular box from the chat window */}
+      <div className="w-full h-[140px] flex items-center justify-center bg-white shadow-md rounded-b-3xl relative mt-[-10px]">
+        {/* Month Selector and Notification Icons */}
+        <div className="absolute right-[-35px] top-[50%] translate-y-[-50%] cursor-pointer transition-transform duration-300 hover:scale-110 z-50">
+          {/* Month Selector Icon */}
+          <svg
+            width="25"
+            height="30"
+            viewBox="0 4 30 25"
+            fill="none"
+            onClick={() => setIsMonthSelectorOpen(!isMonthSelectorOpen)}
+          >
+            <path
+              d="M15 22C15 22 6 11 6 11C6 11 24 11 24 11C24 11 15 22 15 22Z"
+              fill="#FCD34D"
+              stroke="#FCD34D"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+
+        <div className="absolute right-[18px] top-[72px] z-50">
+          {/* Notification Icon */}
+          <div 
+            className="material-symbols--notifications-outline-rounded bg-neutral-400 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+            style={{
+              display: 'inline-block',
+              width: '36px',
+              height: '36px',
+              '--svg': 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath fill=\'%23000\' d=\'M5 19q-.425 0-.712-.288T4 18t.288-.712T5 17h1v-7q0-2.075 1.25-3.687T10.5 4.2v-.7q0-.625.438-1.062T12 2t1.063.438T13.5 3.5v.7q2 .5 3.25 2.113T18 10v7h1q.425 0 .713.288T20 18t-.288.713T19 19zm7 3q-.825 0-1.412-.587T10 20h4q0 .825-.587 1.413T12 22m-4-5h8v-7q0-1.65-1.175-2.825T12 6T9.175 7.175T8 10z\'/%3E%3C/svg%3E")',
+              backgroundColor: 'currentColor',
+              WebkitMaskImage: 'var(--svg)',
+              maskImage: 'var(--svg)',
+              WebkitMaskRepeat: 'no-repeat',
+              maskRepeat: 'no-repeat',
+              WebkitMaskSize: '100% 100%',
+              maskSize: '100% 100%'
+            } as React.CSSProperties}
+          />
+        </div>
       </div>
 
-      
-    
       {/* 알림 패널 오버레이 */}
       {isNotificationOpen && (
         <>
@@ -176,7 +191,7 @@ const Calendar: React.FC = () => {
           />
           
           {/* 알림 패널 */}
-          <div className="fixed right-0 top-0 w-[250px] h-full bg-white z-40 shadow-lg transform transition-transform duration-300 ease-in-out rounded-l-[20px]">
+          <div className="fixed right-0 top-0 w-[250px] h-full bg-white z-50 shadow-lg transform transition-transform duration-300 ease-in-out rounded-l-[20px]">
             {/* 헤더 */}
             <div className="flex items-center justify-between px-4 pt-8 pb-4 border-b border-gray-100 mt-[30px]">
               <div className="w-9 h-9 opacity-0">
@@ -233,23 +248,16 @@ const Calendar: React.FC = () => {
       )}
       
       {/* 배경 장식 요소 왼쪽*/}
-      <div className="w-32 h-20 left-[-63px] top-[1px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-32 h-20 left-[-52px] top-[-10px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-28 h-16 left-[-100px] top-[24.58px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-28 h-14 left-[-80px] top-[54.05px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-24 h-14 left-[-30px] top-[46px] absolute bg-white rounded-full blur-[2px]" />
-      <div className="w-28 h-16 left-0 top-[21px] absolute bg-white rounded-full blur-[2px]" />
       {/* 상단 메뉴 버튼 */}
-      <div 
+      {/* <div 
         className="cursor-pointer absolute left-[23px] top-[50px] z-10"
         onClick={() => setIsMenuOpen(!isMenuOpen)}
       >
         <div className="w-6 h-1 bg-zinc-500 mb-[6px]" />
         <div className="w-6 h-1 bg-zinc-500 mb-[6px]" />
         <div className="w-6 h-1 bg-zinc-500" />
-      </div>
+      </div> */}
 
-      {/* 메뉴 패널 오버레이 */}
       {isMenuOpen && (
         <>
           {/* 반투명 배경 */}
@@ -344,7 +352,7 @@ const Calendar: React.FC = () => {
       })}
       
       {/* 월 표시 */}
-      <div className="left-[148px] top-[79px] absolute text-center text-neutral-700 text-2xl font-['Do_Hyeon'] leading-[50px]">
+      <div className="left-[148px] top-[70px] absolute text-center text-neutral-700 text-2xl font-['Do_Hyeon'] leading-[50px]">
         {currentDate.getFullYear()}.{String(currentDate.getMonth() + 1).padStart(2, '0')}
         <svg 
           width="25" 
@@ -366,7 +374,7 @@ const Calendar: React.FC = () => {
 
         {/* 월 선택 박스 */}
         {isMonthSelectorOpen && (
-          <div className="absolute right-[-100px] top-[60px] w-[200px] bg-white rounded-2xl shadow-lg p-4 grid grid-cols-3 gap-2 z-10 border-2 border-yellow-100">
+          <div className="absolute right-[-100px] top-[60px] w-[200px] bg-white rounded-2xl shadow-lg p-4 grid grid-cols-3 gap-2 z-50 border-2 border-yellow-100">
             {months.map((month, index) => (
               <div
                 key={month}
@@ -399,7 +407,7 @@ const Calendar: React.FC = () => {
         
         // 위치 계산 (요일 헤더와 동일한 간격 유지)
         const leftPosition = startLeft + (col * dayWidth);
-        const topPosition = 185 + (row * 101);
+        const topPosition = 195 + (row * 101);
         
         // 해당 날짜의 일정
         const dayEvents = getEventsForDay(day);

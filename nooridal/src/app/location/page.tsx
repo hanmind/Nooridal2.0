@@ -6,11 +6,12 @@ import { useState, useEffect } from "react";
 import { useAddress } from "../context/AddressContext";
 import TabBar from '../components/TabBar';
 
-// 타입 정의 제거
+// Define the Tab type
+export type Tab = 'chat' | 'calendar' | 'location' | 'mypage';
 
 export default function LocationPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('location');
+  const [activeTab, setActiveTab] = useState<Tab>('location');
   const [showBackground, setShowBackground] = useState(false);
   const { address, setAddress, isLoaded } = useAddress();
 
@@ -46,7 +47,7 @@ export default function LocationPage() {
   }, []);
 
   const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
+    setActiveTab(tab as Tab);
     if (tab === 'chat') {
       router.push('/chat');
     } else if (tab === 'calendar') {
@@ -97,15 +98,22 @@ export default function LocationPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
+      <div className="w-108 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
         {/* 헤더 */}
+        <div className="w-full h-[140px] flex items-center justify-center bg-white shadow-md rounded-b-3xl relative mt-[-10px]">
+          <div className="absolute inset-x-0 top-[75px] flex items-center">
+            {/* Content inside the rectangular box */}
+          </div>
+        </div>
+
+        {/* Location Header */}
         <div className="left-[175px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
           위치
         </div>
         
 
         {/* Current Location Section */}
-        <div className="w-[360px] h-[100px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+        <div className="w-[360px] h-[100px] left-[20px] top-[190px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           <div className="flex items-start p-6">
             <div className="mr-4">
               <svg className="w-14 h-14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -134,7 +142,7 @@ export default function LocationPage() {
         </div>
 
         {/* Menu Grid */}
-        <div className="grid grid-cols-2 gap-4 p-1 absolute left-[12px] top-[260px] w-[360px] ">
+        <div className="grid grid-cols-2 gap-4 p-1 absolute left-[20px] top-[340px] w-[360px] ">
           {[
             { icon: '🏥', title: '병원', link: '/location/hospital' },
             { icon: '🏪', title: '편의 시설', link: '/location/facilities' },

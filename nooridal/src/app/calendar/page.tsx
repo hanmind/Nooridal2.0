@@ -17,6 +17,8 @@ const generateInvitationCode = () => {
   return code;
 };
 
+type Tab = 'chat' | 'calendar' | 'location' | 'mypage';
+
 export default function CalendarPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("calendar");
@@ -147,15 +149,23 @@ export default function CalendarPage() {
   // Render loading indicator while checking
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-        <div className="text-center text-neutral-700 font-['Do_Hyeon']">
-          로딩 중...
+      <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center relative">
+        {/* Blurred overlay with reduced opacity */}
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm flex flex-col justify-center items-center">
+          {/* Loading Icon */}
+          <svg className="animate-spin h-8 w-8 text-neutral-700 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+          <div className="text-center text-neutral-700 font-['Do_Hyeon'] text-2xl">
+            로딩 중...
+          </div>
         </div>
       </div>
     );
   }
 
-  const handleTabClick = (tab: string) => {
+  const handleTabClick = (tab: Tab) => {
     setActiveTab(tab);
     if (tab === "chat") {
       window.location.href = "/chat";
@@ -173,8 +183,8 @@ export default function CalendarPage() {
       <Calendar />
       {/* TabBar Component */}
       <TabBar
-        activeTab={activeTab}
-        tabs={["chat", "calendar", "location", "mypage"]}
+        activeTab={activeTab as Tab}
+        tabs={["chat", "calendar", "location", "mypage"] as Tab[]}
         onTabClick={handleTabClick}
       />
     </main>

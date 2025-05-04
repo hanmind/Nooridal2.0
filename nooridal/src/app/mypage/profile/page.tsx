@@ -622,60 +622,46 @@ export default function ProfileManagement() {
         </div>
 
         {/* 아이디 */}
-        <div className="w-[250px] h-11 left-[30px] top-[308px] absolute bg-gray-200 rounded-[10px] border border-zinc-300 flex items-center pl-4 text-gray-500 text-s font-normal font-['Do_Hyeon'] cursor-not-allowed">
-          {maskedUserId}
+        <div className="w-[250px] h-11 left-[30px] top-[308px] absolute flex items-center">
+          <input
+            placeholder="아이디"
+            aria-label="아이디"
+            type="text"
+            value={tempUserId}
+            onChange={handleIdChange}
+            onBlur={handleIdBlur}
+            className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
+            autoFocus
+          />
         </div>
         <div className="w-24 h-5 left-[35px] top-[272px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
           아이디
         </div>
-        {isEditingId ? (
-          <div className="w-[250px] h-11 left-[30px] top-[308px] absolute flex items-center">
-            <input
-              placeholder="아이디"
-              aria-label="아이디"
-              type="text"
-              value={tempUserId}
-              onChange={handleIdChange}
-              onBlur={handleIdBlur}
-              className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
-              autoFocus
-            />
-          </div>
-        ) : (
-          <div className="w-52 h-11 left-[45px] top-[305px] absolute text-left justify-start text-gray-500 text-s font-normal font-['Do_Hyeon'] leading-[50px]"></div>
-        )}
-        <div
-          data-property-1="Default"
-          className="w-16 h-9 left-[300px] top-[305px] absolute"
+        <button
+          onClick={checkIdDuplicate}
+          className="w-16 h-9 left-[290px] top-[305px] absolute bg-[#FFE999] hover:bg-[#FFD966] rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
         >
-          <div
-            className={`w-16 h-9 left-[-10px] top-2 absolute ${
-              isSocialLogin
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-[#FFE999] hover:bg-[#FFD966]"
-            } rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center`}
-          >
-            <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">
-              중복확인
-            </span>
-          </div>
-        </div>
+          <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">
+            중복확인
+          </span>
+        </button>
 
         {/* 비밀번호 */}
-        <div className="w-[250px] h-11 left-[30px] top-[380px] absolute bg-gray-200 rounded-[10px] border border-zinc-300 flex items-center pl-4 text-neutral-400 text-s font-normal font-['Do_Hyeon'] cursor-not-allowed">
-          {"*".repeat(passwordLength)}
+        <div className="w-[250px] h-11 left-[30px] top-[380px] absolute flex items-center">
+          <input
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="********"
+            className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
+          />
         </div>
         <div className="w-24 h-5 left-[35px] top-[344px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
           비밀번호
         </div>
         <button
-          onClick={() => !isSocialLogin && setShowPasswordModal(true)}
-          className={`w-16 h-9 left-[290px] top-[384px] absolute ${
-            isSocialLogin
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-[#FFE999] hover:bg-[#FFD966]"
-          } rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center`}
-          disabled={isSocialLogin}
+          onClick={() => setShowPasswordModal(true)}
+          className="w-16 h-9 left-[290px] top-[384px] absolute bg-[#FFE999] hover:bg-[#FFD966] rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
         >
           <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">
             변경하기
@@ -831,9 +817,10 @@ export default function ProfileManagement() {
         <div className="w-24 h-9 left-[35px] top-[560px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
           주소
         </div>
-        <div className="w-[250px] h-11 left-[30px] top-[596px] absolute bg-white rounded-[10px] border border-zinc-300" />
-        <div className="w-44 h-4 left-[45px] top-[595px] absolute text-left justify-start text-neutral-900 text-m font-normal font-['Do_Hyeon'] leading-[50px]">
-          {address}
+        <div className="w-[250px] h-11 left-[30px] top-[596px] absolute bg-white rounded-[10px] border border-zinc-300 overflow-hidden">
+          <div className="w-full h-full text-left justify-start text-neutral-900 text-m font-normal font-['Do_Hyeon'] leading-[50px] pl-2">
+            {address}
+          </div>
         </div>
         <div
           data-property-1="Default"
