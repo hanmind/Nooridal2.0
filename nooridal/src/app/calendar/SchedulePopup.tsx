@@ -917,7 +917,10 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({
       <DateTimePicker
         isOpen={isStartDatePickerOpen}
         onClose={() => setIsStartDatePickerOpen(false)}
-        onSelect={(date, time) => setStartDate(date)}
+        onSelect={(date, time) => {
+          setStartDate(date);
+          setEndDate(date); // 시작 날짜가 변경되면 종료 날짜도 동일하게 설정
+        }}
         initialDate={startDate}
         initialTime={startTime}
         type="date"
@@ -925,7 +928,10 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({
       <DateTimePicker
         isOpen={isStartTimePickerOpen}
         onClose={() => setIsStartTimePickerOpen(false)}
-        onSelect={(date, time) => setStartTime(time)}
+        onSelect={(date, time) => {
+          setStartTime(time);
+          setEndTime(time); // 시작 시간이 변경되면 종료 시간도 동일하게 설정
+        }}
         initialDate={startDate}
         initialTime={startTime}
         type="time"
