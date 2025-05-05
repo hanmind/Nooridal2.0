@@ -255,6 +255,8 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({
   const [isStartTimePickerOpen, setIsStartTimePickerOpen] = useState(false);
   const [isEndDatePickerOpen, setIsEndDatePickerOpen] = useState(false);
   const [isEndTimePickerOpen, setIsEndTimePickerOpen] = useState(false);
+  const [showRecurringEditOptions, setShowRecurringEditOptions] = useState(false);
+  const [recurringEditOption, setRecurringEditOption] = useState<'this' | 'thisAndFuture' | 'all'>('this');
 
   // 컴포넌트 마운트 시 사용자 정보 가져오기
   useEffect(() => {
@@ -420,6 +422,24 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({
   // 일정 저장/수정하기
   const saveEvent = async () => {
     try {
+      // 반복 일정 수정 시 옵션 모달 표시
+      if (eventToEdit && (eventToEdit.rrule || eventToEdit.recurring_event_id)) {
+        setShowRecurringEditOptions(true);
+        return;
+      }
+      
+      // 나머지 저장 로직 수행
+      return saveEventWithOption();
+    } catch (error) {
+      console.error('일정 저장 중 오류 발생:', error);
+      setError('일정을 저장할 수 없습니다. 다시 시도해주세요.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveEventWithOption = async (option?: 'this' | 'thisAndFuture' | 'all') => {
+    try {
       setIsLoading(true);
       setError(null);
       
@@ -441,14 +461,13 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({
       const endTimeISO = parseTimeToISO(endTime);
       
       // ISO 날짜/시간 조합 - 타임존 처리
-      // 사용자 로컬 시간대로 Date 객체 생성 후 ISO 문자열로 변환하여 Z 접미사(UTC) 제거
       let start_time = createLocalISOString(startDateISO, startTimeISO);
       let end_time = endDateISO && endTimeISO ? createLocalISOString(endDateISO, endTimeISO) : null;
       
       // RRule 생성 (반복 설정이 있는 경우)
       let rruleString = null;
       if (selectedRepeat && selectedRepeat !== '반복 안함') {
-        // 1. 로컬 시간 기준의 Date 객체 생성 (사용자가 UI에서 보는 시간)
+        // 로컬 시간 기준의 Date 객체 생성
         const localStartDateTime = new Date(
           parseDateToISO(startDate) + 'T' + parseTimeToISO(startTime)
         );
@@ -460,27 +479,25 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({
         console.log('- 변환된 로컬 시간 Date 객체:', localStartDateTime);
         console.log('- 로컬 시간 ISO 문자열:', localStartDateTime.toISOString());
         
-        // 2. UTC 시간(DB 저장용)
+        // UTC 시간(DB 저장용)
         const utcStartDateTime = new Date(start_time);
         console.log('- DB 저장 UTC 시간:', utcStartDateTime.toISOString());
         
         // 간소화된 RRule 생성 로직
         const rruleOptions: any = {
-          dtstart: utcStartDateTime // 이벤트의 DB 저장 시간과 정확히 동일한 UTC 시간 사용
+          dtstart: utcStartDateTime
         };
         
-        // 반복 빈도만 설정 (요일, 일자 등은 자동으로 원본 이벤트 날짜 기준)
+        // 반복 빈도 설정
         switch (selectedRepeat) {
           case '매일':
             rruleOptions.freq = RRule.DAILY;
             break;
           case '매주':
             rruleOptions.freq = RRule.WEEKLY;
-            // 요일 지정 제거 - 자동으로 선택한 날짜의 요일 사용
             break;
           case '매월':
             rruleOptions.freq = RRule.MONTHLY;
-            // 일자 지정 제거 - 자동으로 선택한 날짜의 일자 사용
             break;
           case '매년':
             rruleOptions.freq = RRule.YEARLY;
@@ -510,23 +527,180 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({
         exdate: []
       };
       
-      // 이벤트 생성 또는 수정
+      // 이벤트 생성 또는 수정 처리
       let response;
       
       if (eventToEdit) {
-        // 이벤트 수정
-        response = await supabase
-          .from('events')
-          .update(eventData)
-          .eq('id', eventToEdit.id);
+        // 반복 일정 수정 옵션에 따른 처리
+        if (option && (eventToEdit.rrule || eventToEdit.recurring_event_id)) {
+          console.log('반복 일정 수정 옵션:', option);
+          
+          // 원본 이벤트 ID 확인
+          const originalEventId = eventToEdit.recurring_event_id || eventToEdit.id.split('_')[0];
+          const eventDate = new Date(eventToEdit.start_time);
+          const formattedDate = eventDate.toISOString().split('T')[0]; // YYYY-MM-DD
+          
+          switch (option) {
+            case 'this':
+              // 선택한 일정만 예외로 처리
+              try {
+                console.log('이 일정만 수정 - 시작');
+                // 원본 이벤트 ID 확인 (recurring_event_id가 있거나 가상 ID인 경우)
+                const originalId = eventToEdit.recurring_event_id || originalEventId;
+                console.log('원본 이벤트 ID:', originalId);
+                console.log('수정할 날짜:', formattedDate);
+                
+                // 1. 원본 이벤트의 exdate에 현재 날짜 추가
+                const { data: originalEvent, error: fetchError } = await supabase
+                  .from('events')
+                  .select('exdate, title')
+                  .eq('id', originalId)
+                  .single();
+                
+                if (fetchError) {
+                  console.error('원본 이벤트 조회 오류:', fetchError);
+                  throw new Error(`원본 이벤트를 찾을 수 없습니다: ${fetchError.message}`);
+                }
+                
+                console.log('원본 이벤트 정보:', originalEvent);
+                
+                // 현재 날짜가 이미 예외에 있는지 확인
+                const existingExdate = originalEvent?.exdate || [];
+                if (!existingExdate.includes(formattedDate)) {
+                  // 예외 목록에 없으면 추가
+                  const updatedExdate = [...existingExdate, formattedDate];
+                  console.log('업데이트된 예외 날짜:', updatedExdate);
+                  
+                  const { error: updateError } = await supabase
+                    .from('events')
+                    .update({ exdate: updatedExdate })
+                    .eq('id', originalId);
+                  
+                  if (updateError) {
+                    console.error('예외 날짜 업데이트 오류:', updateError);
+                    throw new Error(`예외 날짜 업데이트 실패: ${updateError.message}`);
+                  }
+                } else {
+                  console.log('이 날짜는 이미 예외 목록에 있습니다:', formattedDate);
+                }
+                
+                // 2. 이미 이 날짜에 대한 예외 이벤트가 있는지 확인
+                const { data: existingException } = await supabase
+                  .from('events')
+                  .select('id')
+                  .eq('recurring_event_id', originalId)
+                  .eq('start_time', start_time)
+                  .maybeSingle();
+                
+                console.log('기존 예외 이벤트 확인:', existingException);
+                
+                // 수정할 데이터 준비 (recurring_event_id 추가)
+                const exceptionData = {
+                  ...eventData,
+                  recurring_event_id: originalId,
+                  // 예외 이벤트는 단순 일정이어야 함
+                  rrule: null,
+                  repeat_pattern: null
+                };
+                
+                if (existingException) {
+                  // 2-1. 이미 예외 이벤트가 있으면 업데이트
+                  console.log('기존 예외 이벤트 업데이트:', existingException.id);
+                  response = await supabase
+                    .from('events')
+                    .update(exceptionData)
+                    .eq('id', existingException.id);
+                } else {
+                  // 2-2. 없으면 새 예외 이벤트 생성
+                  console.log('새 예외 이벤트 생성');
+                  response = await supabase
+                    .from('events')
+                    .insert([exceptionData]);
+                }
+                
+                console.log('이 일정만 수정 - 완료', response);
+              } catch (error: any) {
+                console.error('이 일정만 수정 중 오류:', error);
+                throw new Error(`일정 수정 실패: ${error.message}`);
+              }
+              break;
+              
+            case 'thisAndFuture':
+              // 이 일정과 이후 모든 반복 일정 수정
+              try {
+                // 1. 원본 이벤트의 반복 규칙 종료일 설정 (이전 날짜까지만 유지)
+                const previousDay = new Date(eventDate);
+                previousDay.setDate(previousDay.getDate() - 1);
+                const untilDate = previousDay.toISOString().split('T')[0].replace(/-/g, '');
+                
+                // 2. 원본 이벤트 조회
+                const { data: originalEvent } = await supabase
+                  .from('events')
+                  .select('rrule')
+                  .eq('id', originalEventId)
+                  .single();
+                
+                if (originalEvent?.rrule) {
+                  // 3. RRULE 수정: UNTIL 설정
+                  let updatedRrule = originalEvent.rrule;
+                  
+                  if (updatedRrule.includes('UNTIL=')) {
+                    updatedRrule = updatedRrule.replace(/UNTIL=\d+T\d+Z?/i, `UNTIL=${untilDate}T235959Z`);
+                  } else {
+                    updatedRrule = updatedRrule.replace(/RRULE:/, `RRULE:UNTIL=${untilDate}T235959Z;`);
+                  }
+                  
+                  // 4. 원본 이벤트 업데이트
+                  await supabase
+                    .from('events')
+                    .update({ rrule: updatedRrule })
+                    .eq('id', originalEventId);
+                    
+                  // 5. 새 이벤트 생성 (선택한 날짜부터 시작하는 새 반복 일정)
+                  const newEventData = {
+                    ...eventData,
+                    start_time: eventDate.toISOString()
+                  };
+                  
+                  response = await supabase
+                    .from('events')
+                    .insert([newEventData]);
+                }
+              } catch (error: any) {
+                console.error('이 일정과 이후 반복 일정 수정 중 오류:', error);
+                throw new Error(`반복 일정 수정 실패: ${error.message}`);
+              }
+              break;
+              
+            case 'all':
+              // 모든 반복 일정 수정
+              response = await supabase
+                .from('events')
+                .update(eventData)
+                .eq('id', originalEventId);
+                
+              // 관련 예외 항목 삭제 (완전히 새로운 설정으로 변경하므로 예외 항목은 무의미)
+              await supabase
+                .from('events')
+                .delete()
+                .eq('recurring_event_id', originalEventId);
+              break;
+          }
+        } else {
+          // 일반 이벤트 수정
+          response = await supabase
+            .from('events')
+            .update(eventData)
+            .eq('id', eventToEdit.id);
+        }
       } else {
-        // 이벤트 생성
+        // 신규 이벤트 생성
         response = await supabase
           .from('events')
           .insert([eventData]);
       }
       
-      if (response.error) {
+      if (response && response.error) {
         console.error('일정 저장 오류:', response.error);
         setError('일정을 저장할 수 없습니다. 다시 시도해주세요.');
         return;
@@ -546,6 +720,7 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({
       setError('일정을 저장할 수 없습니다. 다시 시도해주세요.');
     } finally {
       setIsLoading(false);
+      setShowRecurringEditOptions(false);
     }
   };
 
@@ -771,6 +946,64 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({
         initialTime={endTime}
         type="time"
       />
+
+      {/* 반복 일정 수정 옵션 모달 */}
+      {showRecurringEditOptions && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/50 z-60"
+            onClick={() => setShowRecurringEditOptions(false)}
+          />
+          
+          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] bg-white z-70 shadow-lg rounded-[20px] p-5">
+            
+            <div className="flex flex-col gap-3 mb-4">
+              <label className="flex items-center gap-2">
+                <input 
+                  type="radio" 
+                  name="recurringEditOption" 
+                  checked={recurringEditOption === 'this'} 
+                  onChange={() => setRecurringEditOption('this')}
+                />
+                <span className="text-sm font-['Do_Hyeon']">이 일정만</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input 
+                  type="radio" 
+                  name="recurringEditOption" 
+                  checked={recurringEditOption === 'thisAndFuture'} 
+                  onChange={() => setRecurringEditOption('thisAndFuture')}
+                />
+                <span className="text-sm font-['Do_Hyeon']">이 일정과 이후 모든 반복 일정</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input 
+                  type="radio" 
+                  name="recurringEditOption" 
+                  checked={recurringEditOption === 'all'} 
+                  onChange={() => setRecurringEditOption('all')}
+                />
+                <span className="text-sm font-['Do_Hyeon']">모든 반복 일정</span>
+              </label>
+            </div>
+            
+            <div className="flex gap-3">
+              <button 
+                className="flex-1 py-2 rounded-[20px] bg-neutral-200 text-neutral-600 font-['Do_Hyeon'] hover:bg-neutral-300 transition-colors"
+                onClick={() => setShowRecurringEditOptions(false)}
+              >
+                취소
+              </button>
+              <button 
+                className="flex-1 py-2 rounded-[20px] bg-blue-400 text-white font-['Do_Hyeon'] hover:bg-blue-500 transition-colors"
+                onClick={() => saveEventWithOption(recurringEditOption)}
+              >
+                수정
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };
