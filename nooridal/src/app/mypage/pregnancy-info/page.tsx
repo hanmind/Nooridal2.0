@@ -20,6 +20,7 @@ export default function PregnancyInfo() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [tempBabyName, setTempBabyName] = useState<string>("");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     babyName: "",
@@ -114,6 +115,29 @@ export default function PregnancyInfo() {
     };
 
     fetchPregnancyInfo();
+  }, []);
+
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+        if (!user) throw new Error('사용자 정보를 찾을 수 없습니다.');
+
+        const { data: userData, error: fetchError } = await supabase
+          .from('users')
+          .select('profile_image')
+          .eq('id', user.id)
+          .single();
+
+        if (fetchError) throw fetchError;
+        setProfileImage(userData?.profile_image || null);
+      } catch (error) {
+        console.error('프로필 이미지를 가져오는 중 오류 발생:', error);
+      }
+    };
+
+    fetchProfileImage();
   }, []);
 
   // 임신 주차 변경 핸들러
@@ -254,13 +278,31 @@ export default function PregnancyInfo() {
       <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
         <div className="w-[360px] h-[580px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           <div className="p-8">
-            <Image
-              src="/images/logo/달달.png"
-              alt="달달 이미지"
-              width={54}
-              height={63}
-              className="mx-auto mb-4"
-            />
+            {/* 프로필 사진 또는 하트 아이콘 */}
+            {profileImage ? (
+              <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                <img
+                  src={profileImage}
+                  alt="프로필 이미지"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="mx-auto mb-4 flex items-center justify-center">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                    fill="#FF69B4"
+                  />
+                </svg>
+              </div>
+            )}
 
             <div className="text-center text-xl font-['Do_Hyeon'] mb-12">
               {formData.babyName

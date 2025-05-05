@@ -305,29 +305,62 @@ export default function ProfileManagement() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const imageData = reader.result as string;
-        setProfileImage(imageData);
-        setShowProfileOptions(false);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleDeleteProfile = () => {
-    setProfileImage(null);
-    setShowEditOptions(false);
-  };
-
-  const handleEditProfile = () => {
+  const handleEditProfile = async () => {
     setShowEditOptions(false);
     setShowProfileOptions(true);
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+
+  const handleDeleteProfile = async () => {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      if (!user) throw new Error('사용자 정보를 찾을 수 없습니다.');
+
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ profile_image: null })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfileImage(null);
+      setShowEditOptions(false);
+    } catch (error) {
+      console.error('프로필 이미지 삭제 중 오류 발생:', error);
+      alert('프로필 이미지 삭제에 실패했습니다.');
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const imageData = reader.result as string;
+        setProfileImage(imageData);
+        setShowProfileOptions(false);
+
+        // Supabase에 프로필 이미지 저장
+        try {
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          if (userError) throw userError;
+          if (!user) throw new Error('사용자 정보를 찾을 수 없습니다.');
+
+          const { error: updateError } = await supabase
+            .from('users')
+            .update({ profile_image: imageData })
+            .eq('id', user.id);
+
+          if (updateError) throw updateError;
+        } catch (error) {
+          console.error('프로필 이미지 저장 중 오류 발생:', error);
+          alert('프로필 이미지 저장에 실패했습니다.');
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -511,16 +544,33 @@ export default function ProfileManagement() {
         {/* 프로필 옵션 팝업 */}
         {showProfileOptions && (
           <div className="absolute left-[20px] top-20 w-32 bg-white rounded-lg shadow-lg z-10">
-            <div
-              className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-green-50 cursor-pointer text-emerald-400"
-              onClick={() => {
-                if (fileInputRef.current) {
-                  fileInputRef.current.click();
-                }
-              }}
-            >
-              사진 등록
-            </div>
+            {profileImage ? (
+              <>
+                <div
+                  className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-blue-50 cursor-pointer text-sky-400"
+                  onClick={handleEditProfile}
+                >
+                  수정
+                </div>
+                <div
+                  className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-red-50 cursor-pointer text-rose-400"
+                  onClick={handleDeleteProfile}
+                >
+                  삭제
+                </div>
+              </>
+            ) : (
+              <div
+                className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-green-50 cursor-pointer text-emerald-400"
+                onClick={() => {
+                  if (fileInputRef.current) {
+                    fileInputRef.current.click();
+                  }
+                }}
+              >
+                등록
+              </div>
+            )}
             <div
               className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-gray-100 cursor-pointer text-gray-400"
               onClick={() => setShowProfileOptions(false)}
@@ -627,11 +677,11 @@ export default function ProfileManagement() {
             placeholder="아이디"
             aria-label="아이디"
             type="text"
-            value={tempUserId}
+            value={isEditingId ? tempUserId : userInfo.username}
             onChange={handleIdChange}
+            onClick={handleIdClick}
             onBlur={handleIdBlur}
             className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
-            autoFocus
           />
         </div>
         <div className="w-24 h-5 left-[35px] top-[272px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
