@@ -523,7 +523,7 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
                         </div>
                       )}
                       {event.repeat_pattern && (
-                        <div className="bg-green-100 px-2 py-0.5 rounded-full text-xs">
+                        <div className="bg-yellow-100 px-2 py-0.5 rounded-full text-xs">
                           반복: {event.repeat_pattern}
                         </div>
                       )}
@@ -624,10 +624,6 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
           />
           
           <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] bg-white z-70 shadow-lg rounded-[20px] p-5">
-            <div className="text-center mb-4">
-              <div className="text-lg font-['Do_Hyeon']">반복 일정 삭제</div>
-              <div className="text-sm text-gray-600 mt-1">이 반복 일정을 어떻게 삭제하시겠습니까?</div>
-            </div>
             
             <div className="flex flex-col gap-3 mb-4">
               <label className="flex items-center gap-2">
@@ -637,7 +633,7 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
                   checked={recurringDeleteOption === 'this'} 
                   onChange={() => setRecurringDeleteOption('this')}
                 />
-                <span className="text-sm font-['Do_Hyeon']">이 일정만 삭제</span>
+                <span className="text-sm font-['Do_Hyeon']">이 일정만</span>
               </label>
               <label className="flex items-center gap-2">
                 <input 
@@ -646,7 +642,7 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
                   checked={recurringDeleteOption === 'thisAndFuture'} 
                   onChange={() => setRecurringDeleteOption('thisAndFuture')}
                 />
-                <span className="text-sm font-['Do_Hyeon']">이 일정과 이후 모든 반복 일정 삭제</span>
+                <span className="text-sm font-['Do_Hyeon']">이 일정과 이후 모든 반복 일정</span>
               </label>
               <label className="flex items-center gap-2">
                 <input 
@@ -655,7 +651,7 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
                   checked={recurringDeleteOption === 'all'} 
                   onChange={() => setRecurringDeleteOption('all')}
                 />
-                <span className="text-sm font-['Do_Hyeon']">모든 반복 일정 삭제</span>
+                <span className="text-sm font-['Do_Hyeon']">모든 반복 일정</span>
               </label>
             </div>
             
