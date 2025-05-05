@@ -201,76 +201,65 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
           
         case 'thisAndFuture':
           // 이 일정과 이후 모든 반복 일정 삭제
-          if (event.recurring_event_id) {
-            // 1. 예외 항목인 경우, 해당 예외 삭제
-            await supabase
-              .from('events')
-              .delete()
-              .eq('id', id);
+          try {
+            // 1. 원본 반복 이벤트 ID 확인
+            const originalEventId = event.recurring_event_id || event.id.split('_')[0];
             
-            // 2. 원본 이벤트의 rrule 수정 (종료일 변경)
-            const { data: parentEvent } = await supabase
-              .from('events')
-              .select('rrule')
-              .eq('id', event.recurring_event_id)
-              .single();
-              
-            if (parentEvent?.rrule) {
-              // 전날 날짜 계산 (UTC 기준으로 일관되게 처리)
-              const previousDay = new Date(eventDate);
-              previousDay.setDate(previousDay.getDate() - 1);
-              
-              // YYYYMMDD 형식의 날짜 문자열
-              // UTC 시간 기준으로 포맷 (시간대 일관성)
-              const untilDate = previousDay.toISOString().split('T')[0].replace(/-/g, '');
-              
-              // rrule 문자열에서 UNTIL 부분 수정 또는 추가
-              let updatedRrule = parentEvent.rrule;
-              if (updatedRrule.includes('UNTIL=')) {
-                updatedRrule = updatedRrule.replace(/UNTIL=\d+T\d+Z?/i, `UNTIL=${untilDate}T235959Z`);
-              } else {
-                // UNTIL이 없는 경우 추가
-                updatedRrule = updatedRrule.replace(/RRULE:/, `RRULE:UNTIL=${untilDate}T235959Z;`);
-              }
-              
-              await supabase
-                .from('events')
-                .update({ rrule: updatedRrule })
-                .eq('id', event.recurring_event_id);
-            }
-          } else {
-            // 원본 반복 이벤트인 경우 rrule 직접 수정
+            // 2. 선택한 날짜의 전날 계산 (종료 날짜로 사용)
             const previousDay = new Date(eventDate);
             previousDay.setDate(previousDay.getDate() - 1);
             
-            // UTC 기준 날짜 포맷
+            // YYYYMMDD 형식의 날짜 문자열로 변환
             const untilDate = previousDay.toISOString().split('T')[0].replace(/-/g, '');
             
-            // rrule 수정
-            if (event.rrule) {
-              let updatedRrule = event.rrule;
+            console.log('반복 일정 종료일 설정:', {
+              originalEventId,
+              untilDate,
+              선택한날짜: formattedDate
+            });
+            
+            // 3. 원본 이벤트 조회
+            const { data: originalEvent } = await supabase
+              .from('events')
+              .select('rrule')
+              .eq('id', originalEventId)
+              .single();
+            
+            if (originalEvent?.rrule) {
+              // 4. RRULE 문자열에서 UNTIL 부분 수정 또는 추가
+              let updatedRrule = originalEvent.rrule;
+              
               if (updatedRrule.includes('UNTIL=')) {
+                // 이미 UNTIL이 있으면 값만 교체
                 updatedRrule = updatedRrule.replace(/UNTIL=\d+T\d+Z?/i, `UNTIL=${untilDate}T235959Z`);
               } else {
+                // UNTIL이 없으면 추가
                 updatedRrule = updatedRrule.replace(/RRULE:/, `RRULE:UNTIL=${untilDate}T235959Z;`);
               }
               
-              await supabase
+              // 5. 원본 이벤트 업데이트
+              const { error } = await supabase
                 .from('events')
                 .update({ rrule: updatedRrule })
-                .eq('id', id);
+                .eq('id', originalEventId);
+                
+              if (error) {
+                throw new Error(`원본 이벤트 업데이트 실패: ${error.message}`);
+              }
+              
+              // 6. UI에서 해당 날짜 이후 이벤트 제거 (로컬 UI 갱신)
+              setEvents(prevEvents => prevEvents.filter(e => {
+                const eDate = new Date(e.start_time);
+                // 날짜가 선택 날짜보다 이전이면 유지, 아니면 제거
+                return eDate < eventDate;
+              }));
+            } else {
+              throw new Error('원본 반복 이벤트를 찾을 수 없습니다');
             }
+          } catch (error: any) {
+            console.error('이 일정과 이후 반복 일정 삭제 중 오류:', error);
+            alert(`일정 삭제 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
           }
-          
-          // 화면에서 해당 날짜 이후 이벤트 제거
-          setEvents(prevEvents => prevEvents.filter(e => {
-            if (e.id === id || e.recurring_event_id === id || 
-                (event.recurring_event_id && (e.id === event.recurring_event_id || e.recurring_event_id === event.recurring_event_id))) {
-              const eDate = new Date(e.start_time);
-              return eDate < eventDate;
-            }
-            return true;
-          }));
           break;
           
         case 'all':
