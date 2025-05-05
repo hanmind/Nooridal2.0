@@ -11,6 +11,7 @@ interface Message {
   text: string;
   sender: "user" | "ai";
   conversationId?: string; // Dify conversation ID
+  time?: string; // 추가
 }
 
 export type Tab = 'chat' | 'calendar' | 'location' | 'mypage';
@@ -32,6 +33,7 @@ export default function ChatPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [expectedDate, setExpectedDate] = useState<string | null>(null);
   const [selectedDateMessages, setSelectedDateMessages] = useState<Message[]>([]);
+  const [currentWeek, setCurrentWeek] = useState<string>("*");
 
   const messagesEndRef = useRef<HTMLDivElement>(null); // 메시지 목록 맨 아래로 스크롤하기 위한 ref
 
@@ -84,6 +86,32 @@ export default function ChatPage() {
     fetchUserAndChatRoom();
   }, [supabase]);
 
+  useEffect(() => {
+    // Supabase에서 current_week 가져오기
+    const fetchCurrentWeek = async () => {
+      const { data, error } = await supabase
+        .from("pregnancies")
+        .select("current_week")
+        .maybeSingle();
+      if (data?.current_week) setCurrentWeek(data.current_week);
+    };
+    fetchCurrentWeek();
+
+    // 인삿말 메시지 추가 (최초 1회)
+    setMessages((prev) => [
+      {
+        id: "welcome",
+        text:
+          `안녕하세요. AI에이전트 플로렌스 입니다.\n` +
+          `나이팅게일의 풀네임은 플로렌스 나이팅게일이라고 하네요. 그분의 정신을 닮아 성심성의껏 도움을 드리겠습니다.\n` +
+          `아기는 현재 *주차이시군요 !\n` +
+          `임신과 출산에 관한 궁금한 점을 물어보세요!`,
+        sender: "ai",
+        time: getCurrentTime(),
+      },
+    ]);
+  }, []);
+
   // 메시지 목록 자동 스크롤
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -124,6 +152,7 @@ export default function ChatPage() {
       id: Date.now().toString() + "-user",
       text: messageText,
       sender: "user",
+      time: getCurrentTime(),
     };
     setMessages((prev) => [...prev, newUserMessage]);
     setInputValue("");
@@ -344,6 +373,12 @@ export default function ChatPage() {
     }
   };
 
+  // 시간 포맷 함수 추가
+  const getCurrentTime = () => {
+    const now = new Date();
+    return now.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false });
+  };
+
   return (
     <div
       className="min-h-screen flex flex-col"
@@ -375,37 +410,27 @@ export default function ChatPage() {
 
       {/* Message Bubbles */}
       <div className="flex-grow overflow-y-auto px-4 pt-8 pb-32">
-        {selectedDateMessages.map((msg) => (
+        {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex mb-4 ${
-              msg.sender === "user" ? "justify-end" : "justify-start"
-            }`}
+            className={`flex mb-4 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
               className={`max-w-[75%] px-4 py-2 rounded-lg shadow ${
                 msg.sender === "user"
-                  ? "bg-yellow-300 text-neutral-800 rounded-br-none"
+                  ? "bg-white text-black rounded-br-none"
                   : "bg-blue-200 text-neutral-700 rounded-bl-none"
               }`}
               style={{ fontFamily: "Do Hyeon, sans-serif" }}
             >
-              {/* AI 응답 중 로딩 표시 */}
-              {msg.sender === "ai" && msg.text === "..." && isLoading ? (
-                <div className="flex items-center space-x-1">
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></span>
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-75"></span>
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-150"></span>
-                </div>
-              ) : (
-                // 줄바꿈 처리
-                msg.text.split("\n").map((line, index) => (
-                  <span key={index}>
-                    {line}
-                    <br />
-                  </span>
-                ))
-              )}
+              {msg.sender === "ai" && msg.id === "welcome"
+                ? msg.text.replace("*주차", `${currentWeek}주차`)
+                : msg.text.split("\n").map((line, index) => (
+                    <span key={index}>{line}<br /></span>
+                  ))}
+            </div>
+            <div className="text-xs text-gray-400 ml-2 mb-1 self-end">
+              {msg.time}
             </div>
           </div>
         ))}

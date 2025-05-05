@@ -334,7 +334,7 @@ const Calendar: React.FC = () => {
 
       {/* 요일 헤더 */}
       {dayNames.map((day, index) => {
-        const leftPosition = startLeft + (index * dayWidth);
+        const leftPosition = startLeft + (index * dayWidth) + 10;
         const isSunday = index === 0;
         const isSaturday = index === 6;
         
@@ -401,13 +401,9 @@ const Calendar: React.FC = () => {
           currentDate.getMonth() === new Date().getMonth() && 
           currentDate.getFullYear() === new Date().getFullYear();
         
-        // 날짜 위치 계산
-        const row = Math.floor((firstDayOfMonth + i) / 7);
-        const col = (firstDayOfMonth + i) % 7;
-        
-        // 위치 계산 (요일 헤더와 동일한 간격 유지)
-        const leftPosition = startLeft + (col * dayWidth);
-        const topPosition = 195 + (row * 101);
+        // 날짜 위치 계산 (요일 헤더와 동일한 간격 유지, 숫자만 +10px 오른쪽으로 이동)
+        const leftPosition = startLeft + (dayOfWeek * dayWidth) + 10;
+        const topPosition = 205 + (Math.floor((firstDayOfMonth + i) / 7) * 105);
         
         // 해당 날짜의 일정
         const dayEvents = getEventsForDay(day);
