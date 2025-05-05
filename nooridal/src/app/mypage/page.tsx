@@ -268,7 +268,7 @@ export default function MyPage() {
                   🐥
                 </span>
               </div>
-              <div className="text-black text-sm font-normal font-['Do_Hyeon'] mt-2 ml-[240px]">
+              <div className="text-black text-sm font-normal font-['Do_Hyeon'] mt-2 ml-[220px]">
                 {pregnancyInfo.due_date}
               </div>
               <div className="flex items-center mt-4">

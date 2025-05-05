@@ -59,36 +59,35 @@ export default function LocationPage() {
     }
   };
 
+  // 현재 위치를 주소로 변환하는 함수 (수정 버튼 클릭시 동작)
   const handleAddressEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.daum) {
-      new window.daum.Postcode({
-        oncomplete: function(data: any) {
-          // 도로명 주소 대신 지번 주소를 사용합니다
-          let fullAddress = data.jibunAddress;
-          
-          // 지번 주소가 없는 경우 도로명 주소를 사용합니다
-          if (!fullAddress) {
-            fullAddress = data.address;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          // 카카오맵 좌표 -> 주소 변환 API 호출
+          if (window.kakao && window.kakao.maps) {
+            const geocoder = new window.kakao.maps.services.Geocoder();
+            geocoder.coord2Address(lng, lat, function(result: any, status: string) {
+              if (status === window.kakao.maps.services.Status.OK) {
+                const addr = result[0].address.address_name;
+                setAddress(addr);
+              } else {
+                alert('주소 변환에 실패했습니다.');
+              }
+            });
+          } else {
+            alert('카카오맵이 준비되지 않았습니다.');
           }
-          
-          let extraAddress = '';
-
-          if (data.addressType === 'R') {
-            if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
-              extraAddress += data.bname;
-            }
-            if (data.buildingName !== '') {
-              extraAddress += (extraAddress !== '' ? ', ' + data.buildingName : data.buildingName);
-            }
-            if (extraAddress !== '') {
-              fullAddress += ` (${extraAddress})`;
-            }
-          }
-
-          setAddress(fullAddress);
+        },
+        (error) => {
+          alert('위치 정보를 가져올 수 없습니다.');
         }
-      }).open();
+      );
+    } else {
+      alert('이 브라우저에서는 위치 정보가 지원되지 않습니다.');
     }
   };
 
