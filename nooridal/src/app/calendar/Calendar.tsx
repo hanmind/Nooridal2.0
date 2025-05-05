@@ -203,40 +203,14 @@ const Calendar: React.FC = () => {
       if (!event.rrule) return;
       
       try {
-        // 원본 이벤트 시작 시간 (UTC 시간 기준)
+        // 원본 이벤트 시작 시간 (UTC 시간으로 파싱)
         const originalStartTime = new Date(event.start_time);
         console.log(`[${event.title}] 원본 이벤트 시간:`, {
           start_time: event.start_time,
           parsedDate: originalStartTime.toISOString(),
-          localDate: new Date(originalStartTime.getTime() + originalStartTime.getTimezoneOffset() * 60000).toISOString()
         });
         
-        // 원본 이벤트의 반복 규칙 파싱
-        if (!event.rrule) {
-          expandedEvents.push(event);
-          return;
-        }
-        
-        console.log(`이벤트 "${event.title}" 원본 반복 규칙:`, event.rrule);
-        
-        // freq 파싱
-        let freq = RRule.WEEKLY; // 기본값
-        if (event.rrule.includes('FREQ=DAILY')) {
-          freq = RRule.DAILY;
-        } else if (event.rrule.includes('FREQ=MONTHLY')) {
-          freq = RRule.MONTHLY;
-        } else if (event.rrule.includes('FREQ=YEARLY')) {
-          freq = RRule.YEARLY;
-        }
-        
-        // 원본 이벤트의 날짜를 기준으로 RRule 생성
-        const rule = new RRule({
-          freq: freq,
-          dtstart: originalStartTime
-        });
-        console.log(`이벤트 "${event.title}" 생성된 RRule:`, rule.toString());
-        
-        // UTC 기준 날짜 범위로 변환하여 RRule.between 호출
+        // 검색 범위를 UTC 시간으로 변환
         const utcStartDate = new Date(Date.UTC(
           startDate.getFullYear(),
           startDate.getMonth(),
@@ -254,6 +228,35 @@ const Calendar: React.FC = () => {
           utcStart: utcStartDate.toISOString(),
           utcEnd: utcEndDate.toISOString()
         });
+        
+        // RRule 문자열 처리 - 올바른 DTSTART 설정
+        let rruleOptions: any = {};
+        
+        // rrule 문자열 파싱 - UNTIL과 같은 모든 매개변수 유지하면서
+        // DTSTART를 이벤트의 실제 시작 시간으로 설정
+        try {
+          // 원본 RRule 문자열에서 필요한 부분만 추출 (RRULE: 이후 부분)
+          const rrulePart = event.rrule.startsWith('RRULE:') 
+            ? event.rrule 
+            : `RRULE:${event.rrule}`;
+            
+          // RRule 옵션으로 변환 (dtstart는 원본 이벤트 시간 사용)
+          rruleOptions = RRule.parseString(rrulePart.replace('RRULE:', ''));
+          rruleOptions.dtstart = originalStartTime;
+          
+          console.log(`[${event.title}] 파싱된 RRule 옵션:`, rruleOptions);
+        } catch (parseError) {
+          console.error('RRule 파싱 오류:', parseError);
+          // 기본 옵션 사용 (주간 반복)
+          rruleOptions = {
+            freq: RRule.WEEKLY,
+            dtstart: originalStartTime
+          };
+        }
+        
+        // RRule 객체 생성
+        const rule = new RRule(rruleOptions);
+        console.log(`[${event.title}] 생성된 RRule:`, rule.toString());
         
         // 반복 일정 발생 날짜 계산
         const occurrences = rule.between(utcStartDate, utcEndDate, true);
@@ -273,9 +276,6 @@ const Calendar: React.FC = () => {
             console.log(`이벤트 "${event.title}" 제외된 날짜:`, occurrenceDate);
             return; // 제외된 날짜는 건너뛰기
           }
-          
-          // // occurrence는 이미 원본 이벤트의 시간 정보를 포함하고 있음
-          // console.log(`[${event.title}] 발생 인스턴스(${occurrenceDate}):`, occurrence.toISOString());
           
           // 새 이벤트 인스턴스 생성
           const newEvent: Event = {
