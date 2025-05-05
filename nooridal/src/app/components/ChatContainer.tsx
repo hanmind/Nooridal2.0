@@ -12,6 +12,7 @@ import {
   getTodaysChatRoom,
   updateRoomWithDifyConversationId,
 } from "../lib/chatRoomService";
+import { addConversation } from "../../lib/chatRoomService";
 import { Message } from "@/types/chat";
 import { ChatRoom, LLMConversation } from "@/types/db";
 import { supabase } from "../lib/supabase";
@@ -301,7 +302,8 @@ export default function ChatContainer() {
     setMessages((prev) => [...prev, thinkingMessage]);
     // --- End Optimistic UI updates ---
 
-    let finalStreamedContent = ""; // 스트림 완료 후 최종 컨텐츠 저장용 변수
+    let finalStreamedContent = "";
+    let saveConversationAttempted = false; // 저장 시도 플래그
 
     try {
       // --- API Call ---
@@ -450,6 +452,41 @@ export default function ChatContainer() {
                 );
                 finalStreamedContent = currentStreamedContent; // 최종 컨텐츠 저장
                 setIsProcessing(false);
+
+                // --- Save conversation on [DONE] ---
+                if (!saveConversationAttempted && userId && currentRoomId) {
+                  saveConversationAttempted = true;
+                  console.log(
+                    "[handleSendMessage] Attempting to save conversation on [DONE]",
+                    {
+                      currentRoomId,
+                      userId,
+                      query: messageContent,
+                      responseLength: finalStreamedContent.length,
+                      conversationId,
+                    }
+                  ); // 로그 추가
+                  addConversation(
+                    currentRoomId,
+                    userId,
+                    messageContent,
+                    finalStreamedContent,
+                    conversationId
+                  )
+                    .then((result: LLMConversation | null) => {
+                      console.log(
+                        "[handleSendMessage] addConversation result on [DONE]:",
+                        result
+                      );
+                    })
+                    .catch((err: Error) => {
+                      console.error(
+                        "[handleSendMessage] addConversation error on [DONE]:",
+                        err
+                      );
+                    });
+                }
+                // --- End Save conversation ---
                 continue;
               }
 
@@ -496,7 +533,42 @@ export default function ChatContainer() {
                     )
                   );
                   finalStreamedContent = currentStreamedContent; // 최종 컨텐츠 저장
-                  setIsProcessing(false); // Stop processing
+                  setIsProcessing(false);
+
+                  // --- Save conversation on message_end ---
+                  if (!saveConversationAttempted && userId && currentRoomId) {
+                    saveConversationAttempted = true;
+                    console.log(
+                      "[handleSendMessage] Attempting to save conversation on message_end",
+                      {
+                        currentRoomId,
+                        userId,
+                        query: messageContent,
+                        responseLength: finalStreamedContent.length,
+                        conversationId,
+                      }
+                    ); // 로그 추가
+                    addConversation(
+                      currentRoomId,
+                      userId,
+                      messageContent,
+                      finalStreamedContent,
+                      conversationId
+                    )
+                      .then((result: LLMConversation | null) => {
+                        console.log(
+                          "[handleSendMessage] addConversation result on message_end:",
+                          result
+                        );
+                      })
+                      .catch((err: Error) => {
+                        console.error(
+                          "[handleSendMessage] addConversation error on message_end:",
+                          err
+                        );
+                      });
+                  }
+                  // --- End Save conversation ---
                 } else if (parsedData.event === "error") {
                   const errorData = parsedData as ErrorEventDataClient;
                   const errorMessage =
@@ -516,6 +588,7 @@ export default function ChatContainer() {
                     )
                   );
                   setIsProcessing(false);
+                  saveConversationAttempted = true; // Don't attempt saving on error
                 }
               } catch (e) {
                 // Handle JSON parsing error
@@ -556,6 +629,41 @@ export default function ChatContainer() {
               );
               finalStreamedContent = currentStreamedContent; // 최종 컨텐츠 저장
               setIsProcessing(false);
+
+              // --- Save conversation on [DONE] ---
+              if (!saveConversationAttempted && userId && currentRoomId) {
+                saveConversationAttempted = true;
+                console.log(
+                  "[handleSendMessage] Attempting to save conversation on [DONE]",
+                  {
+                    currentRoomId,
+                    userId,
+                    query: messageContent,
+                    responseLength: finalStreamedContent.length,
+                    conversationId,
+                  }
+                ); // 로그 추가
+                addConversation(
+                  currentRoomId,
+                  userId,
+                  messageContent,
+                  finalStreamedContent,
+                  conversationId
+                )
+                  .then((result: LLMConversation | null) => {
+                    console.log(
+                      "[handleSendMessage] addConversation result on [DONE]:",
+                      result
+                    );
+                  })
+                  .catch((err: Error) => {
+                    console.error(
+                      "[handleSendMessage] addConversation error on [DONE]:",
+                      err
+                    );
+                  });
+              }
+              // --- End Save conversation ---
             } else {
               try {
                 const parsedData = JSON.parse(data) as DifyEventDataClient;
@@ -592,6 +700,41 @@ export default function ChatContainer() {
                   );
                   finalStreamedContent = currentStreamedContent; // 최종 컨텐츠 저장
                   setIsProcessing(false);
+
+                  // --- Save conversation on message_end ---
+                  if (!saveConversationAttempted && userId && currentRoomId) {
+                    saveConversationAttempted = true;
+                    console.log(
+                      "[handleSendMessage] Attempting to save conversation on message_end",
+                      {
+                        currentRoomId,
+                        userId,
+                        query: messageContent,
+                        responseLength: finalStreamedContent.length,
+                        conversationId,
+                      }
+                    ); // 로그 추가
+                    addConversation(
+                      currentRoomId,
+                      userId,
+                      messageContent,
+                      finalStreamedContent,
+                      conversationId
+                    )
+                      .then((result: LLMConversation | null) => {
+                        console.log(
+                          "[handleSendMessage] addConversation result on message_end:",
+                          result
+                        );
+                      })
+                      .catch((err: Error) => {
+                        console.error(
+                          "[handleSendMessage] addConversation error on message_end:",
+                          err
+                        );
+                      });
+                  }
+                  // --- End Save conversation ---
                 }
               } catch (e) {
                 console.error("마지막 데이터 파싱 오류:", e);
@@ -619,6 +762,7 @@ export default function ChatContainer() {
           )
         );
         setIsProcessing(false);
+        saveConversationAttempted = true; // Don't attempt saving on error
       }
       // --- End Streaming Response Handling ---
     } catch (err) {
@@ -645,6 +789,7 @@ export default function ChatContainer() {
         )
       );
       setIsProcessing(false);
+      saveConversationAttempted = true; // Don't attempt saving on error
     } finally {
       // 작업 완료 후 상태 초기화 및 정리
       if (thinkingMessageId && isProcessing) {
@@ -668,6 +813,46 @@ export default function ChatContainer() {
               : msg
           )
         );
+      }
+
+      // Ensure saving happens if somehow missed earlier
+      if (
+        !saveConversationAttempted &&
+        userId &&
+        currentRoomId &&
+        finalStreamedContent
+      ) {
+        console.log("Saving conversation in finally block as a fallback.");
+        saveConversationAttempted = true; // Ensure flag is set here too
+        console.log(
+          "[handleSendMessage] Attempting to save conversation in finally",
+          {
+            currentRoomId,
+            userId,
+            query: messageContent,
+            responseLength: finalStreamedContent.length,
+            conversationId,
+          }
+        ); // 로그 추가
+        addConversation(
+          currentRoomId,
+          userId,
+          messageContent,
+          finalStreamedContent,
+          conversationId
+        )
+          .then((result: LLMConversation | null) => {
+            console.log(
+              "[handleSendMessage] addConversation result in finally:",
+              result
+            );
+          })
+          .catch((err: Error) => {
+            console.error(
+              "[handleSendMessage] addConversation error in finally:",
+              err
+            );
+          });
       }
     }
   };
