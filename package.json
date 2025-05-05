@@ -10,5 +10,8 @@
     "start": "cd nooridal && npm run start",
     "lint": "cd nooridal && npm run lint",
     "install": "cd nooridal && npm install"
+  },
+  "devDependencies": {
+    "csvtojson": "^2.0.10"
   }
 }

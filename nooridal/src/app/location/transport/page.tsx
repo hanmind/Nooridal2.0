@@ -21,6 +21,50 @@ interface TransportCenter {
   services: string[];
 }
 
+// 아웃팅 위치 인터페이스 추가
+interface OutingLocation {
+  id: string;
+  name: string;
+  category: string;
+  mainCategory: string;
+  province: string;
+  district: string;
+  dong: string;
+  address: string;
+  phone: string;
+  website: string;
+  latitude: number;
+  longitude: number;
+  additionalInfo: string;
+  updatedAt: string;
+  distance?: number; // 거리 정보 추가
+}
+
+// 무장애 관광지 인터페이스 추가
+interface BarrierFreeLocation {
+  ESNTL_ID: string;
+  LCLAS_NM: string;
+  MLSFC_NM: string;
+  FCLTY_NM: string;
+  CTPRVN_NM: string;
+  SIGNGU_NM: string;
+  LNM_ADDR: string;
+  FCLTY_ROAD_NM_ADDR: string;
+  TEL_NO: string;
+  FACILITIES: {
+    장애인화장실?: boolean;
+    엘리베이터?: boolean;
+    장애인주차구역?: boolean;
+    장애인주차장?: boolean;
+    경사로?: boolean;
+    휠체어대여?: boolean;
+    수유실?: boolean;
+  };
+  ORIGIN_NM: string;
+  ADIT_DC: string;
+  distance?: number; // 거리 정보 추가
+}
+
 // 더미 데이터
 const DUMMY_CENTERS: TransportCenter[] = [
   {
@@ -62,6 +106,14 @@ export default function TransportPage() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  // 아웃팅 위치 상태 추가
+  const [outingLocations, setOutingLocations] = useState<OutingLocation[]>([]);
+  const [nearbyLocations, setNearbyLocations] = useState<OutingLocation[]>([]);
+  // 나들이 선택 시 지도 자동 표시
+  const [mapVisible, setMapVisible] = useState(false);
+  // 무장애 관광지 상태 추가
+  const [barrierFreeLocations, setBarrierFreeLocations] = useState<BarrierFreeLocation[]>([]);
+  const [nearbyBarrierFreeLocations, setNearbyBarrierFreeLocations] = useState<BarrierFreeLocation[]>([]);
 
   // 더미 데이터를 사용하는 함수
   const fetchTransportCenters = async () => {
@@ -184,6 +236,100 @@ export default function TransportPage() {
     }
   };
 
+  // 아웃팅 위치 로드 함수 추가
+  const loadOutingLocations = async () => {
+    try {
+      const response = await fetch('/data/outing_locations.json');
+      if (!response.ok) {
+        throw new Error('나들이 데이터를 불러오는데 실패했습니다.');
+      }
+      const data: OutingLocation[] = await response.json();
+      setOutingLocations(data);
+      return data;
+    } catch (err) {
+      console.error('나들이 데이터 로드 오류:', err);
+      return [];
+    }
+  };
+
+  // 가까운 나들이 위치 찾기 함수
+  const findNearbyOutingLocations = async (lat: number, lng: number, radius: number = 5) => {
+    if (outingLocations.length === 0) {
+      const locations = await loadOutingLocations();
+      if (locations.length === 0) return;
+    }
+    
+    // 거리 계산 함수 (Haversine 공식)
+    const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+      const R = 6371; // 지구 반경 (km)
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c; // 거리 (km)
+    };
+    
+    // 주변 위치 찾기
+    const nearby = outingLocations
+      .map(location => {
+        const distance = calculateDistance(lat, lng, location.latitude, location.longitude);
+        return { ...location, distance };
+      })
+      .filter(location => location.distance <= radius)
+      .sort((a, b) => (a.distance as number) - (b.distance as number))
+      .slice(0, 10); // 가장 가까운 10개만 선택
+      
+    setNearbyLocations(nearby);
+    return nearby;
+  };
+
+  // 무장애 관광지 로드 함수 추가
+  const loadBarrierFreeLocations = async () => {
+    try {
+      const response = await fetch('/data/barrierfree_data.json');
+      if (!response.ok) {
+        throw new Error('무장애 관광지 데이터를 불러오는데 실패했습니다.');
+      }
+      const data: BarrierFreeLocation[] = await response.json();
+      setBarrierFreeLocations(data);
+      return data;
+    } catch (err) {
+      console.error('무장애 관광지 데이터 로드 오류:', err);
+      return [];
+    }
+  };
+
+  // 가까운 무장애 관광지 찾기 함수
+  const findNearbyBarrierFreeLocations = async (lat: number, lng: number, radius: number = 50) => {
+    if (barrierFreeLocations.length === 0) {
+      const locations = await loadBarrierFreeLocations();
+      if (locations.length === 0) return;
+    }
+    
+    // 위치 데이터가 있는 장소만 필터링
+    const locationsWithCoords = barrierFreeLocations.filter(location => {
+      // 여기서는 좌표 정보가 없으므로 임의로 도시(CTPRVN_NM)를 기준으로 필터링
+      return location.CTPRVN_NM && location.CTPRVN_NM.trim() !== '';
+    });
+    
+    // 도시 이름 기준으로 정렬 (실제로는 거리 계산이 필요하지만 좌표 데이터가 없으므로 대체)
+    const nearby = locationsWithCoords
+      .sort((a, b) => a.CTPRVN_NM.localeCompare(b.CTPRVN_NM))
+      .slice(0, 10); // 최대 10개만 표시
+    
+    setNearbyBarrierFreeLocations(nearby);
+    return nearby;
+  };
+
+  // 컴포넌트 마운트 시 나들이 데이터 로드
+  useEffect(() => {
+    loadOutingLocations();
+    loadBarrierFreeLocations();
+  }, []);
+
   // 카카오맵 스크립트 로드
   useEffect(() => {
     const script = document.createElement('script');
@@ -205,13 +351,13 @@ export default function TransportPage() {
 
   // 카카오맵 초기화
   useEffect(() => {
-    if (mapLoaded && window.kakao && window.kakao.maps && showMap) {
+    if (mapLoaded && window.kakao && window.kakao.maps && (showMap || mapVisible)) {
       const container = document.getElementById('map');
       if (!container) return;
 
       // 지도 컨테이너 크기 설정
       container.style.width = '100%';
-      container.style.height = '400px';
+      container.style.height = showMap ? '400px' : '240px';
 
       const options = {
         center: new window.kakao.maps.LatLng(37.566826, 126.9786567),
@@ -237,7 +383,7 @@ export default function TransportPage() {
 
       // 주소로 좌표 검색
       const geocoder = new window.kakao.maps.services.Geocoder();
-      geocoder.addressSearch(address, (result: any, status: any) => {
+      geocoder.addressSearch(address, async (result: any, status: any) => {
         if (status === window.kakao.maps.services.Status.OK) {
           const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
           
@@ -251,36 +397,33 @@ export default function TransportPage() {
             )
           });
 
-          // 주변 이동 지원 시설 검색
-          const places = new window.kakao.maps.services.Places();
-          const searchOptions = {
-            location: coords,
-            radius: 1000, // 1km 반경
-            sort: window.kakao.maps.services.SortBy.DISTANCE
-          };
-
-          // 선택된 이동 지원 유형에 따라 검색 키워드 설정
-          let keyword = '';
-          if (selectedType === 'support') {
-            keyword = '교통약자 이동 지원센터';
-          } else if (selectedType === 'outing') {
-            keyword = '나들이 지원';
-          } else if (selectedType === 'taxi') {
-            keyword = '임산부 택시';
-          }
-
-          places.keywordSearch(keyword, (data: any, status: any) => {
-            if (status === window.kakao.maps.services.Status.OK) {
-              const markers = data.map((place: any) => {
+          // 나들이 선택된 경우 근처 아웃팅 위치 검색
+          if (selectedType === 'outing') {
+            // 현재 설정된 위치 기준으로 주변 아웃팅 위치 검색
+            const nearby = await findNearbyOutingLocations(parseFloat(result[0].y), parseFloat(result[0].x), 5);
+            
+            if (nearby && nearby.length > 0) {
+              const markers = nearby.map((location) => {
+                const markerPosition = new window.kakao.maps.LatLng(location.latitude, location.longitude);
                 const marker = new window.kakao.maps.Marker({
-                  position: new window.kakao.maps.LatLng(place.y, place.x),
+                  position: markerPosition,
                   map: map
                 });
 
                 // 마커 클릭 시 정보창 표시
                 window.kakao.maps.event.addListener(marker, 'click', () => {
+                  const distanceKm = (location.distance as number).toFixed(2);
+                  const content = `<div style="padding:10px;width:200px;">
+                    <div style="font-weight:bold;font-size:14px;margin-bottom:5px;">${location.name}</div>
+                    <div style="font-size:12px;margin-bottom:5px;">거리: ${distanceKm}km</div>
+                    <div style="font-size:12px;margin-bottom:5px;">${location.address}</div>
+                    ${location.phone ? `<div style="font-size:12px;margin-bottom:5px;">연락처: ${location.phone}</div>` : ''}
+                    ${location.additionalInfo ? `<div style="font-size:12px;margin-bottom:5px;">${location.additionalInfo}</div>` : ''}
+                  </div>`;
+                
                   const infowindow = new window.kakao.maps.InfoWindow({
-                    content: `<div style="padding:5px;font-size:12px;">${place.place_name}<br>${place.road_address_name}</div>`
+                    content: content,
+                    removable: true
                   });
                   infowindow.open(map, marker);
                 });
@@ -290,11 +433,120 @@ export default function TransportPage() {
 
               // 클러스터러에 마커 추가
               clusterer.addMarkers(markers);
-            }
-          }, searchOptions);
 
-          // 지도 중심 이동
-          map.setCenter(coords);
+              // 모든 마커를 포함하는 영역으로 지도 범위 설정
+              if (markers.length > 0) {
+                const bounds = new window.kakao.maps.LatLngBounds();
+                bounds.extend(coords); // 현재 위치도 포함
+                markers.forEach(marker => bounds.extend(marker.getPosition()));
+                map.setBounds(bounds);
+              }
+            } else {
+              // 주변 위치 정보가 없는 경우 현재 위치만 표시
+              map.setCenter(coords);
+            }
+          } else if (selectedType === 'support') {
+            // 현재 설정된 위치 기준으로 주변 무장애 관광지 검색
+            const nearby = await findNearbyBarrierFreeLocations(parseFloat(result[0].y), parseFloat(result[0].x), 50);
+            
+            if (nearby && nearby.length > 0) {
+              const markers = nearby.map((location) => {
+                // 좌표 정보가 없으므로 임의의 위치를 계산 (실제로는 정확한 좌표가 필요)
+                // 예시로 현재 위치에서 약간씩 떨어진 위치로 설정
+                const randomLat = parseFloat(result[0].y) + (Math.random() * 0.05 - 0.025);
+                const randomLng = parseFloat(result[0].x) + (Math.random() * 0.05 - 0.025);
+                const markerPosition = new window.kakao.maps.LatLng(randomLat, randomLng);
+                
+                const marker = new window.kakao.maps.Marker({
+                  position: markerPosition,
+                  map: map
+                });
+
+                // 마커 클릭 시 정보창 표시
+                window.kakao.maps.event.addListener(marker, 'click', () => {
+                  const address = location.FCLTY_ROAD_NM_ADDR || location.LNM_ADDR || '주소 정보 없음';
+                  const content = `<div style="padding:10px;width:200px;">
+                    <div style="font-weight:bold;font-size:14px;margin-bottom:5px;">${location.FCLTY_NM}</div>
+                    <div style="font-size:12px;margin-bottom:5px;">${address}</div>
+                    <div style="font-size:12px;margin-bottom:5px;">지역: ${location.CTPRVN_NM} ${location.SIGNGU_NM}</div>
+                    ${location.TEL_NO ? `<div style="font-size:12px;margin-bottom:5px;">연락처: ${location.TEL_NO}</div>` : ''}
+                    <div style="font-size:12px;margin-bottom:5px;">
+                      ${location.FACILITIES.장애인화장실 ? '♿ 장애인화장실 ' : ''}
+                      ${location.FACILITIES.휠체어대여 ? '🦽 휠체어대여 ' : ''}
+                      ${location.FACILITIES.경사로 ? '📐 경사로 ' : ''}
+                    </div>
+                  </div>`;
+                
+                  const infowindow = new window.kakao.maps.InfoWindow({
+                    content: content,
+                    removable: true
+                  });
+                  infowindow.open(map, marker);
+                });
+
+                return marker;
+              });
+
+              // 클러스터러에 마커 추가
+              clusterer.addMarkers(markers);
+
+              // 모든 마커를 포함하는 영역으로 지도 범위 설정
+              if (markers.length > 0) {
+                const bounds = new window.kakao.maps.LatLngBounds();
+                bounds.extend(coords); // 현재 위치도 포함
+                markers.forEach(marker => bounds.extend(marker.getPosition()));
+                map.setBounds(bounds);
+              }
+            } else {
+              // 주변 위치 정보가 없는 경우 현재 위치만 표시
+              map.setCenter(coords);
+            }
+          } else {
+            // 주변 이동 지원 시설 검색 로직 유지
+            const places = new window.kakao.maps.services.Places();
+            const searchOptions = {
+              location: coords,
+              radius: 1000, // 1km 반경
+              sort: window.kakao.maps.services.SortBy.DISTANCE
+            };
+
+            // 선택된 이동 지원 유형에 따라 검색 키워드 설정
+            let keyword = '';
+            if (selectedType === 'support') {
+              keyword = '무장애 관광지';
+            } else if (selectedType === 'outing') {
+              keyword = '나들이 지원';
+            } else if (selectedType === 'taxi') {
+              keyword = '임산부 택시';
+            }
+
+            places.keywordSearch(keyword, (data: any, status: any) => {
+              if (status === window.kakao.maps.services.Status.OK) {
+                const markers = data.map((place: any) => {
+                  const marker = new window.kakao.maps.Marker({
+                    position: new window.kakao.maps.LatLng(place.y, place.x),
+                    map: map
+                  });
+
+                  // 마커 클릭 시 정보창 표시
+                  window.kakao.maps.event.addListener(marker, 'click', () => {
+                    const infowindow = new window.kakao.maps.InfoWindow({
+                      content: `<div style="padding:5px;font-size:12px;">${place.place_name}<br>${place.road_address_name}</div>`
+                    });
+                    infowindow.open(map, marker);
+                  });
+
+                  return marker;
+                });
+
+                // 클러스터러에 마커 추가
+                clusterer.addMarkers(markers);
+              }
+            }, searchOptions);
+
+            // 지도 중심 이동
+            map.setCenter(coords);
+          }
 
           // 현재 위치 정보 표시
           const infoWindow = new window.kakao.maps.InfoWindow({
@@ -305,45 +557,54 @@ export default function TransportPage() {
         }
       });
 
-      // 현재 위치 표시 기능
+      // 현재 위치 표시 기능 제거 (GPS 위치 대신 설정된 주소 사용)
+    }
+  }, [mapLoaded, address, showMap, mapVisible, selectedType, outingLocations, nearbyBarrierFreeLocations]);
+
+  // selectedType이 변경될 때 지도와 주변 위치 정보 처리
+  useEffect(() => {
+    if (selectedType === 'outing') {
+      // 현재 좌표 구하기 - 위치 기반 서비스 사용
       if (navigator.geolocation) {
+        setIsLoading(true);
         navigator.geolocation.getCurrentPosition(
-          (position) => {
+          async (position) => {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
-            const locPosition = new window.kakao.maps.LatLng(lat, lng);
-            
-            // 현재 위치 마커 생성
-            const currentLocationMarker = new window.kakao.maps.Marker({
-              map: map,
-              position: locPosition,
-              image: new window.kakao.maps.MarkerImage(
-                'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
-                new window.kakao.maps.Size(24, 35)
-              )
-            });
-
-            // 현재 위치 정보 표시
-            const currentInfoWindow = new window.kakao.maps.InfoWindow({
-              content: `<div style="padding:5px;">현재 위치</div>`,
-              position: locPosition
-            });
-            currentInfoWindow.open(map, currentLocationMarker);
+            await findNearbyOutingLocations(lat, lng, 5);
+            setIsLoading(false);
+            setMapVisible(true);
           },
           (error) => {
             console.error('현재 위치를 가져올 수 없습니다:', error);
+            setIsLoading(false);
+            setMapVisible(true);
           }
         );
+      } else {
+        setMapVisible(true);
       }
+    } else if (selectedType === 'support') {
+      // 무장애 관광지 정보 로드 - 설정된 주소 기반
+      if (address) {
+        setIsLoading(true);
+        setMapVisible(true);
+        // 주소를 기반으로 한 지도 표시는 카카오맵 초기화 useEffect에서 처리
+        setIsLoading(false);
+      } else {
+        setMapVisible(true);
+      }
+    } else {
+      setMapVisible(false);
     }
-  }, [mapLoaded, address, showMap, selectedType]);
+  }, [selectedType, address]);
 
   const transportTypes = [
     {
       id: 'support',
-      title: '교통약자 이동 지원센터',
-      icon: '🚐',
-      description: '장애인, 노약자 이동 지원 서비스'
+      title: '무장애 관광지',
+      icon: '♿',
+      description: '장애인, 노약자, 임산부도 편하게 즐길 수 있는 무장애 관광지'
     },
     {
       id: 'outing',
@@ -358,6 +619,142 @@ export default function TransportPage() {
       description: '임산부 택시 할인 서비스'
     }
   ];
+
+  // 나들이 상세 정보 컴포넌트
+  const OutingLocationInfo = () => {
+    if (nearbyLocations.length === 0) {
+      return (
+        <div className="p-4 bg-yellow-50 rounded-xl mb-4">
+          <div className="font-['Do_Hyeon'] text-center">근처에 나들이 위치 정보가 없습니다.</div>
+          <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon'] text-center">다른 위치를 선택해 보세요</div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="max-h-60 overflow-y-auto pr-2">
+        {nearbyLocations.map((location) => (
+          <div key={location.id} className="p-4 bg-yellow-50 rounded-xl mb-4">
+            <div className="font-['Do_Hyeon'] font-bold text-lg">{location.name}</div>
+            <div className="text-sm text-gray-700 mt-1 font-['Do_Hyeon']">거리: {(location.distance as number).toFixed(2)}km</div>
+            <div className="text-sm text-gray-700 mt-1 font-['Do_Hyeon']">{location.address}</div>
+            
+            <div className="flex flex-wrap mt-2 gap-2">
+              {location.phone && (
+                <a 
+                  href={`tel:${location.phone}`} 
+                  className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-['Do_Hyeon']"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  전화하기
+                </a>
+              )}
+              {location.website && (
+                <a 
+                  href={location.website} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-['Do_Hyeon']"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                  웹사이트
+                </a>
+              )}
+              <a 
+                href={`https://map.kakao.com/link/to/${location.name},${location.latitude},${location.longitude}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-['Do_Hyeon']"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                길찾기
+              </a>
+            </div>
+            
+            {location.additionalInfo && (
+              <div className="text-sm text-gray-700 mt-2 font-['Do_Hyeon']">{location.additionalInfo}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // 무장애 관광지 상세 정보 컴포넌트
+  const BarrierFreeLocationInfo = () => {
+    if (nearbyBarrierFreeLocations.length === 0) {
+      return (
+        <div className="p-4 bg-yellow-50 rounded-xl mb-4">
+          <div className="font-['Do_Hyeon'] text-center">근처에 무장애 관광지 정보가 없습니다.</div>
+          <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon'] text-center">다른 위치를 선택해 보세요</div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="max-h-60 overflow-y-auto pr-2">
+        {nearbyBarrierFreeLocations.map((location) => (
+          <div key={location.ESNTL_ID} className="p-4 bg-blue-50 rounded-xl mb-4">
+            <div className="font-['Do_Hyeon'] font-bold text-lg">{location.FCLTY_NM}</div>
+            <div className="text-sm text-gray-700 mt-1 font-['Do_Hyeon']">{location.CTPRVN_NM} {location.SIGNGU_NM}</div>
+            <div className="text-sm text-gray-700 mt-1 font-['Do_Hyeon']">{location.FCLTY_ROAD_NM_ADDR || location.LNM_ADDR || '주소 정보 없음'}</div>
+            
+            <div className="flex flex-wrap mt-2 gap-2">
+              {location.TEL_NO && (
+                <a 
+                  href={`tel:${location.TEL_NO}`} 
+                  className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-['Do_Hyeon']"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  전화하기
+                </a>
+              )}
+              <a 
+                href={`https://map.kakao.com/link/search/${location.FCLTY_NM}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-['Do_Hyeon']"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                길찾기
+              </a>
+            </div>
+            
+            <div className="mt-3 flex flex-wrap gap-1">
+              {location.FACILITIES.장애인화장실 && (
+                <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-md">♿ 장애인화장실</span>
+              )}
+              {(location.FACILITIES.장애인주차구역 || location.FACILITIES.장애인주차장) && (
+                <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-md">🅿️ 장애인주차</span>
+              )}
+              {location.FACILITIES.엘리베이터 && (
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-md">🔼 엘리베이터</span>
+              )}
+              {location.FACILITIES.경사로 && (
+                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-md">📐 경사로</span>
+              )}
+              {location.FACILITIES.휠체어대여 && (
+                <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-md">🦽 휠체어대여</span>
+              )}
+              {location.FACILITIES.수유실 && (
+                <span className="text-xs bg-pink-100 text-pink-800 px-2 py-1 rounded-md">👶 수유실</span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
@@ -439,26 +836,69 @@ export default function TransportPage() {
             />
             
             {/* 정보 상자 */}
-            <div className="absolute left-[12px] top-[200px] w-[360px] p-8 bg-white rounded-3xl shadow-sm z-20">
-              <div className="text-center font-['Do_Hyeon'] text-2xl mb-8">
+            <div className="absolute left-[12px] top-[200px] w-[360px] p-5 bg-white rounded-3xl shadow-sm z-20">
+              <div className="text-center font-['Do_Hyeon'] text-2xl mb-4">
                 {transportTypes.find(t => t.id === selectedType)?.title} 정보
               </div>
+              
+              {/* 로딩 표시 */}
+              {isLoading && (
+                <div className="flex justify-center items-center py-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+                </div>
+              )}
+              
+              {/* 선택된 타입에 따라 지도 표시 */}
+              {(selectedType === 'outing' || selectedType === 'support') && mapVisible && (
+                <div className="mb-4">
+                  <div className="w-full h-[240px] rounded-xl overflow-hidden" id="map">
+                    {!mapLoaded && (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* 선택된 타입에 따라 정보 표시 */}
+              {selectedType === 'outing' && !isLoading && (
+                <div className="mb-4 mt-4">
+                  <OutingLocationInfo />
+                </div>
+              )}
+              
+              {selectedType === 'support' && !isLoading && (
+                <div className="mb-4 mt-4">
+                  <BarrierFreeLocationInfo />
+                </div>
+              )}
+              
               <div className="space-y-4">
-                <div 
-                  className="p-4 bg-blue-50 rounded-xl cursor-pointer"
-                  onClick={() => setShowMap(true)}
-                >
-                  <div className="font-['Do_Hyeon']">📍 주변 시설 찾기</div>
-                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">가까운 시설을 찾아보세요</div>
-                </div>
-                <div className="p-4 bg-blue-50 rounded-xl">
-                  <div className="font-['Do_Hyeon']">📱 예약하기</div>
-                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">온라인으로 예약하세요</div>
-                </div>
-                <div className="p-4 bg-blue-50 rounded-xl">
-                  <div className="font-['Do_Hyeon']">💬 상담하기</div>
-                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문 상담원과 상담하세요</div>
-                </div>
+                {/* 나들이나 무장애 관광지가 아닌 경우에만 주변 시설 찾기 버튼 표시 */}
+                {selectedType !== 'outing' && selectedType !== 'support' && (
+                  <div 
+                    className="p-4 bg-blue-50 rounded-xl cursor-pointer"
+                    onClick={() => setShowMap(true)}
+                  >
+                    <div className="font-['Do_Hyeon']">📍 주변 시설 찾기</div>
+                    <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">가까운 시설을 찾아보세요</div>
+                  </div>
+                )}
+                
+                {/* 택시 할인 메뉴에만 예약하기, 상담하기 버튼 표시 */}
+                {selectedType !== 'outing' && selectedType !== 'support' && (
+                  <>
+                    <div className="p-4 bg-blue-50 rounded-xl">
+                      <div className="font-['Do_Hyeon']">📱 예약하기</div>
+                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">온라인으로 예약하세요</div>
+                    </div>
+                    <div className="p-4 bg-blue-50 rounded-xl">
+                      <div className="font-['Do_Hyeon']">💬 상담하기</div>
+                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문 상담원과 상담하세요</div>
+                    </div>
+                  </>
+                )}
               </div>
               
               {/* 닫기 버튼 */}
