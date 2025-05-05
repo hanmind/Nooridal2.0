@@ -9,22 +9,12 @@ import ErrorMessage from "./ErrorMessage";
 import {
   getAllChatRooms,
   getChatRoomConversations,
+  getTodaysChatRoom,
+  updateRoomWithDifyConversationId,
 } from "../lib/chatRoomService";
-import { Database } from "../../../../types_db";
-import { Message } from "../../types/chat";
-import { ChatRoom, LLMConversation } from "../../types/db";
-// Import parser for client-side SSE handling
-// @ts-expect-error -- Using this until eventsource-parser types are confirmed/fixed
-import {
-  createParser,
-  type ParsedEvent,
-  type ReconnectInterval,
-} from "eventsource-parser";
-
-// --- Placeholder for current user ID ---
-// Replace this with actual user authentication logic later
-const currentUserId = "user-placeholder-id"; // Use this if needed for fetching rooms, but API needs room's user_id
-// --------------------------------------
+import { Message } from "@/types/chat";
+import { ChatRoom, LLMConversation } from "@/types/db";
+import { supabase } from "../lib/supabase";
 
 export default function ChatContainer() {
   // --- State Management (Task 10.2) ---
@@ -36,18 +26,50 @@ export default function ChatContainer() {
   const [isLoadingRooms, setIsLoadingRooms] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // 사용자 ID 가져오기
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data: user } = await supabase.auth.getUser();
+
+        if (user && user.user) {
+          setUserId(user.user.id);
+        } else {
+          throw new Error("사용자 정보를 찾을 수 없습니다.");
+        }
+      } catch (err) {
+        console.error("사용자 정보를 가져오는데 실패했습니다:", err);
+        // 오류 발생 시 임시 ID 사용하지 않고 인증 문제 표시
+        setError("사용자 인증에 실패했습니다. 다시 로그인해주세요.");
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   // Define fetch/load functions within component scope
   const fetchChatRooms = async () => {
+    if (!userId) return;
+
     setIsLoadingRooms(true);
     setError(null);
     try {
-      const rooms = await getAllChatRooms();
+      // 현재 사용자의 채팅방 가져오기
+      const rooms = await getAllChatRooms(userId);
       setChatRooms(rooms);
-      if (rooms.length > 0 && !currentRoomId) {
+
+      // 룸이 있으면 첫번째 룸 선택, 없으면 오늘의 채팅방 생성
+      if (rooms.length > 0) {
         setCurrentRoomId(rooms[0].id);
+      } else {
+        // 오늘의 채팅방이 없으면 새로 생성 (dify_conversation_id는 null)
+        const todaysRoom = await getTodaysChatRoom(userId);
+        setChatRooms((prev) => [todaysRoom, ...prev]);
+        setCurrentRoomId(todaysRoom.id);
       }
     } catch (err) {
       console.error("Error fetching chat rooms:", err);
@@ -65,38 +87,30 @@ export default function ChatContainer() {
       const conversations: LLMConversation[] = await getChatRoomConversations(
         roomId
       );
-      const formattedMessages: Message[] = conversations.flatMap(
+
+      // 실제 대화 내용만 표시 (초기화 메시지 제외)
+      const filteredConversations = conversations.filter(
+        (conv) => conv.query !== "_initialize_conversation_"
+      );
+
+      const formattedMessages: Message[] = filteredConversations.flatMap(
         (conv: LLMConversation): Message[] => {
           let userQuery = "";
           try {
-            const request =
-              typeof conv.request_data === "string"
-                ? JSON.parse(conv.request_data)
-                : conv.request_data;
-            userQuery = request?.query ?? "Missing query";
+            userQuery = conv.query || "Missing query";
           } catch (e) {
-            console.error(
-              "Failed to parse request_data:",
-              conv.request_data,
-              e
-            );
+            console.error("Failed to parse user query:", conv.query, e);
             userQuery = "Error parsing query";
           }
+
           let aiResponse = "";
           try {
-            const response =
-              typeof conv.response_data === "string"
-                ? JSON.parse(conv.response_data)
-                : conv.response_data;
-            aiResponse = response?.answer ?? "Missing answer";
+            aiResponse = conv.response || "Missing answer";
           } catch (e) {
-            console.error(
-              "Failed to parse response_data:",
-              conv.response_data,
-              e
-            );
+            console.error("Failed to parse AI response:", conv.response, e);
             aiResponse = "Error parsing response";
           }
+
           return [
             {
               id: `${conv.id}-query`,
@@ -122,11 +136,14 @@ export default function ChatContainer() {
     }
   };
 
+  // userId가 설정된 후 채팅방 가져오기
   useEffect(() => {
-    fetchChatRooms();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (userId) {
+      fetchChatRooms();
+    }
+  }, [userId]);
 
+  // currentRoomId가 변경될 때 해당 채팅방의 메시지 로드
   useEffect(() => {
     if (currentRoomId) {
       loadMessages(currentRoomId);
@@ -140,6 +157,11 @@ export default function ChatContainer() {
   // --- Handlers (Placeholders - To be implemented in later tasks) ---
   const handleSendMessage = async (messageContent: string) => {
     // Validate inputs and state
+    if (!userId) {
+      setError("로그인이 필요합니다.");
+      return;
+    }
+
     if (!currentRoomId) {
       setError("메시지를 보낼 채팅방이 선택되지 않았습니다.");
       console.error("handleSendMessage called without currentRoomId.");
@@ -147,23 +169,50 @@ export default function ChatContainer() {
     }
     if (!messageContent.trim() || isProcessing) return;
 
-    // Find the user_id associated with the current room
+    // Find the current room
     const currentRoom = chatRooms.find((room) => room.id === currentRoomId);
-    const roomUserId = currentRoom?.user_id; // Get the user_id from the room object
-
-    if (!roomUserId) {
+    if (!currentRoom) {
       setError(
-        "현재 채팅방의 사용자 ID를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
+        "현재 채팅방 정보를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
       );
       console.error(
-        "Could not find user_id for currentRoomId:",
+        "Could not find currentRoomId:",
         currentRoomId,
         "in chatRooms:",
         chatRooms
       );
-      // Optionally, try fetching rooms again if state might be stale
-      // await fetchChatRooms();
-      return; // Stop processing if user_id isn't found
+      return;
+    }
+
+    // Check if the room has a conversation ID
+    let conversationId = currentRoom.dify_conversation_id;
+
+    // If no conversation ID, get one from Dify API
+    if (!conversationId) {
+      setIsProcessing(true);
+      try {
+        console.log(
+          "채팅방에 대화 ID가 없습니다. Dify API에서 새로운 대화 ID를 가져옵니다."
+        );
+        conversationId = await updateRoomWithDifyConversationId(
+          currentRoomId,
+          userId
+        );
+
+        // UI 상태 업데이트
+        setChatRooms((prevRooms) =>
+          prevRooms.map((room) =>
+            room.id === currentRoomId
+              ? { ...room, dify_conversation_id: conversationId }
+              : room
+          )
+        );
+      } catch (err) {
+        console.error("Dify conversation_id 획득 실패:", err);
+        setError("대화 초기화 실패. 새로고침 후 다시 시도해주세요.");
+        setIsProcessing(false);
+        return;
+      }
     }
 
     // --- Optimistic UI updates ---
@@ -189,16 +238,20 @@ export default function ChatContainer() {
     setMessages((prev) => [...prev, thinkingMessage]);
     // --- End Optimistic UI updates ---
 
+    let finalStreamedContent = ""; // 스트림 완료 후 최종 컨텐츠 저장용 변수
+
     try {
       // --- API Call ---
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Use the user_id associated with the specific chat room
         body: JSON.stringify({
+          inputs: {},
           query: messageContent,
-          user: roomUserId, // Use the user_id from the current chat room
-          conversation_id: currentRoomId,
+          user: userId, // 로그인한 사용자 ID 사용
+          conversation_id: conversationId, // Dify API conversation ID
+          response_mode: "streaming",
+          files: [], // 빈 배열로 files 필드 추가
         }),
       });
       // --- End API Call ---
@@ -210,7 +263,7 @@ export default function ChatContainer() {
           const errorJson = await response.json();
           errorPayload.message =
             errorJson.error || `API Error: ${response.statusText}`;
-        } catch (_e) {
+        } catch {
           try {
             const errorText = await response.text();
             errorPayload.message =
@@ -225,165 +278,270 @@ export default function ChatContainer() {
       // --- End Error Handling for Fetch ---
 
       // --- Streaming Response Handling ---
-      let streamedContent = "";
       const decoder = new TextDecoder();
       const reader = response.body.getReader();
 
-      // Define event types for parser...
+      // 타입 정의 개선
       interface BaseEventData {
-        event: string /* ... other common fields */;
+        event: string;
+        conversation_id?: string;
+        message_id?: string;
+        created_at?: number;
+        task_id?: string;
+        id?: string;
       }
+
       interface MessageEventDataClient extends BaseEventData {
         event: "message";
         answer: string;
       }
+
       interface MessageEndDataClient extends BaseEventData {
-        event: "message_end" /* ... */;
+        event: "message_end";
+        metadata?: Record<string, unknown>;
       }
+
+      interface ErrorEventDataClient extends BaseEventData {
+        event: "error";
+        message: string;
+      }
+
       interface OtherEventDataClient extends BaseEventData {
-        event: string /* ... */;
+        event:
+          | "workflow_started"
+          | "node_started"
+          | "node_finished"
+          | "workflow_finished";
+        data?: Record<string, unknown>;
       }
+
       type DifyEventDataClient =
         | MessageEventDataClient
         | MessageEndDataClient
+        | ErrorEventDataClient
         | OtherEventDataClient;
-
-      const parser = createParser((event: ParsedEvent | ReconnectInterval) => {
-        if (event.type === "event") {
-          if (!event.data) return;
-
-          // Handle [DONE] signal
-          if (event.data === "[DONE]") {
-            console.log("Client received [DONE] signal.");
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === thinkingMessageId
-                  ? { ...msg, content: streamedContent, isStreaming: false }
-                  : msg
-              )
-            );
-            setIsProcessing(false);
-            return;
-          }
-
-          // Parse JSON data from the event
-          try {
-            const parsedData: DifyEventDataClient = JSON.parse(event.data);
-
-            // Process 'message' event
-            if (
-              parsedData.event === "message" &&
-              typeof parsedData.answer === "string"
-            ) {
-              streamedContent += parsedData.answer;
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === thinkingMessageId
-                    ? {
-                        ...msg,
-                        content: streamedContent,
-                        isStreaming: true, // Keep streaming flag true
-                        error: false,
-                        errorMessage: undefined,
-                      }
-                    : msg
-                )
-              );
-              // Process 'message_end' event
-            } else if (parsedData.event === "message_end") {
-              console.log("Client received message_end event.");
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === thinkingMessageId
-                    ? { ...msg, content: streamedContent, isStreaming: false } // Final content, stop streaming
-                    : msg
-                )
-              );
-              setIsProcessing(false); // Stop processing
-              // Handle potential 'error' event from stream
-            } else if (parsedData.event === "error") {
-              const errorMessage =
-                (parsedData as any).message || "Stream error event received";
-              console.error("Received error event from stream:", errorMessage);
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === thinkingMessageId
-                    ? {
-                        ...msg,
-                        content: "",
-                        error: true,
-                        errorMessage: errorMessage,
-                        isStreaming: false,
-                      }
-                    : msg
-                )
-              );
-              setIsProcessing(false);
-            }
-            // Ignore other event types on client-side for now
-          } catch (e) {
-            // Handle JSON parsing error
-            console.error(
-              "Client error parsing stream data:",
-              e,
-              "Data:",
-              event.data
-            );
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === thinkingMessageId
-                  ? {
-                      ...msg,
-                      content: "",
-                      error: true,
-                      errorMessage: "응답 데이터 파싱 오류",
-                      isStreaming: false,
-                    }
-                  : msg
-              )
-            );
-            setIsProcessing(false); // Stop processing
-          }
-        } else if (event.type === "reconnect-interval") {
-          console.log("Client reconnect interval:", event.value);
-        }
-      });
 
       // Read the stream
       try {
+        // 불완전한 데이터 청크를 처리하기 위한 버퍼
+        let dataBuffer = "";
+        let currentStreamedContent = ""; // 현재 스트리밍 중인 컨텐츠 조각 저장
+
         while (true) {
           const { done, value } = await reader.read();
           if (done) {
-            console.log("Client reader finished.");
+            console.log("클라이언트: 스트림 읽기 완료");
             // If processing is still true, stream ended unexpectedly
             if (isProcessing) {
-              console.warn(
-                "Stream ended without explicit message_end or [DONE] signal."
-              );
+              console.warn("스트림이 명시적인 종료 신호 없이 종료되었습니다.");
               setMessages((prev) =>
-                prev.map(
-                  (msg) =>
-                    msg.id === thinkingMessageId && !msg.error
-                      ? {
-                          ...msg,
-                          error: true,
-                          errorMessage: "스트림 비정상 종료",
-                          isStreaming: false,
-                        }
-                      : { ...msg, isStreaming: false } // Ensure streaming stops for all messages
+                prev.map((msg) =>
+                  msg.id === thinkingMessageId && !msg.error
+                    ? {
+                        ...msg,
+                        error: true,
+                        errorMessage: "스트림 비정상 종료",
+                        isStreaming: false,
+                      }
+                    : { ...msg, isStreaming: false }
                 )
               );
               setIsProcessing(false);
             }
             break; // Exit loop when done
           }
-          // Feed chunks to the parser
-          parser.feed(decoder.decode(value));
+
+          // 데이터를 직접 처리
+          const chunk = decoder.decode(value, { stream: true });
+          console.debug(`클라이언트: 청크 수신 (${chunk.length} 바이트)`);
+
+          // 이전 청크에서 넘어온 불완전한 데이터가 있을 수 있으므로 버퍼에 추가
+          dataBuffer += chunk;
+
+          // SSE 형식 파싱 (data: {...} 형식)
+          // 완전한 이벤트만 처리하기 위해 줄바꿈 기준으로 분리
+          const lines = dataBuffer.split("\n");
+
+          // 마지막 줄은 불완전할 수 있으므로 버퍼에 남겨둠
+          dataBuffer = lines.pop() || "";
+
+          let eventCount = 0;
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              eventCount++;
+              const data = line.substring(6); // 'data: ' 이후의 문자열
+
+              // Handle [DONE] signal
+              if (data.trim() === "[DONE]") {
+                console.log("클라이언트: [DONE] 신호 수신");
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === thinkingMessageId
+                      ? {
+                          ...msg,
+                          content: currentStreamedContent,
+                          isStreaming: false,
+                        } // 최종 컨텐츠로 업데이트
+                      : msg
+                  )
+                );
+                finalStreamedContent = currentStreamedContent; // 최종 컨텐츠 저장
+                setIsProcessing(false);
+                continue;
+              }
+
+              // Parse JSON data from the event
+              try {
+                const parsedData = JSON.parse(data) as DifyEventDataClient;
+
+                // 타입가드를 사용하여 안전하게 처리
+                if (parsedData.event === "message") {
+                  const messageData = parsedData as MessageEventDataClient;
+                  const newContent = messageData.answer || "";
+
+                  // 중요: 내용이 비어있지 않은 경우에만 누적
+                  if (newContent.length > 0) {
+                    currentStreamedContent += newContent;
+                    console.debug(`클라이언트: 메시지 내용: ${newContent}`);
+
+                    // 상태 업데이트를 통해 UI 렌더링
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === thinkingMessageId
+                          ? {
+                              ...msg,
+                              content: currentStreamedContent,
+                              isStreaming: true,
+                              error: false,
+                              errorMessage: undefined,
+                            }
+                          : msg
+                      )
+                    );
+                  }
+                } else if (parsedData.event === "message_end") {
+                  console.log("클라이언트: message_end 이벤트 수신");
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === thinkingMessageId
+                        ? {
+                            ...msg,
+                            content: currentStreamedContent, // 최종 컨텐츠로 업데이트
+                            isStreaming: false,
+                          }
+                        : msg
+                    )
+                  );
+                  finalStreamedContent = currentStreamedContent; // 최종 컨텐츠 저장
+                  setIsProcessing(false); // Stop processing
+                } else if (parsedData.event === "error") {
+                  const errorData = parsedData as ErrorEventDataClient;
+                  const errorMessage =
+                    errorData.message || "Stream error event received";
+                  console.error("스트림 오류 이벤트 수신:", errorMessage);
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === thinkingMessageId
+                        ? {
+                            ...msg,
+                            content: "",
+                            error: true,
+                            errorMessage: errorMessage,
+                            isStreaming: false,
+                          }
+                        : msg
+                    )
+                  );
+                  setIsProcessing(false);
+                }
+              } catch (e) {
+                // Handle JSON parsing error
+                console.error(
+                  "클라이언트: 데이터 파싱 오류:",
+                  e,
+                  "데이터:",
+                  data
+                );
+              }
+            }
+          }
+
+          console.debug(
+            `클라이언트: 처리된 이벤트 수: ${eventCount}, 버퍼 길이: ${dataBuffer.length}`
+          );
+        }
+
+        // 버퍼에 남아있는 마지막 데이터 처리
+        if (dataBuffer.trim()) {
+          if (dataBuffer.startsWith("data: ")) {
+            const data = dataBuffer.substring(6); // 'data: ' 이후의 문자열
+            console.debug("클라이언트: 버퍼에 남은 마지막 이벤트 처리");
+
+            // Handle [DONE] signal
+            if (data.trim() === "[DONE]") {
+              console.log("클라이언트: 마지막 [DONE] 신호 수신");
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === thinkingMessageId
+                    ? {
+                        ...msg,
+                        content: currentStreamedContent,
+                        isStreaming: false,
+                      }
+                    : msg
+                )
+              );
+              finalStreamedContent = currentStreamedContent; // 최종 컨텐츠 저장
+              setIsProcessing(false);
+            } else {
+              try {
+                const parsedData = JSON.parse(data) as DifyEventDataClient;
+
+                if (parsedData.event === "message") {
+                  const messageData = parsedData as MessageEventDataClient;
+                  const newContent = messageData.answer || "";
+
+                  if (newContent.length > 0) {
+                    currentStreamedContent += newContent;
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === thinkingMessageId
+                          ? {
+                              ...msg,
+                              content: currentStreamedContent,
+                              isStreaming: false, // 마지막 데이터이므로 스트리밍 종료
+                            }
+                          : msg
+                      )
+                    );
+                  }
+                } else if (parsedData.event === "message_end") {
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === thinkingMessageId
+                        ? {
+                            ...msg,
+                            content: currentStreamedContent, // 최종 컨텐츠로 업데이트
+                            isStreaming: false,
+                          }
+                        : msg
+                    )
+                  );
+                  finalStreamedContent = currentStreamedContent; // 최종 컨텐츠 저장
+                  setIsProcessing(false);
+                }
+              } catch (e) {
+                console.error("마지막 데이터 파싱 오류:", e);
+              }
+            }
+          } else {
+            console.warn("버퍼에 남은 불완전한 데이터:", dataBuffer);
+          }
         }
       } catch (streamError) {
         // Handle errors during stream reading
         const err = streamError as Error;
-        console.error("Client stream reading error:", err);
+        console.error("클라이언트: 스트림 읽기 오류:", err);
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === thinkingMessageId
@@ -408,6 +566,8 @@ export default function ChatContainer() {
         error
       );
       const errorMessage = error.message || "메시지 전송/처리 중 오류 발생";
+
+      // Update the thinking message with error
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === thinkingMessageId
@@ -415,13 +575,37 @@ export default function ChatContainer() {
                 ...msg,
                 content: "",
                 error: true,
-                errorMessage: errorMessage,
+                errorMessage,
                 isStreaming: false,
               }
             : msg
         )
       );
-      setIsProcessing(false); // Ensure processing stops on error
+      setIsProcessing(false);
+    } finally {
+      // 작업 완료 후 상태 초기화 및 정리
+      if (thinkingMessageId && isProcessing) {
+        console.log("메시지 처리 완료 후 상태 정리 (finally)");
+        setIsProcessing(false);
+
+        // 최종 상태 확인 및 업데이트 (메시지가 스트리밍 상태로 남아있는 경우 처리)
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === thinkingMessageId
+              ? { ...msg, content: finalStreamedContent, isStreaming: false }
+              : msg
+          )
+        );
+      } else if (thinkingMessageId) {
+        // isProcessing이 false가 된 후에도 최종 컨텐츠 업데이트
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === thinkingMessageId && msg.isStreaming // 스트리밍 상태였던 메시지만
+              ? { ...msg, content: finalStreamedContent, isStreaming: false }
+              : msg
+          )
+        );
+      }
     }
   };
 
@@ -456,6 +640,43 @@ export default function ChatContainer() {
     }
   };
 
+  // 새 채팅방 생성 함수
+  const handleCreateNewChat = async () => {
+    if (!userId) {
+      setError("로그인이 필요합니다.");
+      return;
+    }
+
+    setIsLoadingRooms(true);
+    setError(null);
+    setMessages([]); // 메시지 목록 초기화
+
+    try {
+      // 오늘의 새 채팅방 생성
+      const newRoom = await getTodaysChatRoom(userId);
+      console.log("New chat room created:", newRoom);
+
+      // 채팅방 목록 새로고침
+      const updatedRooms = await getAllChatRooms(userId);
+      setChatRooms(updatedRooms);
+
+      // 새 채팅방 선택
+      setCurrentRoomId(newRoom.id);
+
+      // 사이드바 닫기 (모바일 화면에서)
+      setIsSidebarOpen(false);
+    } catch (err) {
+      console.error("Error creating new chat room:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "새 채팅방을 생성하는데 실패했습니다.";
+      setError(errorMessage);
+    } finally {
+      setIsLoadingRooms(false);
+    }
+  };
+
   // --- Render ---
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -466,6 +687,7 @@ export default function ChatContainer() {
         onSelectRoom={handleSelectRoom}
         currentRoomId={currentRoomId}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        onCreateNewChat={handleCreateNewChat}
       />
 
       <div className="flex-1 flex flex-col">
@@ -537,10 +759,7 @@ export default function ChatContainer() {
                 <AIMessage
                   key={message.id}
                   message={message.content}
-                  isStreaming={
-                    isProcessing &&
-                    messages[messages.length - 1].id === message.id
-                  }
+                  isStreaming={message.isStreaming} // isStreaming 상태 직접 사용
                 />
               )
             )}
@@ -551,10 +770,12 @@ export default function ChatContainer() {
           <ChatInput
             onSendMessage={handleSendMessage}
             disabled={
-              !currentRoomId ||
-              isProcessing ||
-              isLoadingMessages ||
-              isLoadingRooms
+              // disabled 조건 수정
+              !userId || // 사용자가 로드되지 않았거나
+              !currentRoomId || // 방이 선택되지 않았거나
+              isProcessing || // 메시지 처리 중이거나
+              isLoadingMessages || // 메시지 로딩 중이거나
+              isLoadingRooms // 방 목록 로딩 중일 때
             }
           />
         </div>

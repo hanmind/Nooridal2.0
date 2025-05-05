@@ -1,124 +1,44 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getTodaysChatRoom } from "@/app/lib/chatRoomService"; // Adjust path if needed
-import {
-  sendChatRequest,
-  handleStreamingResponse,
-} from "@/app/lib/difyService"; // Adjust path if needed
-import { supabase } from "@/app/lib/supabase"; // For saving conversation later
-import { v4 as uuidv4 } from "uuid"; // For generating conversation ID
+import { NextRequest } from "next/server";
+import { streamingMessage } from "@/app/lib/difyService";
 
-export const runtime = "edge"; // Use Edge Runtime for streaming
-
+/**
+ * Dify API 채팅 엔드포인트
+ * 이 API 라우트는 클라이언트의 채팅 메시지를 Dify AI에 전달하고 스트리밍 응답을 반환합니다.
+ */
 export async function POST(req: NextRequest) {
   try {
-    const { query, conversation_id, user } = await req.json();
+    // 요청 본문 파싱
+    const requestData = await req.json();
 
-    if (!query) {
-      return NextResponse.json({ error: "Query is required" }, { status: 400 });
+    if (!requestData.query) {
+      return new Response(
+        JSON.stringify({ error: "query 필드는 필수입니다" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
     }
 
-    // --- Task 6.2: Integrate Chat Room Logic ---
-    // Use conversation_id if provided, otherwise get today's room
-    const currentConversationId =
-      conversation_id || (await getTodaysChatRoom());
-    console.log(`Using conversation ID: ${currentConversationId}`);
-    // ---------------------------------------------
+    // 필수 필드 확인
+    const { query, user, conversation_id, inputs, files } = requestData;
 
-    // --- Task 6.3: Integrate Dify Streaming ---
-    // Send request to Dify service
-    const difyResponse = await sendChatRequest({
+    // 디버그: 수신된 요청 데이터 로깅
+    console.debug(`채팅 API 요청:`, {
+      query: query.substring(0, 30) + (query.length > 30 ? "..." : ""),
+      user_id: user,
+      conversation_id: conversation_id || "(새 대화)",
+      inputs_keys: inputs ? Object.keys(inputs) : [],
+      files_count: files ? files.length : 0,
+    });
+
+    // 메시지 전송 (스트리밍 모드)
+    const stream = await streamingMessage({
       query,
-      conversation_id: currentConversationId,
-      user: user || "api-user", // Provide a default user from API context
-      response_mode: "streaming",
+      user: user || "anonymous-user",
+      conversation_id,
+      inputs,
+      files,
     });
-    // ------------------------------------------
 
-    // --- Task 6.4: Manage Streaming Responses ---
-    const encoder = new TextEncoder();
-    let fullResponse = ""; // To store the full response for saving
-    let responseStreamClosed = false;
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        const onChunk = (chunk: string) => {
-          try {
-            // Send the chunk back to the client, formatted as SSE
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({ answer: chunk })}\n\n`)
-            );
-          } catch (e) {
-            console.error("Error encoding/enqueuing chunk:", e);
-            // Handle error, maybe close the stream
-            try {
-              controller.close();
-            } catch {}
-            responseStreamClosed = true;
-          }
-        };
-
-        const onComplete = async (finalResponse: string) => {
-          fullResponse = finalResponse;
-          console.log("Streaming complete from service.");
-          // Send DONE signal
-          if (!responseStreamClosed) {
-            try {
-              controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-              controller.close();
-            } catch (e) {
-              console.error("Error closing stream:", e);
-            } finally {
-              responseStreamClosed = true;
-            }
-          }
-          // --- Task 6.5: Save Conversation (Trigger) ---
-          // Trigger saving logic after stream completion
-          await saveConversation(
-            currentConversationId,
-            query,
-            fullResponse,
-            user || "api-user"
-          );
-          // ---------------------------------------------
-        };
-
-        const onError = (error: Error) => {
-          console.error("Streaming error from service:", error);
-          if (!responseStreamClosed) {
-            try {
-              // Send an error event to the client if possible
-              controller.enqueue(
-                encoder.encode(
-                  `event: error\ndata: ${JSON.stringify({
-                    message: error.message,
-                  })}\n\n`
-                )
-              );
-              controller.close();
-            } catch (e) {
-              console.error("Error sending error/closing stream:", e);
-            } finally {
-              responseStreamClosed = true;
-            }
-          }
-        };
-
-        // Start processing the stream from Dify service
-        await handleStreamingResponse(
-          difyResponse,
-          onChunk,
-          onComplete,
-          onError
-        );
-      },
-      cancel(reason) {
-        console.log("Client cancelled the stream request:", reason);
-        // Handle cancellation, maybe close underlying connections if possible
-        responseStreamClosed = true;
-      },
-    });
-    // -------------------------------------------
-
+    // 스트림을 응답으로 반환 (SSE 형식)
     return new Response(stream, {
       headers: {
         "Content-Type": "text/event-stream",
@@ -127,41 +47,35 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    // --- Task 6.6: Implement Error Handling ---
-    console.error("Error in POST /api/chat:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
-    // -------------------------------------------
+    // 오류 처리
+    console.error(`채팅 API 오류:`, error);
+
+    // 오류 응답 생성
+    return new Response(
+      JSON.stringify({
+        error:
+          error instanceof Error
+            ? error.message
+            : "알 수 없는 오류가 발생했습니다",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
 
-// --- Task 6.5: Save Conversation (Implementation) ---
-async function saveConversation(
-  chatRoomId: string,
-  query: string,
-  response: string,
-  userId: string
-) {
-  console.log(`Attempting to save conversation for room ${chatRoomId}`);
-  try {
-    const { error } = await supabase.from("llm_conversations").insert({
-      id: uuidv4(), // Generate a new UUID for the conversation log
-      chat_room_id: chatRoomId,
-      query: query,
-      response: response,
-      user_info: { userId: userId }, // Store user identifier
-      created_at: new Date().toISOString(),
-    });
-
-    if (error) {
-      console.error("Error saving conversation to Supabase:", error);
-      // Decide how to handle save failure - log, retry?
-    } else {
-      console.log(`Conversation saved successfully for room ${chatRoomId}`);
-    }
-  } catch (saveError) {
-    console.error("Exception during saving conversation:", saveError);
-  }
+/**
+ * SSE 형식을 위한 OPTIONS 핸들러 (CORS 대응)
+ */
+export async function OPTIONS() {
+  return new Response(null, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Max-Age": "86400",
+    },
+  });
 }
-// ---------------------------------------------------
