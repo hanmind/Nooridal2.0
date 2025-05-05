@@ -17,7 +17,7 @@ const generateInvitationCode = () => {
   return code;
 };
 
-type Tab = 'chat' | 'calendar' | 'location' | 'mypage';
+type Tab = "chat" | "calendar" | "location" | "mypage";
 
 export default function CalendarPage() {
   const router = useRouter();
@@ -42,96 +42,111 @@ export default function CalendarPage() {
       const user = sessionData?.session?.user;
 
       if (user) {
-        console.log("[Auth Check] User found:", user.id, user.email);
-        // Check if profile exists in public.users
-        const { data: profileData, error: profileError } = await supabase
-          .from("users")
-          .select("id")
-          .eq("user_auth_id", user.id)
-          .maybeSingle();
+        console.log("[Auth Check] User found. ID:", user.id);
 
-        if (profileError && profileError.code !== "PGRST116") {
-          console.error("Error checking for profile:", profileError);
-          setIsLoading(false); // Stop loading on error
-          return;
-        }
-
-        if (!profileData) {
-          // Profile does not exist, create it
-          console.log(
-            "[Auth Check] Profile not found for user:",
-            user.id,
-            "Creating profile..."
-          );
-          const newUserProfile = {
-            user_auth_id: user.id,
-            email: user.email,
-            name:
-              user.user_metadata?.full_name ||
-              user.user_metadata?.name ||
-              user.email ||
-              "새 사용자",
-            user_type: "pregnant" as const,
-            invitation_code: generateInvitationCode(),
-          };
-
-          const { error: insertError } = await supabase
+        try {
+          const { data: profileData, error: profileError } = await supabase
             .from("users")
-            .insert(newUserProfile);
+            .select("id")
+            .eq("id", user.id)
+            .maybeSingle();
 
-          if (insertError) {
-            console.error("Error creating profile:", insertError);
-            // Decide how to handle profile creation error, maybe redirect or show message
-            setIsLoading(false); // Stop loading on profile creation error
-            return; // Prevent further checks if profile creation fails
-          } else {
-            console.log(
-              "[Auth Check] Profile created successfully for user:",
-              user.id
+          if (profileError) {
+            console.error(
+              "Detailed profileError:",
+              JSON.stringify(profileError, null, 2)
             );
           }
-        }
-        // --- Add Pregnancy Info Check ---
-        console.log(
-          "[Pregnancy Check] Checking for pregnancy record for user:",
-          user.id
-        );
-        const {
-          data: pregnancyData,
-          error: pregnancyError,
-          count,
-        } = await supabase
-          .from("pregnancies")
-          .select("id", { count: "exact", head: true }) // Efficiently check for existence
-          .eq("user_id", user.id);
 
-        if (pregnancyError) {
-          console.error(
-            "[Pregnancy Check] Error fetching pregnancy info:",
-            pregnancyError
-          );
-          setIsLoading(false); // Stop loading on error
-          // Maybe show an error message to the user
-          return; // Don't redirect if fetching fails
-        }
+          if (profileError && profileError.code !== "PGRST116") {
+            console.error(
+              "Error checking for profile (non-PGRST116):",
+              profileError
+            );
+            setIsLoading(false);
+            return;
+          }
 
-        console.log("[Pregnancy Check] Pregnancy record count:", count);
+          if (!profileData) {
+            // Profile does not exist, create it
+            console.log(
+              "[Auth Check] Profile not found for user:",
+              user.id,
+              "Creating profile..."
+            );
+            const newUserProfile = {
+              id: user.id,
+              email: user.email,
+              name:
+                user.user_metadata?.full_name ||
+                user.user_metadata?.name ||
+                user.email ||
+                "새 사용자",
+              username: user.email || `user_${user.id.substring(0, 8)}`,
+              user_type: "pregnant" as const,
+              invitation_code: generateInvitationCode(),
+            };
 
-        if (count === 0) {
+            const { error: insertError } = await supabase
+              .from("users")
+              .insert(newUserProfile);
+
+            if (insertError) {
+              console.error("Error creating profile:", insertError);
+              setIsLoading(false);
+              return;
+            } else {
+              console.log(
+                "[Auth Check] Profile created successfully for user:",
+                user.id
+              );
+            }
+          } else {
+            console.log("[Auth Check] Profile found for user:", user.id);
+          }
+
+          // --- Add Pregnancy Info Check ---
           console.log(
-            "[Pregnancy Check] No pregnancy record found. Redirecting..."
+            "[Pregnancy Check] Checking for pregnancy record for user:",
+            user.id
           );
-          router.push("/register/pregnant/pregnancy-info");
-          // No need to set isLoading to false as we are navigating away
-        } else {
-          console.log("[Pregnancy Check] Pregnancy record found. Staying.");
-          setIsLoading(false); // Stop loading only if staying
+          const {
+            data: pregnancyData,
+            error: pregnancyError,
+            count,
+          } = await supabase
+            .from("pregnancies")
+            .select("id", { count: "exact", head: true }) // Efficiently check for existence
+            .eq("user_id", user.id);
+
+          if (pregnancyError) {
+            console.error(
+              "[Pregnancy Check] Error fetching pregnancy info:",
+              pregnancyError
+            );
+            setIsLoading(false); // Stop loading on error
+            return; // Don't redirect if fetching fails
+          }
+
+          console.log("[Pregnancy Check] Pregnancy record count:", count);
+
+          if (count === 0) {
+            console.log(
+              "[Pregnancy Check] No pregnancy record found. Redirecting..."
+            );
+            router.push("/register/pregnant/pregnancy-info");
+          } else {
+            console.log("[Pregnancy Check] Pregnancy record found. Staying.");
+            setIsLoading(false); // Stop loading only if staying
+          }
+          // --- End Pregnancy Info Check ---
+        } catch (e) {
+          console.error("Unexpected error during profile/pregnancy check:", e);
+          setIsLoading(false);
+          return;
         }
-        // --- End Pregnancy Info Check ---
       } else {
         console.log("[Auth Check] No user session found.");
-        // Optional: Redirect to login if no user is found
-        // router.push('/login');
         setIsLoading(false); // Stop loading if no user
       }
     };
@@ -153,9 +168,25 @@ export default function CalendarPage() {
         {/* Blurred overlay with reduced opacity */}
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm flex flex-col justify-center items-center">
           {/* Loading Icon */}
-          <svg className="animate-spin h-8 w-8 text-neutral-700 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          <svg
+            className="animate-spin h-8 w-8 text-neutral-700 mb-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
           </svg>
           <div className="text-center text-neutral-700 font-['Do_Hyeon'] text-2xl">
             로딩 중...

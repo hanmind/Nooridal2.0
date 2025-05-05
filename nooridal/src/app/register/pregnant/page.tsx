@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../../utils/supabase";
 import Script from "next/script";
+import { Database } from "../../../../types_db"; // 정확한 상대 경로로 수정
 
 export default function PregnantSignup() {
   const router = useRouter();
@@ -146,9 +147,11 @@ export default function PregnantSignup() {
 
   // Daum Postcode API 사용을 위한 함수
   const handlePostcodeSearch = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((window as any).daum && (window as any).daum.Postcode) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       new (window as any).daum.Postcode({
-
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         oncomplete: function (data: any) {
           // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분
           let addr = ""; // 주소 변수
@@ -208,23 +211,31 @@ export default function PregnantSignup() {
       const { data: userData, error: userError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            // 여기서는 user_auth_id 대신 다른 초기 메타데이터 설정 가능
+            // username은 public.users 테이블에 직접 삽입 예정
+          },
+        },
       });
 
       if (userError) throw userError;
       if (!userData?.user) throw new Error("사용자 계정 생성에 실패했습니다.");
 
       // 2. users 테이블에 추가 정보 저장
-      const newUser = {
-        user_auth_id: userData.user.id,
+      const newUser: Omit<
+        Database["public"]["Tables"]["users"]["Insert"],
+        "id"
+      > = {
+        username: userId,
         name: name,
         email: email,
         phone_number: cleanPhoneNumber,
         address: address,
         invitation_code: invitationCode,
-        user_type: "pregnant" as const, // Use as const for enum type
+        user_type: "pregnant",
       };
 
-      // const { data: insertData, error: insertError } = await supabase // Linter: unused insertData
       const { error: insertError } = await supabase
         .from("users")
         .insert(newUser);
@@ -263,11 +274,11 @@ export default function PregnantSignup() {
     }
     try {
       if (type === "id") {
-        // Supabase에서 중복 아이디 확인 - 올바른 방식으로 쿼리 구성
+        // Supabase에서 중복 아이디 확인 - username 컬럼 확인
         const { data, error } = await supabase
           .from("users")
-          .select("user_auth_id")
-          .eq("user_auth_id", value);
+          .select("username") // username 컬럼 확인
+          .eq("username", value); // username과 비교
 
         if (error) {
           throw error;

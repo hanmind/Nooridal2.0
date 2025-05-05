@@ -50,7 +50,7 @@ export default function Login() {
     try {
       const { data: userData, error } = await supabase
         .from("users")
-        .select("user_auth_id")
+        .select("username")
         .eq("name", nickname)
         .eq("phone_number", phoneNumber)
         .single();
@@ -62,8 +62,8 @@ export default function Login() {
       }
 
       const maskedId =
-        userData.user_auth_id.slice(0, 3) +
-        "*".repeat(userData.user_auth_id.length - 3);
+        userData.username.slice(0, 3) +
+        "*".repeat(userData.username.length - 3);
       setFoundId(maskedId);
       setShowFoundId(true);
     } catch (error) {
@@ -110,12 +110,12 @@ export default function Login() {
     try {
       setIsLoading(true);
 
-      // First, get the user's email using their userId
-      console.log(`[Login Attempt] Finding email for userId: '${userId}'`); // Log the exact userId being queried
+      // userId (username)으로 사용자의 email 가져오기
+      console.log(`[Login Attempt] Finding email for username: '${userId}'`);
       const { data: userData, error: userError } = await supabase
         .from("users")
         .select("email")
-        .eq("user_auth_id", userId)
+        .eq("username", userId)
         .single();
 
       console.log("[Login Attempt] User query result:", {
@@ -128,7 +128,7 @@ export default function Login() {
       }
       if (!userData) {
         console.log(
-          "[Login Attempt] No user data found in users table for userId:",
+          "[Login Attempt] No user data found in users table for username:",
           userId
         );
       }
@@ -139,7 +139,7 @@ export default function Login() {
         return;
       }
 
-      // Now login with the email and password via Supabase Auth
+      // 이메일과 비밀번호로 Supabase Auth 로그인
       const { data, error } = await supabase.auth.signInWithPassword({
         email: userData.email,
         password: password,
@@ -148,6 +148,7 @@ export default function Login() {
       if (error) {
         console.error("Login error:", error.message);
         setLoginError("아이디 또는 비밀번호가 일치하지 않습니다.");
+        setIsLoading(false);
         return;
       }
 
@@ -159,32 +160,21 @@ export default function Login() {
           localStorage.removeItem("rememberLogin");
         }
 
-        // Get user type to redirect to appropriate dashboard
+        // 로그인 성공 후 사용자 타입 조회 (users 테이블의 id(PK) 사용)
         const { data: profileData } = await supabase
           .from("users")
           .select("user_type")
-          .eq("user_auth_id", data.user.id)
+          .eq("id", data.user.id)
           .single();
 
         if (profileData) {
-          // 로그인 성공 처리 및 리다이렉트
           console.log("로그인 성공:", data.user.email);
-
-          // Redirect to calendar regardless of user type
           router.push("/calendar");
-
-          // Previous user-type based redirection
-          /*
-          if (profileData.user_type === 'pregnant') {
-            router.push('/pregnant-dashboard');
-          } else if (profileData.user_type === 'guardian') {
-            router.push('/guardian-dashboard');
-          } else {
-            router.push('/dashboard'); // Default dashboard
-          }
-          */
         } else {
-          router.push("/calendar"); // Default fallback also goes to calendar
+          console.warn(
+            "User profile not found after login, redirecting to calendar."
+          );
+          router.push("/calendar");
         }
       }
     } catch (error) {
@@ -292,11 +282,7 @@ export default function Login() {
 
           {/* 로그인 폼 */}
           <div className="absolute top-[30px] left-0 right-0 px-8 z-20">
-            <h2 className="text-2xl font-['Do_Hyeon'] text-[#333333] text-center mb-6">
-              로그인
-            </h2>
-
-            {/* Display login error message if any */}
+            {/* 로그인 오류 메시지 표시 */}
             {loginError && (
               <div className="bg-red-100 border border-red-200 text-red-700 px-4 py-2 mb-4 rounded-lg text-sm font-['Do_Hyeon']">
                 {loginError}

@@ -61,7 +61,7 @@ export default function ProfileManagement() {
   const [userInfo, setUserInfo] = useState({
     name: "",
     email: "",
-    user_auth_id: "",
+    username: "",
     phoneNumber: "",
     address: "",
     invitation_code: "",
@@ -92,7 +92,7 @@ export default function ProfileManagement() {
           setUserInfo({
             name: user.user_metadata.full_name || "",
             email: user.email || "",
-            user_auth_id: user.id || "",
+            username: user.id || "",
             phoneNumber: user.user_metadata.phone || "",
             address: "",
             invitation_code: user.user_metadata.invitation_code || "",
@@ -114,7 +114,7 @@ export default function ProfileManagement() {
             setUserInfo({
               name: userData.name || "",
               email: userData.email || "",
-              user_auth_id: userData.user_auth_id || "",
+              username: userData.username || "",
               phoneNumber: userData.phone_number || "",
               address: "",
               invitation_code: userData.invitation_code || "",
@@ -122,7 +122,7 @@ export default function ProfileManagement() {
             if (userData.address) {
               setAddress(userData.address);
             }
-            setTempUserId(userData.user_auth_id || userInfo.user_auth_id);
+            setTempUserId(userData.username || userInfo.username);
             setTempPhoneNumber(userData.phone_number || userInfo.phoneNumber);
           }
         }
@@ -181,8 +181,8 @@ export default function ProfileManagement() {
       console.log("Checking ID duplicate for:", tempUserId);
       const { data, error, status } = await supabase
         .from("users")
-        .select("user_auth_id")
-        .eq("user_auth_id", tempUserId)
+        .select("username")
+        .eq("username", tempUserId)
         .neq("email", userInfo.email) // 현재 사용자 제외
         .maybeSingle(); // Use maybeSingle to handle no rows case
 
@@ -200,7 +200,7 @@ export default function ProfileManagement() {
       } else {
         // 데이터가 없음 = 중복 아님
         setIdDuplicate(false);
-        setUserInfo((prev) => ({ ...prev, user_auth_id: tempUserId }));
+        setUserInfo((prev) => ({ ...prev, username: tempUserId }));
         alert("사용 가능한 아이디입니다.");
       }
     } catch (error) {
@@ -336,7 +336,7 @@ export default function ProfileManagement() {
     const updates = {
       name: userInfo.name,
       phone_number: tempPhoneNumber.replace(/-/g, ""),
-      user_auth_id: tempUserId,
+      username: tempUserId,
       address: address, // <<--- AddressContext의 값 사용
       // email은 일반적으로 프로필에서 수정하지 않음
     };
@@ -347,7 +347,7 @@ export default function ProfileManagement() {
       const { error } = await supabase
         .from("users")
         .update(updates)
-        .eq("user_auth_id", userInfo.user_auth_id); // 현재 로그인된 사용자의 user_auth_id 사용
+        .eq("username", userInfo.username); // 현재 로그인된 사용자의 username 사용
 
       if (error) {
         console.error("Error updating user info:", error);
@@ -427,7 +427,7 @@ export default function ProfileManagement() {
   const maxVisibleLength = 8; // Number of visible characters
   const totalLength = 12; // Total length of the user ID field
   const maskedUserId =
-    userInfo.user_auth_id.slice(0, maxVisibleLength) +
+    userInfo.username.slice(0, maxVisibleLength) +
     "*".repeat(totalLength - maxVisibleLength);
 
   return (

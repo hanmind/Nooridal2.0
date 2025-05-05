@@ -7,14 +7,13 @@ import { useState, useEffect } from "react";
 import TabBar from "../components/TabBar";
 import { supabase } from "../../utils/supabase"; // Adjust the import path as needed
 
-type Tab = 'chat' | 'calendar' | 'location' | 'mypage';
+type Tab = "chat" | "calendar" | "location" | "mypage";
 
 export default function MyPage() {
   const router = useRouter();
   const { profileImage } = useProfile();
   const [showImageModal, setShowImageModal] = useState(false);
   const [name, setName] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [pregnancyInfo, setPregnancyInfo] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState("mypage");
@@ -23,6 +22,8 @@ export default function MyPage() {
   const [weeks, setWeeks] = useState("");
   const [highRisk, setHighRisk] = useState(false);
   const [babyGender, setBabyGender] = useState("");
+  const [username, setUsername] = useState<string | null>(null);
+  const [invitationCode, setInvitationCode] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -35,37 +36,41 @@ export default function MyPage() {
 
       const user = sessionData?.session?.user;
       if (user) {
-        setUserId(user.id);
         setEmail(user.email || null);
 
-        // users 테이블에서 사용자 정보 가져오기
         const { data: userData, error: userError } = await supabase
           .from("users")
-          .select("name")
-          .eq("user_auth_id", user.id)
+          .select("name, username, invitation_code")
+          .eq("id", user.id)
           .maybeSingle();
 
         if (userError) {
           console.error("사용자 정보를 가져오는데 실패했습니다:", userError);
         } else if (userData) {
           setName(userData.name);
-        }
+          setUsername(userData.username);
+          setInvitationCode(userData.invitation_code);
 
-        // 임신 정보 가져오기
-        const { data: pregnancyData, error: pregnancyError } = await supabase
-          .from("pregnancies")
-          .select("baby_name, due_date, current_week, high_risk")
-          .eq("user_id", user.id)
-          .maybeSingle();
+          const { data: pregnancyData, error: pregnancyError } = await supabase
+            .from("pregnancies")
+            .select("baby_name, due_date, current_week, high_risk, baby_gender")
+            .eq("user_id", user.id)
+            .maybeSingle();
 
-        if (pregnancyError) {
-          console.error(
-            "임신 정보를 가져오는 중 오류 발생:",
-            pregnancyError.message
-          );
-        } else if (pregnancyData) {
-          console.log("임신 정보 가져오기 성공:", pregnancyData);
-          setPregnancyInfo(pregnancyData);
+          if (pregnancyError) {
+            console.error(
+              "임신 정보를 가져오는 중 오류 발생:",
+              pregnancyError.message
+            );
+          } else if (pregnancyData) {
+            console.log("임신 정보 가져오기 성공:", pregnancyData);
+            setPregnancyInfo(pregnancyData);
+            setBabyName(pregnancyData.baby_name || "");
+            setDueDate(pregnancyData.due_date || "");
+            setWeeks(pregnancyData.current_week || "");
+            setHighRisk(pregnancyData.high_risk || false);
+            setBabyGender(pregnancyData.baby_gender || "");
+          }
         }
       }
     };
@@ -251,16 +256,16 @@ export default function MyPage() {
                 style={{ height: "auto", padding: "10px 0" }}
               >
                 <span className="text-black text-lg font-normal font-['Do_Hyeon'] ">
-                  🍼 {pregnancyInfo?.baby_name || "사랑스러운 아기"} 세상에 나오기
+                  🍼 {pregnancyInfo?.baby_name || "사랑스러운 아기"} 세상에
+                  나오기
                   {pregnancyInfo?.due_date
                     ? ` D-${Math.ceil(
                         (new Date(pregnancyInfo.due_date).setHours(0, 0, 0, 0) -
                           new Date().setHours(0, 0, 0, 0)) /
                           (1000 * 60 * 60 * 24)
-                      )}일`  
-                      
+                      )}일`
                     : "비밀"}
-                   🐥
+                  🐥
                 </span>
               </div>
               <div className="text-black text-sm font-normal font-['Do_Hyeon'] mt-2 ml-[240px]">
@@ -454,7 +459,7 @@ export default function MyPage() {
       </div>
       <TabBar
         activeTab={activeTab as Tab}
-        tabs={['chat', 'calendar', 'location', 'mypage'] as Tab[]}
+        tabs={["chat", "calendar", "location", "mypage"] as Tab[]}
         onTabClick={handleTabClick}
       />
 
