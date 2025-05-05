@@ -3,5 +3,12 @@
     "@supabase/supabase-js": "^2.49.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
+  },
+  "scripts": {
+    "dev": "cd nooridal && npm run dev",
+    "build": "cd nooridal && npm run build",
+    "start": "cd nooridal && npm run start",
+    "lint": "cd nooridal && npm run lint",
+    "install": "cd nooridal && npm install"
   }
 }

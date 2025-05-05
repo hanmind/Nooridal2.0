@@ -5,19 +5,26 @@ import { createContext, useContext, useState, ReactNode, useEffect } from 'react
 interface AddressContextType {
   address: string;
   setAddress: (address: string) => void;
+  isLoaded: boolean;
 }
 
 const AddressContext = createContext<AddressContextType | undefined>(undefined);
 
 export function AddressProvider({ children }: { children: ReactNode }) {
-  const [address, setAddressState] = useState<string>('경기도 땡땡시 땡땡동');
+  const [address, setAddressState] = useState<string>('');
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     // 초기 로드 시 localStorage에서 저장된 주소를 가져옵니다
     const savedAddress = localStorage.getItem('userAddress');
     if (savedAddress) {
       setAddressState(savedAddress);
+    } else {
+      // 저장된 주소가 없는 경우 기본값 설정
+      setAddressState('경기도 땡땡시 땡땡동');
     }
+    // 로딩 완료 표시
+    setIsLoaded(true);
   }, []);
 
   const setAddress = (newAddress: string) => {
@@ -27,7 +34,7 @@ export function AddressProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AddressContext.Provider value={{ address, setAddress }}>
+    <AddressContext.Provider value={{ address, setAddress, isLoaded }}>
       {children}
     </AddressContext.Provider>
   );

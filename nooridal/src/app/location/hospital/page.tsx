@@ -4,6 +4,66 @@ import { useRouter } from "next/navigation";
 import { useAddress } from "@/app/context/AddressContext";
 import { useState, useEffect } from "react";
 
+interface ObstetricsClinic {
+  id: string;
+  name: string;
+  distance: string;
+  address: string;
+  phone: string;
+  operatingHours: string;
+  specialties: string[];
+  rating: number;
+  reviewCount: number;
+}
+
+// 더미 데이터
+const DUMMY_CLINICS: ObstetricsClinic[] = [
+  {
+    id: '1',
+    name: '행복한 산부인과',
+    distance: '0.3km',
+    address: '서울시 강남구 역삼동 123-45',
+    phone: '02-123-4567',
+    operatingHours: '평일 09:00-18:00, 토요일 09:00-13:00',
+    specialties: ['산전검사', '초음파', '산모교육', '분만'],
+    rating: 4.8,
+    reviewCount: 128
+  },
+  {
+    id: '2',
+    name: '맘스터치 산부인과',
+    distance: '0.7km',
+    address: '서울시 강남구 역삼동 234-56',
+    phone: '02-234-5678',
+    operatingHours: '평일 08:00-20:00, 토요일 09:00-17:00',
+    specialties: ['산전검사', '초음파', '산모교육', '분만', '불임치료'],
+    rating: 4.6,
+    reviewCount: 95
+  },
+  {
+    id: '3',
+    name: '24시 응급 산부인과',
+    distance: '1.2km',
+    address: '서울시 강남구 역삼동 345-67',
+    phone: '02-345-6789',
+    operatingHours: '24시간',
+    specialties: ['산전검사', '초음파', '응급분만', '산후관리'],
+    rating: 4.5,
+    reviewCount: 76
+  },
+  {
+    id: '4',
+    name: '미소 산부인과',
+    distance: '1.5km',
+    address: '서울시 강남구 역삼동 456-78',
+    phone: '02-456-7890',
+    operatingHours: '평일 09:00-18:00, 토요일 09:00-13:00',
+    specialties: ['산전검사', '초음파', '산모교육', '분만', '산후관리', '여성건강검진'],
+    rating: 4.9,
+    reviewCount: 210
+  }
+];
+
 // 카카오맵 타입 정의
 declare global {
   interface Window {
@@ -11,9 +71,13 @@ declare global {
   }
 }
 
-export default function FacilitiesPage() {
+export default function HospitalPage() {
   const router = useRouter();
   const { address, setAddress } = useAddress();
+  const [clinics, setClinics] = useState<ObstetricsClinic[]>([]);
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('전체');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showMap, setShowMap] = useState(false);
@@ -22,59 +86,130 @@ export default function FacilitiesPage() {
   const getShortAddress = (fullAddress: string) => {
     if (!fullAddress) return '';
     
+    // 주소에서 동/읍/면/리 부분을 찾습니다
     const match = fullAddress.match(/([가-힣]+(동|읍|면|리))/);
     if (match) {
+      // 동/읍/면/리 부분을 포함한 주소를 반환합니다
       const index = fullAddress.indexOf(match[0]) + match[0].length;
       return fullAddress.substring(0, index);
     }
     
+    // 매칭되는 부분이 없으면 원래 주소를 반환합니다
     return fullAddress;
   };
 
-  // 주소 수정 함수
+  // 주소 수정 함수 (수정 버튼 클릭시 내 현재 위치로 설정, alert로 주소 표시)
   const handleAddressEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.daum) {
-      new window.daum.Postcode({
-        oncomplete: function(data: any) {
-          let fullAddress = data.jibunAddress;
-          if (!fullAddress) {
-            fullAddress = data.address;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          // 카카오맵 좌표 -> 주소 변환 API 호출
+          if (window.kakao && window.kakao.maps) {
+            const geocoder = new window.kakao.maps.services.Geocoder();
+            geocoder.coord2Address(lng, lat, function(result: any, status: string) {
+              if (status === window.kakao.maps.services.Status.OK) {
+                const addr = result[0].address.address_name;
+                setAddress(addr);
+                alert(`현재 위치: ${addr}`);
+              } else {
+                alert('주소 변환에 실패했습니다.');
+              }
+            });
+          } else {
+            alert('카카오맵이 준비되지 않았습니다.');
           }
-          
-          let extraAddress = '';
-          if (data.addressType === 'R') {
-            if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
-              extraAddress += data.bname;
-            }
-            if (data.buildingName !== '') {
-              extraAddress += (extraAddress !== '' ? ', ' + data.buildingName : data.buildingName);
-            }
-            if (extraAddress !== '') {
-              fullAddress += ` (${extraAddress})`;
-            }
-          }
-
-          setAddress(fullAddress);
+        },
+        (error) => {
+          alert('위치 정보를 가져올 수 없습니다.');
         }
-      }).open();
+      );
+    } else {
+      alert('이 브라우저에서는 위치 정보가 지원되지 않습니다.');
     }
   };
 
-  const facilityTypes = [
-    {
-      id: 'locker',
-      title: '물품 보관함',
-      icon: '📦',
-      description: '일반, 냉장, 대형 보관함'
-    },
-    {
-      id: 'discount',
-      title: '할인업소',
-      icon: '🏪',
-      description: '임산부 할인 혜택 제공 업소'
+  // 더미 데이터를 사용하는 함수
+  const fetchObstetricsClinics = async () => {
+    if (!address) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // API 호출 대신 더미 데이터 사용
+      // 실제 API 연동 시 아래 주석을 해제하고 사용
+      /*
+      const apiKey = '3RMiKFjgxis3f86Xb5o3Ah30iv/dXmAni0V7kQUTbIke9XiTZXgyNGjcySlNyuMIRKtMSSgCH7IgbFWdqGEpQQ==';
+      const response = await fetch(`https://apis.data.go.kr/B551982/obstetrics?serviceKey=${encodeURIComponent(apiKey)}&address=${encodeURIComponent(address)}&type=json`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('데이터를 불러오는데 실패했습니다.');
+      }
+      
+      const data = await response.json();
+      
+      // API 응답 데이터를 우리 인터페이스에 맞게 변환
+      const formattedClinics: ObstetricsClinic[] = data.response.body.items.item.map((item: any) => ({
+        id: item.id || String(Math.random()),
+        name: item.name || '이름 없음',
+        distance: item.distance ? `${item.distance}m` : '거리 정보 없음',
+        address: item.address || '주소 정보 없음',
+        phone: item.phone || '전화번호 정보 없음',
+        operatingHours: item.operatingHours || '운영시간 정보 없음',
+        specialties: item.specialties ? item.specialties.split(',') : [],
+        rating: item.rating || 0,
+        reviewCount: item.reviewCount || 0
+      }));
+      
+      setClinics(formattedClinics);
+      */
+      
+      // 더미 데이터 사용
+      setTimeout(() => {
+        setClinics(DUMMY_CLINICS);
+        setIsLoading(false);
+      }, 1000);
+    } catch (err) {
+      setError('데이터를 불러오는 중 오류가 발생했습니다.');
+      console.error('API 호출 오류:', err);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    if (address) {
+      fetchObstetricsClinics();
+    }
+  }, [address]);
+
+  const handleFilter = (specialty: string) => {
+    setSelectedSpecialty(specialty);
+    if (specialty === '전체') {
+      setClinics(DUMMY_CLINICS);
+    } else {
+      const filtered = DUMMY_CLINICS.filter(clinic => 
+        clinic.specialties.includes(specialty)
+      );
+      setClinics(filtered);
+    }
+  };
+
+  const handleCall = (phone: string) => {
+    window.location.href = `tel:${phone}`;
+  };
+
+  const handleMap = (address: string) => {
+    window.open(`https://map.kakao.com/link/search/${address}`, '_blank');
+  };
 
   // 카카오맵 스크립트 로드
   useEffect(() => {
@@ -143,7 +278,7 @@ export default function FacilitiesPage() {
             )
           });
 
-          // 주변 시설 검색
+          // 주변 병원 검색
           const places = new window.kakao.maps.services.Places();
           const searchOptions = {
             location: coords,
@@ -151,12 +286,14 @@ export default function FacilitiesPage() {
             sort: window.kakao.maps.services.SortBy.DISTANCE
           };
 
-          // 선택된 시설 유형에 따라 검색 키워드 설정
+          // 선택된 병원 유형에 따라 검색 키워드 설정
           let keyword = '';
-          if (selectedType === 'locker') {
-            keyword = '보관함';
-          } else if (selectedType === 'discount') {
-            keyword = '할인점';
+          if (selectedType === 'obstetrics') {
+            keyword = '산부인과';
+          } else if (selectedType === 'infertility') {
+            keyword = '난임시술';
+          } else if (selectedType === 'postpartum') {
+            keyword = '산후조리원';
           }
 
           places.keywordSearch(keyword, (data: any, status: any) => {
@@ -228,12 +365,33 @@ export default function FacilitiesPage() {
     }
   }, [mapLoaded, address, showMap, selectedType]);
 
+  const hospitalTypes = [
+    {
+      id: 'obstetrics',
+      title: '산부인과',
+      icon: '🤰',
+      description: '산전검사, 초음파, 분만 등'
+    },
+    {
+      id: 'infertility',
+      title: '난임시술',
+      icon: '👶',
+      description: '인공수정, 시험관아기 등'
+    },
+    {
+      id: 'postpartum',
+      title: '산후조리원',
+      icon: '🍼',
+      description: '산모와 신생아 케어'
+    }
+  ];
+
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
         {/* 헤더 */}
-        <div className="left-[155px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
-          편의 시설
+        <div className="left-[175px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
+          병원
         </div>
         <button 
           onClick={() => router.back()}
@@ -271,18 +429,18 @@ export default function FacilitiesPage() {
           </div>
         </div>
 
-        {/* 편의 시설 유형 선택 */}
+        {/* 병원 유형 선택 */}
         <div className="absolute left-[12px] top-[230px] w-[360px] space-y-4">
-          {facilityTypes.map((type) => (
+          {hospitalTypes.map((type) => (
             <div key={type.id}>
-              {type.id === 'locker' && (
+              {type.id === 'obstetrics' && (
                 <div className="border-t border-dashed border-gray-300 my-6" />
               )}
               <div
                 className={`p-6 rounded-3xl shadow-sm cursor-pointer transition-all duration-300 ${
                   selectedType === type.id
-                    ? 'bg-yellow-100 border-2 border-yellow-200'
-                    : 'bg-white hover:bg-yellow-50'
+                    ? 'bg-red-100 border-2 border-red-200'
+                    : 'bg-white hover:bg-red-50'
                 }`}
                 onClick={() => setSelectedType(type.id)}
               >
@@ -298,7 +456,7 @@ export default function FacilitiesPage() {
           ))}
         </div>
 
-        {/* 선택된 편의 시설 유형에 따른 추가 정보 표시 */}
+        {/* 선택된 병원 유형에 따른 추가 정보 표시 */}
         {selectedType && !showMap && (
           <>
             {/* 반투명 배경 */}
@@ -310,23 +468,23 @@ export default function FacilitiesPage() {
             {/* 정보 상자 */}
             <div className="absolute left-[12px] top-[200px] w-[360px] p-8 bg-white rounded-3xl shadow-sm z-20">
               <div className="text-center font-['Do_Hyeon'] text-2xl mb-8">
-                {facilityTypes.find(t => t.id === selectedType)?.title} 정보
+                {hospitalTypes.find(t => t.id === selectedType)?.title} 정보
               </div>
               <div className="space-y-4">
                 <div 
-                  className="p-4 bg-yellow-100 rounded-xl cursor-pointer"
+                  className="p-4 bg-red-50 rounded-xl cursor-pointer"
                   onClick={() => setShowMap(true)}
                 >
-                  <div className="font-['Do_Hyeon']">📍 주변 시설 찾기</div>
-                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">가까운 시설을 찾아보세요</div>
+                  <div className="font-['Do_Hyeon']">📍 주변 병원 찾기</div>
+                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">가까운 병원을 찾아보세요</div>
                 </div>
-                <div className="p-4 bg-yellow-100 rounded-xl">
+                <div className="p-4 bg-red-50 rounded-xl">
                   <div className="font-['Do_Hyeon']">📱 예약하기</div>
                   <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">온라인으로 예약하세요</div>
                 </div>
-                <div className="p-4 bg-yellow-100 rounded-xl">
+                <div className="p-4 bg-red-50 rounded-xl">
                   <div className="font-['Do_Hyeon']">💬 상담하기</div>
-                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문 상담원과 상담하세요</div>
+                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문의와 상담하세요</div>
                 </div>
               </div>
               
@@ -334,7 +492,7 @@ export default function FacilitiesPage() {
               <div className="flex justify-center mt-6">
                 <button
                   onClick={() => setSelectedType(null)}
-                  className="px-6 py-2 bg-yellow-200 text-gray-900 rounded-full font-['Do_Hyeon'] hover:bg-lime-300 transition-colors"
+                  className="px-6 py-2 bg-red-200 text-gray-900 rounded-full font-['Do_Hyeon'] hover:bg-red-300 transition-colors"
                 >
                   닫기
                 </button>
@@ -356,7 +514,7 @@ export default function FacilitiesPage() {
             <div className="absolute left-[12px] top-[200px] w-[360px] h-[500px] bg-white rounded-3xl shadow-sm z-20 p-4">
               <div className="flex justify-between items-center mb-4">
                 <div className="text-xl font-['Do_Hyeon']">
-                  주변 시설 지도
+                  주변 병원 지도
                 </div>
                 <button
                   onClick={() => setShowMap(false)}
@@ -368,7 +526,7 @@ export default function FacilitiesPage() {
               <div id="map" className="w-full h-[400px] rounded-xl overflow-hidden">
                 {!mapLoaded && (
                   <div className="w-full h-full flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-400"></div>
                   </div>
                 )}
               </div>
@@ -378,4 +536,4 @@ export default function FacilitiesPage() {
       </div>
     </div>
   );
-} 
+}

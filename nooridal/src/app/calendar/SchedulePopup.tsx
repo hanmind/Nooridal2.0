@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase, getCurrentUser } from '@/utils/supabase';
 
 interface DateTimePickerProps {
   isOpen: boolean;
@@ -201,25 +202,62 @@ interface SchedulePopupProps {
   isOpen: boolean;
   onClose: () => void;
   selectedDate: Date;
+  onEventAdded?: () => void; // 일정 추가 후 캘린더 갱신을 위한 콜백
+  eventToEdit?: Event | null; // 수정할 이벤트 객체
 }
 
-const SchedulePopup: React.FC<SchedulePopupProps> = ({ isOpen, onClose, selectedDate }) => {
+// 이벤트 타입 정의
+interface Event {
+  id: string;
+  title: string;
+  start_time: string;
+  end_time: string | null;
+  color: string;
+  all_day: boolean;
+  description?: string;
+  user_id: string;
+}
+
+const SchedulePopup: React.FC<SchedulePopupProps> = ({ 
+  isOpen, 
+  onClose, 
+  selectedDate, 
+  onEventAdded,
+  eventToEdit 
+}) => {
   const formatDate = (date: Date) => {
     return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
   };
 
+  // 폼 상태 관리
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState(formatDate(selectedDate));
   const [startTime, setStartTime] = useState('오전 8시 00분');
   const [endDate, setEndDate] = useState(formatDate(selectedDate));
   const [endTime, setEndTime] = useState('오전 8시 00분');
   const [selectedDuration, setSelectedDuration] = useState<string>('');
   const [selectedRepeat, setSelectedRepeat] = useState<string>('');
-  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('blue'); // 기본 색상 설정
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
   
   const [isStartDatePickerOpen, setIsStartDatePickerOpen] = useState(false);
   const [isStartTimePickerOpen, setIsStartTimePickerOpen] = useState(false);
   const [isEndDatePickerOpen, setIsEndDatePickerOpen] = useState(false);
   const [isEndTimePickerOpen, setIsEndTimePickerOpen] = useState(false);
+
+  // 컴포넌트 마운트 시 사용자 정보 가져오기
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await getCurrentUser();
+      setCurrentUser(user);
+    };
+    
+    fetchUser();
+  }, []);
 
   const colors = [
     { bg: 'bg-blue-200', value: 'blue' },
@@ -228,6 +266,204 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({ isOpen, onClose, selected
     { bg: 'bg-red-200', value: 'red' },
     { bg: 'bg-purple-200', value: 'purple' }
   ];
+
+  // 시간 변환 함수: "오전 8시 00분" -> "08:00:00"
+  const parseTimeToISO = (timeString: string) => {
+    try {
+      // 입력값 검증
+      if (!timeString || typeof timeString !== 'string') {
+        console.error('유효하지 않은 시간 형식:', timeString);
+        return '00:00:00'; // 기본값 반환
+      }
+      
+      const parts = timeString.split(' ');
+      if (parts.length < 2) {
+        console.error('시간 형식 오류:', timeString);
+        return '00:00:00';
+      }
+      
+      const period = parts[0]; // 오전 또는 오후
+      const timeSegment = parts[1]; // '8시'
+      
+      if (!timeSegment || !timeSegment.includes('시')) {
+        console.error('시간 세그먼트 오류:', timeSegment);
+        return '00:00:00';
+      }
+      
+      let hourStr = timeSegment.split('시')[0];
+      let hourNum = parseInt(hourStr);
+      
+      // 시간대 변환
+      if (period === '오후' && hourNum < 12) hourNum += 12;
+      if (period === '오전' && hourNum === 12) hourNum = 0;
+      
+      // 분 처리
+      let min = '00';
+      if (parts.length > 2 && parts[2].includes('분')) {
+        min = parts[2].replace('분', '');
+      }
+      
+      return `${String(hourNum).padStart(2, '0')}:${min.padStart(2, '0')}:00`;
+    } catch (err) {
+      console.error('시간 변환 중 오류 발생:', err, timeString);
+      return '00:00:00'; // 오류 시 기본값 반환
+    }
+  };
+
+  // 날짜 변환 함수: "2023.05.25" -> "2023-05-25"
+  const parseDateToISO = (dateString: string) => {
+    try {
+      // 입력값 검증
+      if (!dateString || typeof dateString !== 'string') {
+        console.error('유효하지 않은 날짜 형식:', dateString);
+        return new Date().toISOString().split('T')[0]; // 오늘 날짜 반환
+      }
+
+      // YYYY.MM.DD 형식 검증
+      if (!/^\d{4}\.\d{2}\.\d{2}$/.test(dateString)) {
+        console.error('날짜 형식 오류 (YYYY.MM.DD 형식이어야 함):', dateString);
+        return new Date().toISOString().split('T')[0];
+      }
+
+      // 점을 대시로 변환
+      return dateString.replace(/\./g, '-');
+    } catch (err) {
+      console.error('날짜 변환 중 오류 발생:', err, dateString);
+      return new Date().toISOString().split('T')[0]; // 오류 시 오늘 날짜 반환
+    }
+  };
+
+  // ISO 형식의 날짜/시간을 UI 형식으로 변환
+  const formatISODateToUIDate = (isoDateString: string) => {
+    const date = new Date(isoDateString);
+    return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+  };
+
+  const formatISOTimeToUITime = (isoDateString: string) => {
+    const date = new Date(isoDateString);
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const period = hours >= 12 ? '오후' : '오전';
+    const displayHours = hours % 12 || 12;
+    
+    return `${period} ${displayHours}시 ${minutes.toString().padStart(2, '0')}분`;
+  };
+
+  // eventToEdit가 변경될 때 폼 초기화
+  useEffect(() => {
+    if (eventToEdit) {
+      setTitle(eventToEdit.title || '');
+      setDescription(eventToEdit.description || '');
+      setStartDate(formatISODateToUIDate(eventToEdit.start_time));
+      setStartTime(formatISOTimeToUITime(eventToEdit.start_time));
+      
+      if (eventToEdit.end_time) {
+        setEndDate(formatISODateToUIDate(eventToEdit.end_time));
+        setEndTime(formatISOTimeToUITime(eventToEdit.end_time));
+      }
+      
+      setSelectedColor(eventToEdit.color || 'blue');
+      setIsEditMode(true);
+    } else {
+      // 새로운 일정 추가 시 폼 초기화
+      setTitle('');
+      setDescription('');
+      setStartDate(formatDate(selectedDate));
+      setStartTime('오전 8시 00분');
+      setEndDate(formatDate(selectedDate));
+      setEndTime('오전 8시 00분');
+      setSelectedColor('blue');
+      setIsEditMode(false);
+    }
+  }, [eventToEdit, selectedDate]);
+
+  // 일정 저장/수정하기
+  const saveEvent = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      if (!title.trim()) {
+        setError('일정 제목을 입력해주세요.');
+        return;
+      }
+      
+      // 로그인 확인
+      if (!currentUser?.id) {
+        setError('로그인이 필요합니다.');
+        return;
+      }
+      
+      // 날짜 및 시간 파싱
+      const startDateISO = parseDateToISO(startDate);
+      const startTimeISO = parseTimeToISO(startTime);
+      const endDateISO = parseDateToISO(endDate);
+      const endTimeISO = parseTimeToISO(endTime);
+      
+      // ISO 날짜/시간 조합 - 타임존 처리
+      // 사용자 로컬 시간대로 Date 객체 생성 후 ISO 문자열로 변환하여 Z 접미사(UTC) 제거
+      const createLocalISOString = (dateStr: string, timeStr: string) => {
+        // 날짜와 시간 문자열 결합
+        const localDateTimeStr = `${dateStr}T${timeStr}`;
+        // 로컬 시간대로 해석
+        const date = new Date(localDateTimeStr);
+        
+        // ISO 문자열에서 Z(UTC 표시) 제거
+        return date.toISOString().replace('Z', '');
+      };
+      
+      const startDateTime = createLocalISOString(startDateISO, startTimeISO);
+      const endDateTime = createLocalISOString(endDateISO, endTimeISO);
+      
+      // 일정 데이터 생성
+      const eventData = {
+        user_id: currentUser.id,
+        title,
+        description,
+        start_time: startDateTime,
+        end_time: endDateTime,
+        color: selectedColor,
+        all_day: false // 추후 하루종일 옵션 추가 가능
+      };
+
+      let result;
+      
+      if (isEditMode && eventToEdit) {
+        // 기존 일정 수정
+        result = await supabase
+          .from('events')
+          .update(eventData)
+          .eq('id', eventToEdit.id)
+          .select();
+      } else {
+        // 새 일정 추가
+        result = await supabase
+          .from('events')
+          .insert(eventData)
+          .select();
+      }
+      
+      const { data, error } = result;
+      
+      if (error) throw error;
+      
+      // 성공적으로 저장 후 폼 초기화 및 팝업 닫기
+      setTitle('');
+      setDescription('');
+      onClose();
+      
+      // 캘린더 갱신을 위한 콜백
+      if (onEventAdded) {
+        onEventAdded();
+      }
+      
+    } catch (err) {
+      console.error('일정 저장 오류:', err);
+      setError('일정을 저장하는 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -243,8 +479,15 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({ isOpen, onClose, selected
       <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] bg-white z-50 shadow-lg rounded-[20px] p-6">
         {/* 제목 */}
         <div className="text-xl font-['Do_Hyeon'] text-center mb-6">
-          일정 등록
+          {isEditMode ? '일정 수정' : '일정 등록'}
         </div>
+
+        {/* 오류 메시지 */}
+        {error && (
+          <div className="mb-4 text-red-500 text-sm font-['Do_Hyeon']">
+            {error}
+          </div>
+        )}
 
         {/* 일정 입력 폼 */}
         <div className="space-y-6">
@@ -254,6 +497,8 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({ isOpen, onClose, selected
               type="text"
               placeholder="일정을 입력하세요"
               className="w-full p-2 border-b border-neutral-200 focus:outline-none font-['Do_Hyeon'] text-neutral-600"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
@@ -382,6 +627,8 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({ isOpen, onClose, selected
               type="text"
               placeholder="메모를 입력하세요"
               className="w-full p-2 border-b border-neutral-200 focus:outline-none font-['Do_Hyeon'] text-neutral-600"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
         </div>
@@ -391,11 +638,18 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({ isOpen, onClose, selected
           <button 
             className="flex-1 py-2 rounded-[20px] bg-neutral-200 text-neutral-600 font-['Do_Hyeon']"
             onClick={onClose}
+            disabled={isLoading}
           >
             취소
           </button>
-          <button className="flex-1 py-2 rounded-[20px] bg-blue-300 text-white font-['Do_Hyeon']">
-            등록
+          <button 
+            className={`flex-1 py-2 rounded-[20px] font-['Do_Hyeon'] ${
+              isLoading ? 'bg-gray-300 text-gray-100' : 'bg-blue-300 text-white hover:bg-blue-400'
+            }`}
+            onClick={saveEvent}
+            disabled={isLoading}
+          >
+            {isLoading ? '저장 중...' : isEditMode ? '수정' : '등록'}
           </button>
         </div>
       </div>
