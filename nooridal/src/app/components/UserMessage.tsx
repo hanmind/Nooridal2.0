@@ -22,7 +22,15 @@ const UserMessage: React.FC<UserMessageProps> = ({ message, timestamp }) => {
             {formattedTime}
           </span>
         )}
-        <div className="bg-blue-500 text-white rounded-lg py-2 px-4">
+        <div
+          className="bg-blue-200 text-gray-800 p-3 rounded-lg max-w-lg shadow-sm"
+          style={{
+            borderTopRightRadius: "0.25rem",
+            borderBottomRightRadius: "0.5rem",
+            borderTopLeftRadius: "0.5rem",
+            borderBottomLeftRadius: "0.5rem",
+          }}
+        >
           <p className="text-sm whitespace-pre-wrap">{message}</p>
         </div>
       </div>

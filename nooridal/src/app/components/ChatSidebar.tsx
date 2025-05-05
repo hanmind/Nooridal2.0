@@ -7,8 +7,8 @@ interface ChatSidebarProps {
   chatRooms: ChatRoom[];
   onSelectRoom: (roomId: string) => void;
   currentRoomId: string | null;
-  onToggleSidebar: () => void; // 이 prop은 현재 사용되지 않지만 인터페이스 일관성을 위해 유지
-  onCreateNewChat: () => void; // 새 채팅 버튼 클릭 핸들러
+  onToggleSidebar: () => void; // 토글 함수 추가
+  onCreateNewChat: () => void; // 새 채팅방 생성 함수 추가
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
@@ -17,7 +17,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   chatRooms,
   onSelectRoom,
   currentRoomId,
-  // onToggleSidebar는 현재 사용되지 않음
+  // onToggleSidebar, // 토글 버튼은 ChatContainer에 있으므로 여기서 사용 안 함
   onCreateNewChat,
 }) => {
   // Simple date formatter
@@ -37,28 +37,28 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
   return (
     <>
-      {/* Overlay for closing sidebar on click outside */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ease-in-out lg:hidden"
-          onClick={onClose}
-        ></div>
-      )}
-
-      {/* Sidebar container */}
+      {/* Overlay for mobile */}
       <div
-        className={`fixed inset-y-0 left-0 bg-gray-800 text-white w-64 p-4 transform ${
+        className={`fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity lg:hidden ${
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={onClose}
+      />
+
+      {/* Sidebar */}
+      <div
+        className={`fixed lg:static inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform z-40 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out z-50 lg:relative lg:translate-x-0 lg:block`}
+        } lg:translate-x-0 flex flex-col border-r border-yellow-200`}
       >
-        {/* Sidebar Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">채팅 목록</h2>
+        {/* Header */}
+        <div className="p-4 border-b border-yellow-200 flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-yellow-800">채팅 목록</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white lg:hidden"
+            className="text-yellow-600 hover:text-yellow-800 lg:hidden"
           >
-            {/* Close Icon SVG */}
+            {/* Close Icon */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -76,51 +76,54 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
           </button>
         </div>
 
-        {/* 새 채팅 버튼 */}
-        <div className="mb-4">
+        {/* New Chat Button */}
+        <div className="p-4 border-b border-yellow-100">
           <button
             onClick={onCreateNewChat}
-            className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors duration-300"
+            className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg shadow hover:bg-yellow-500 transition duration-200 flex items-center justify-center gap-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
               <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
               />
             </svg>
-            새 채팅
+            새 채팅 시작하기
           </button>
         </div>
 
         {/* Chat Room List */}
-        <nav className="mt-4">
-          <ul>
-            {chatRooms.length === 0 ? (
-              <li className="text-gray-400 text-sm">채팅방이 없습니다.</li>
-            ) : (
-              chatRooms.map((room) => (
-                <li key={room.id} className="mb-2">
-                  <button
-                    onClick={() => onSelectRoom(room.id)}
-                    className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out ${
-                      currentRoomId === room.id
-                        ? "bg-gray-700 text-white"
-                        : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                    }`}
-                  >
-                    {room.chat_title || `Chat ${formatDate(room.created_at)}`}
-                  </button>
-                </li>
-              ))
-            )}
-          </ul>
-        </nav>
+        <div className="flex-1 overflow-y-auto">
+          {chatRooms.length === 0 ? (
+            <p className="p-4 text-center text-yellow-600 opacity-75">
+              채팅방이 없습니다.
+            </p>
+          ) : (
+            chatRooms.map((room) => (
+              <button
+                key={room.id}
+                onClick={() => onSelectRoom(room.id)}
+                className={`w-full text-left px-4 py-3 transition duration-150 ease-in-out ${
+                  currentRoomId === room.id
+                    ? "bg-yellow-100 text-yellow-800 font-semibold"
+                    : "text-gray-700 hover:bg-yellow-50"
+                }`}
+              >
+                {room.chat_title ||
+                  `Chat ${room.created_at}` ||
+                  "Untitled Chat"}
+              </button>
+            ))
+          )}
+        </div>
       </div>
     </>
   );

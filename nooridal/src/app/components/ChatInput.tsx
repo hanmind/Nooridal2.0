@@ -1,60 +1,57 @@
-import React, { useState, KeyboardEvent } from "react";
+import React, { useState } from "react";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
-  disabled?: boolean; // Use disabled prop for clarity
+  disabled?: boolean;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled }) => {
-  const [inputValue, setInputValue] = useState("");
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
-  };
+  const [message, setMessage] = useState("");
 
   const handleSend = () => {
-    if (inputValue.trim() && !disabled) {
-      onSendMessage(inputValue);
-      setInputValue(""); // Clear input after sending
+    if (message.trim() && !disabled) {
+      onSendMessage(message);
+      setMessage("");
     }
   };
 
-  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault(); // Prevent default Enter behavior (new line)
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
       handleSend();
     }
   };
 
   return (
-    <div className="p-4 bg-white border-t border-gray-200 flex items-center">
+    <div className="flex items-center space-x-3">
       <input
         type="text"
-        value={inputValue}
-        onChange={handleInputChange}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
         onKeyPress={handleKeyPress}
-        placeholder={disabled ? "Processing..." : "메시지를 입력하세요..."}
-        className="flex-1 border border-gray-300 rounded-full py-2 px-4 mr-3 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+        placeholder="메시지를 입력하세요..."
         disabled={disabled}
+        className="flex-1 px-4 py-2 border border-yellow-300 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-sm"
       />
       <button
         onClick={handleSend}
-        disabled={disabled || !inputValue.trim()}
-        className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-400"
+        disabled={disabled || !message.trim()}
+        className={`px-5 py-2 rounded-full text-white transition duration-200 shadow-md ${
+          disabled || !message.trim()
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-yellow-500 hover:bg-yellow-600"
+        }`}
       >
-        {/* Send Icon SVG */}
+        {/* 전송 아이콘 */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 transform rotate-45"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+          className="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
         >
           <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+            d="M10.894 2.886l4.107 4.107a1 1 0 010 1.414l-4.107 4.107a1 1 0 01-1.414-1.414L12.586 10l-3.106-3.107a1 1 0 011.414-1.414zM4.894 2.886l4.107 4.107a1 1 0 010 1.414l-4.107 4.107a1 1 0 01-1.414-1.414L6.586 10 3.48 6.893a1 1 0 011.414-1.414z"
+            clipRule="evenodd"
+            fillRule="evenodd"
           />
         </svg>
       </button>

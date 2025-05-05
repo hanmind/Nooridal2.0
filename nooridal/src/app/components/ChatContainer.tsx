@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import UserMessage from "./UserMessage";
 import AIMessage from "./AIMessage";
 import ChatInput from "./ChatInput";
@@ -15,6 +15,9 @@ import {
 import { Message } from "@/types/chat";
 import { ChatRoom, LLMConversation } from "@/types/db";
 import { supabase } from "../lib/supabase";
+
+// 로컬 스토리지 키 생성 함수
+const getLocalStorageKey = (roomId: string) => `chatMessages_${roomId}`;
 
 export default function ChatContainer() {
   // --- State Management (Task 10.2) ---
@@ -51,8 +54,8 @@ export default function ChatContainer() {
     fetchUser();
   }, []);
 
-  // Define fetch/load functions within component scope
-  const fetchChatRooms = async () => {
+  // 채팅방 목록 가져오기
+  const fetchChatRooms = useCallback(async () => {
     if (!userId) return;
 
     setIsLoadingRooms(true);
@@ -63,12 +66,17 @@ export default function ChatContainer() {
       setChatRooms(rooms);
 
       // 룸이 있으면 첫번째 룸 선택, 없으면 오늘의 채팅방 생성
-      if (rooms.length > 0) {
+      if (rooms.length > 0 && !currentRoomId) {
         setCurrentRoomId(rooms[0].id);
-      } else {
+      } else if (rooms.length === 0 && !currentRoomId) {
         // 오늘의 채팅방이 없으면 새로 생성 (dify_conversation_id는 null)
         const todaysRoom = await getTodaysChatRoom(userId);
-        setChatRooms((prev) => [todaysRoom, ...prev]);
+        // 오늘의 방이 이미 목록에 있는지 확인 (중복 방지)
+        if (!rooms.some((room) => room.id === todaysRoom.id)) {
+          setChatRooms((prev) => [todaysRoom, ...prev]); // 새 방을 맨 앞에 추가
+        } else {
+          setChatRooms(rooms); // 이미 있으면 기존 목록 유지
+        }
         setCurrentRoomId(todaysRoom.id);
       }
     } catch (err) {
@@ -77,79 +85,134 @@ export default function ChatContainer() {
     } finally {
       setIsLoadingRooms(false);
     }
-  };
+  }, [userId, currentRoomId]);
 
-  const loadMessages = async (roomId: string) => {
+  // 데이터베이스에서 메시지 로드 (함수 분리)
+  const loadMessagesFromDB = useCallback(async (roomId: string) => {
     setIsLoadingMessages(true);
     setError(null);
-    setMessages([]);
     try {
       const conversations: LLMConversation[] = await getChatRoomConversations(
         roomId
       );
-
-      // 실제 대화 내용만 표시 (초기화 메시지 제외)
       const filteredConversations = conversations.filter(
         (conv) => conv.query !== "_initialize_conversation_"
       );
-
       const formattedMessages: Message[] = filteredConversations.flatMap(
-        (conv: LLMConversation): Message[] => {
-          let userQuery = "";
-          try {
-            userQuery = conv.query || "Missing query";
-          } catch (e) {
-            console.error("Failed to parse user query:", conv.query, e);
-            userQuery = "Error parsing query";
-          }
-
-          let aiResponse = "";
-          try {
-            aiResponse = conv.response || "Missing answer";
-          } catch (e) {
-            console.error("Failed to parse AI response:", conv.response, e);
-            aiResponse = "Error parsing response";
-          }
-
-          return [
-            {
-              id: `${conv.id}-query`,
-              role: "user",
-              content: userQuery,
-              timestamp: conv.created_at ?? new Date().toISOString(),
-            },
-            {
-              id: `${conv.id}-response`,
-              role: "assistant",
-              content: aiResponse,
-              timestamp: conv.created_at ?? new Date().toISOString(),
-            },
-          ];
-        }
+        (conv: LLMConversation): Message[] => [
+          {
+            id: `${conv.id}-query`,
+            role: "user",
+            content: conv.query || "Missing query",
+            timestamp: conv.created_at ?? new Date().toISOString(),
+          },
+          {
+            id: `${conv.id}-response`,
+            role: "assistant",
+            content: conv.response || "Missing answer",
+            timestamp: conv.created_at ?? new Date().toISOString(),
+          },
+        ]
       );
-      setMessages(formattedMessages);
+
+      // 중요: DB에서 메시지를 성공적으로 가져온 경우에만 상태 업데이트
+      if (formattedMessages.length > 0) {
+        setMessages(formattedMessages); // DB에서 가져온 최신 메시지로 상태 업데이트
+        console.log(
+          `Loaded ${formattedMessages.length} messages from DB for room ${roomId} (state updated)`
+        );
+      } else {
+        // DB에 메시지가 없으면 로컬 스토리지에서 로드한 상태를 유지 (setMessages 호출 안 함)
+        console.log(
+          `Loaded 0 messages from DB for room ${roomId}. Keeping state from localStorage if any.`
+        );
+      }
     } catch (err) {
-      console.error("Error loading conversations:", err);
+      console.error(`Error loading conversations for room ${roomId}:`, err);
       setError("대화 내용을 불러오는데 실패했습니다.");
+      // DB 로드 에러 시에도 로컬 스토리지 상태 유지 (setMessages 호출 안 함)
     } finally {
       setIsLoadingMessages(false);
     }
-  };
+  }, []);
 
-  // userId가 설정된 후 채팅방 가져오기
+  // 로컬 스토리지에서 메시지 로드
+  const loadMessagesFromLocalStorage = useCallback((roomId: string) => {
+    const key = getLocalStorageKey(roomId);
+    try {
+      const savedMessages = localStorage.getItem(key);
+      if (savedMessages) {
+        const parsedMessages: Message[] = JSON.parse(savedMessages);
+        if (Array.isArray(parsedMessages)) {
+          // 로컬 스토리지 데이터로 상태 우선 업데이트 (빠른 표시용)
+          setMessages(parsedMessages);
+          console.log(
+            `Loaded ${parsedMessages.length} messages from localStorage for room ${roomId}`
+          );
+          return true; // 로드 성공
+        }
+      }
+    } catch (error) {
+      console.error(
+        `Error loading messages from localStorage for room ${roomId}:`,
+        error
+      );
+      localStorage.removeItem(key); // 파싱 오류 시 해당 키 제거
+    }
+    return false; // 데이터 없음 또는 로드 실패
+  }, []);
+
+  // userId 변경 시 채팅방 목록 로드
   useEffect(() => {
     if (userId) {
       fetchChatRooms();
     }
-  }, [userId]);
+  }, [userId, fetchChatRooms]);
 
-  // currentRoomId가 변경될 때 해당 채팅방의 메시지 로드
+  // currentRoomId 변경 시 메시지 로드 (수정된 부분)
   useEffect(() => {
     if (currentRoomId) {
-      loadMessages(currentRoomId);
+      console.log(
+        `Room changed to ${currentRoomId}, attempting to load messages...`
+      );
+      // 1. 로컬 스토리지에서 데이터 로드 시도 및 임시 표시
+      loadMessagesFromLocalStorage(currentRoomId);
+      // 2. DB에서 최신 데이터 로드 (로컬 데이터 덮어씀)
+      loadMessagesFromDB(currentRoomId);
+    } else {
+      // 선택된 방이 없으면 메시지 비움
+      setMessages([]);
     }
-  }, [currentRoomId]);
+    // 의존성 배열에 currentRoomId, loadMessagesFromDB, loadMessagesFromLocalStorage 포함
+  }, [currentRoomId, loadMessagesFromDB, loadMessagesFromLocalStorage]);
 
+  // messages 상태 변경 시 로컬 스토리지에 저장 (추가)
+  useEffect(() => {
+    // 로딩 중이 아니고, 현재 방 ID가 있으며, 메시지가 존재할 때 저장
+    if (
+      !isLoadingMessages &&
+      currentRoomId &&
+      messages &&
+      messages.length > 0
+    ) {
+      const key = getLocalStorageKey(currentRoomId);
+      try {
+        console.log(
+          `Saving ${messages.length} messages to localStorage for room ${currentRoomId}`
+        );
+        localStorage.setItem(key, JSON.stringify(messages));
+      } catch (error) {
+        console.error(
+          `Error saving messages to localStorage for room ${currentRoomId}:`,
+          error
+        );
+        // 예를 들어 QuotaExceededError 처리 로직 추가 가능
+      }
+    }
+    // 초기 로드 시 DB 로딩 중에 저장되지 않도록 isLoadingMessages 조건 추가
+  }, [messages, currentRoomId, isLoadingMessages]);
+
+  // 스크롤 맨 아래로 (동일)
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -679,7 +742,7 @@ export default function ChatContainer() {
 
   // --- Render ---
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <div className="flex h-screen bg-yellow-50 overflow-hidden">
       <ChatSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -691,11 +754,11 @@ export default function ChatContainer() {
       />
 
       <div className="flex-1 flex flex-col">
-        <div className="bg-white shadow-sm p-4 flex items-center sticky top-0 z-10">
+        <div className="bg-white shadow-sm p-4 flex items-center sticky top-0 z-10 border-b border-yellow-200">
           <button
             aria-label="Toggle sidebar"
             onClick={() => setIsSidebarOpen(true)}
-            className="text-gray-600 hover:text-gray-900 mr-4 lg:hidden"
+            className="text-yellow-600 hover:text-yellow-800 mr-4 lg:hidden"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -712,34 +775,42 @@ export default function ChatContainer() {
               />
             </svg>
           </button>
-          <h1 className="text-xl font-semibold">누리달 AI챗봇</h1>
+          <h1 className="text-xl font-semibold text-yellow-800">
+            누리달 AI챗봇
+          </h1>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-yellow-50">
           {isLoadingRooms && (
-            <p className="text-center text-gray-500">채팅방 목록 로딩 중...</p>
+            <p className="text-center text-yellow-600 opacity-75">
+              채팅방 목록 로딩 중...
+            </p>
           )}
           {isLoadingMessages && (
-            <p className="text-center text-gray-500">
+            <p className="text-center text-yellow-600 opacity-75">
               대화 내용을 불러오는 중...
             </p>
           )}
           {!isLoadingRooms && !isLoadingMessages && chatRooms.length === 0 && (
-            <p className="text-center text-gray-500">채팅 기록이 없습니다.</p>
+            <p className="text-center text-yellow-600 opacity-75">
+              채팅 기록이 없습니다.
+            </p>
           )}
           {!isLoadingRooms &&
             currentRoomId &&
             !isLoadingMessages &&
             messages.length === 0 &&
             !error && (
-              <p className="text-center text-gray-500">대화를 시작해보세요.</p>
+              <p className="text-center text-yellow-600 opacity-75">
+                대화를 시작해보세요.
+              </p>
             )}
           {error && (
             <ErrorMessage
               message={error}
               onRetry={
                 currentRoomId
-                  ? () => loadMessages(currentRoomId)
+                  ? () => loadMessagesFromDB(currentRoomId)
                   : fetchChatRooms
               }
             />
@@ -748,7 +819,11 @@ export default function ChatContainer() {
           {!isLoadingMessages &&
             messages.map((message) =>
               message.role === "user" ? (
-                <UserMessage key={message.id} message={message.content} />
+                <UserMessage
+                  key={message.id}
+                  message={message.content}
+                  timestamp={message.timestamp}
+                />
               ) : message.error ? (
                 <ErrorMessage
                   key={message.id}
@@ -759,14 +834,15 @@ export default function ChatContainer() {
                 <AIMessage
                   key={message.id}
                   message={message.content}
-                  isStreaming={message.isStreaming} // isStreaming 상태 직접 사용
+                  isStreaming={message.isStreaming}
+                  timestamp={message.timestamp}
                 />
               )
             )}
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4 border-t border-gray-200 bg-white">
+        <div className="p-4 border-t border-yellow-200 bg-white">
           <ChatInput
             onSendMessage={handleSendMessage}
             disabled={
