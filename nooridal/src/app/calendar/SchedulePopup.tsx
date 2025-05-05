@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, getCurrentUser } from '@/utils/supabase';
+import { RRule } from 'rrule';
 
 interface DateTimePickerProps {
   isOpen: boolean;
@@ -206,16 +207,22 @@ interface SchedulePopupProps {
   eventToEdit?: Event | null; // 수정할 이벤트 객체
 }
 
-// 이벤트 타입 정의
+// 일정 타입 정의
 interface Event {
   id: string;
   title: string;
   start_time: string;
   end_time: string | null;
-  color: string;
-  all_day: boolean;
-  description?: string;
-  user_id: string;
+  color: string | null;
+  all_day: boolean | null;
+  description?: string | null;
+  user_id: string | null;
+  notification_time?: string | null;
+  repeat_pattern?: string | null;
+  // 반복 일정 관련 필드 추가
+  rrule?: string | null;
+  exdate?: string[] | null;
+  recurring_event_id?: string | null;
 }
 
 const SchedulePopup: React.FC<SchedulePopupProps> = ({ 
@@ -349,33 +356,66 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({
     return `${period} ${displayHours}시 ${minutes.toString().padStart(2, '0')}분`;
   };
 
-  // eventToEdit가 변경될 때 폼 초기화
+  // 이벤트 수정 모드일 경우 기존 이벤트 정보 채우기
   useEffect(() => {
     if (eventToEdit) {
-      setTitle(eventToEdit.title || '');
+      setIsEditMode(true);
+      setTitle(eventToEdit.title);
       setDescription(eventToEdit.description || '');
+      
+      // 시작 날짜/시간 설정
+      const startDate = new Date(eventToEdit.start_time);
       setStartDate(formatISODateToUIDate(eventToEdit.start_time));
       setStartTime(formatISOTimeToUITime(eventToEdit.start_time));
       
+      // 종료 날짜/시간 설정
       if (eventToEdit.end_time) {
         setEndDate(formatISODateToUIDate(eventToEdit.end_time));
         setEndTime(formatISOTimeToUITime(eventToEdit.end_time));
       }
       
-      setSelectedColor(eventToEdit.color || 'blue');
-      setIsEditMode(true);
-    } else {
-      // 새로운 일정 추가 시 폼 초기화
-      setTitle('');
-      setDescription('');
-      setStartDate(formatDate(selectedDate));
-      setStartTime('오전 8시 00분');
-      setEndDate(formatDate(selectedDate));
-      setEndTime('오전 8시 00분');
-      setSelectedColor('blue');
-      setIsEditMode(false);
+      // 색상 설정
+      if (eventToEdit.color) {
+        setSelectedColor(eventToEdit.color);
+      }
+
+      // 알림 및 반복 설정
+      if (eventToEdit.notification_time) {
+        setSelectedDuration(eventToEdit.notification_time);
+      }
+      
+      if (eventToEdit.repeat_pattern) {
+        setSelectedRepeat(eventToEdit.repeat_pattern);
+      }
     }
-  }, [eventToEdit, selectedDate]);
+  }, [eventToEdit]);
+
+  // ISO 날짜/시간 조합 - 타임존 처리
+  // 사용자 로컬 시간대로 Date 객체 생성 후 ISO 문자열로 변환하여 Z 접미사(UTC) 제거
+  const createLocalISOString = (dateStr: string, timeStr: string) => {
+    // 날짜와 시간 문자열 결합
+    const localDateTimeStr = `${dateStr}T${timeStr}`;
+    // 로컬 시간대로 해석
+    const date = new Date(localDateTimeStr);
+    
+    // ISO 문자열에서 Z(UTC 표시) 제거
+    return date.toISOString().replace('Z', '');
+  };
+  
+  // 날짜와 시간을 조합하는 함수
+  const combineDateTime = (dateStr: string, timeStr: string, isAllDay: boolean) => {
+    if (isAllDay) {
+      // 하루종일 이벤트의 경우 시간 부분 없이 날짜만 사용
+      return `${dateStr}T00:00:00`;
+    }
+    // 날짜와 시간 문자열 결합
+    const localDateTimeStr = `${dateStr}T${timeStr}`;
+    // 로컬 시간대로 해석
+    const date = new Date(localDateTimeStr);
+    
+    // ISO 문자열에서 Z(UTC 표시) 제거
+    return date.toISOString().replace('Z', '');
+  };
 
   // 일정 저장/수정하기
   const saveEvent = async () => {
@@ -402,64 +442,108 @@ const SchedulePopup: React.FC<SchedulePopupProps> = ({
       
       // ISO 날짜/시간 조합 - 타임존 처리
       // 사용자 로컬 시간대로 Date 객체 생성 후 ISO 문자열로 변환하여 Z 접미사(UTC) 제거
-      const createLocalISOString = (dateStr: string, timeStr: string) => {
-        // 날짜와 시간 문자열 결합
-        const localDateTimeStr = `${dateStr}T${timeStr}`;
-        // 로컬 시간대로 해석
-        const date = new Date(localDateTimeStr);
+      let start_time = createLocalISOString(startDateISO, startTimeISO);
+      let end_time = endDateISO && endTimeISO ? createLocalISOString(endDateISO, endTimeISO) : null;
+      
+      // RRule 생성 (반복 설정이 있는 경우)
+      let rruleString = null;
+      if (selectedRepeat && selectedRepeat !== '반복 안함') {
+        // 1. 로컬 시간 기준의 Date 객체 생성 (사용자가 UI에서 보는 시간)
+        const localStartDateTime = new Date(
+          parseDateToISO(startDate) + 'T' + parseTimeToISO(startTime)
+        );
         
-        // ISO 문자열에서 Z(UTC 표시) 제거
-        return date.toISOString().replace('Z', '');
-      };
+        // 로깅: 로컬 시간과 UTC 시간 확인
+        console.log('반복 일정 시간 디버깅:');
+        console.log('- 사용자 입력한 날짜:', startDate);
+        console.log('- 사용자 입력한 시간:', startTime);
+        console.log('- 변환된 로컬 시간 Date 객체:', localStartDateTime);
+        console.log('- 로컬 시간 ISO 문자열:', localStartDateTime.toISOString());
+        
+        // 2. UTC 시간(DB 저장용)
+        const utcStartDateTime = new Date(start_time);
+        console.log('- DB 저장 UTC 시간:', utcStartDateTime.toISOString());
+        
+        // 간소화된 RRule 생성 로직
+        const rruleOptions: any = {
+          dtstart: utcStartDateTime // 이벤트의 DB 저장 시간과 정확히 동일한 UTC 시간 사용
+        };
+        
+        // 반복 빈도만 설정 (요일, 일자 등은 자동으로 원본 이벤트 날짜 기준)
+        switch (selectedRepeat) {
+          case '매일':
+            rruleOptions.freq = RRule.DAILY;
+            break;
+          case '매주':
+            rruleOptions.freq = RRule.WEEKLY;
+            // 요일 지정 제거 - 자동으로 선택한 날짜의 요일 사용
+            break;
+          case '매월':
+            rruleOptions.freq = RRule.MONTHLY;
+            // 일자 지정 제거 - 자동으로 선택한 날짜의 일자 사용
+            break;
+          case '매년':
+            rruleOptions.freq = RRule.YEARLY;
+            break;
+        }
+        
+        // RRule 생성
+        const rule = new RRule(rruleOptions);
+        rruleString = rule.toString();
+        
+        console.log('생성된 반복 규칙:', rruleString);
+        console.log('DB에 저장되는 start_time:', start_time);
+      }
       
-      const startDateTime = createLocalISOString(startDateISO, startTimeISO);
-      const endDateTime = createLocalISOString(endDateISO, endTimeISO);
-      
-      // 일정 데이터 생성
+      // 이벤트 데이터 준비
       const eventData = {
-        user_id: currentUser.id,
         title,
-        description,
-        start_time: startDateTime,
-        end_time: endDateTime,
+        start_time,
+        end_time,
+        all_day: end_time === null,
         color: selectedColor,
-        all_day: false // 추후 하루종일 옵션 추가 가능
+        description,
+        user_id: currentUser.id,
+        notification_time: selectedDuration || null,
+        repeat_pattern: selectedRepeat || null,
+        rrule: rruleString,
+        exdate: []
       };
-
-      let result;
       
-      if (isEditMode && eventToEdit) {
-        // 기존 일정 수정
-        result = await supabase
+      // 이벤트 생성 또는 수정
+      let response;
+      
+      if (eventToEdit) {
+        // 이벤트 수정
+        response = await supabase
           .from('events')
           .update(eventData)
-          .eq('id', eventToEdit.id)
-          .select();
+          .eq('id', eventToEdit.id);
       } else {
-        // 새 일정 추가
-        result = await supabase
+        // 이벤트 생성
+        response = await supabase
           .from('events')
-          .insert(eventData)
-          .select();
+          .insert([eventData]);
       }
       
-      const { data, error } = result;
+      if (response.error) {
+        console.error('일정 저장 오류:', response.error);
+        setError('일정을 저장할 수 없습니다. 다시 시도해주세요.');
+        return;
+      }
       
-      if (error) throw error;
-      
-      // 성공적으로 저장 후 폼 초기화 및 팝업 닫기
-      setTitle('');
-      setDescription('');
+      // 성공 시 팝업 닫기
       onClose();
       
-      // 캘린더 갱신을 위한 콜백
+      // 이벤트 추가/수정 성공 시 콜백 호출
       if (onEventAdded) {
-        onEventAdded();
+        setTimeout(() => {
+          onEventAdded();
+        }, 50);
       }
-      
-    } catch (err) {
-      console.error('일정 저장 오류:', err);
-      setError('일정을 저장하는 중 오류가 발생했습니다.');
+    } catch (error) {
+      console.error('일정 저장 중 오류 발생:', error);
+      setError('일정을 저장할 수 없습니다. 다시 시도해주세요.');
     } finally {
       setIsLoading(false);
     }
