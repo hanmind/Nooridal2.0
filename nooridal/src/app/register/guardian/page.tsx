@@ -294,7 +294,7 @@ export default function GuardianSignup() {
           id: userData.user.id,
           email,
           name,
-          userId,
+          username: userId,
           phone_number: cleanPhoneNumber, // 하이픈 제거된 번호 저장
           address, // Use just the main address
           user_type: "guardian", // 보호자로 설정

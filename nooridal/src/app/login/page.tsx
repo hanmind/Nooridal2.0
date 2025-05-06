@@ -141,7 +141,7 @@ export default function Login() {
 
       // 이메일과 비밀번호로 Supabase Auth 로그인
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: userData.email,
+        email: userData.email || "",
         password: password,
       });
 
