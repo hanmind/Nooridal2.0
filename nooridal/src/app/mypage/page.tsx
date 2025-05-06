@@ -144,15 +144,15 @@ export default function MyPage() {
   };
 
   const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
+    setActiveTab(tab as Tab);
     if (tab === "chat") {
-      window.location.href = "/chat";
+      router.push("/agent");
     } else if (tab === "calendar") {
-      window.location.href = "/calendar";
+      router.push("/calendar");
     } else if (tab === "location") {
-      window.location.href = "/location";
+      router.push("/location");
     } else if (tab === "mypage") {
-      window.location.href = "/mypage";
+      router.push("/mypage");
     }
   };
 
@@ -255,7 +255,8 @@ export default function MyPage() {
             <div className="w-full px-6 mt-9">
               <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center p-4">
                 <span className="text-black text-lg font-normal font-['Do_Hyeon']">
-                  🍼 {pregnancyInfo?.baby_name || "사랑스러운 아기"} 세상에 나오기
+                  🍼 {pregnancyInfo?.baby_name || "사랑스러운 아기"} 세상에
+                  나오기
                   {pregnancyInfo?.due_date
                     ? ` D-${Math.ceil(
                         (new Date(pregnancyInfo.due_date).setHours(0, 0, 0, 0) -
