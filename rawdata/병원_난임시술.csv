@@ -1,0 +1,264 @@
+﻿암호화요양기호,요양기관명,종별코드명,시도코드명,시군구코드명,주소,전화번호,총의사수,난임시술(인공),난임시술(체외),난임시술(전체),제공시술유형
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNDgxNzAyIzIxIyQxIyQxIyQwMyQyNjE0ODEjNTEjJDEjJDYjJDgz,(의)성광의료재단 차여성의원,의원,서울,중구,"서울특별시 중구 한강대로 416, 서울스퀘어 2층 (남대문로5가)",02-2002-0300,21,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQxIyQwMyQzNjE4MzIjODEjJDEjJDIjJDgz,W(더블유)여성병원,병원,인천,인천미추홀구,"인천광역시 미추홀구 인주대로 400, 제일여성병원 2층 일부, 3-5층, 8층 (주안동)",032-451-0000,18,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMiMkNCMkMDAkMzgxMzUxIzMxIyQxIyQzIyQwMyQyNjE0ODEjNDEjJDEjJDgjJDgz,가야자모의원,의원,경남,진주시,"경상남도 진주시 진주대로 869, 5층 (주약동)",055-758-2222,1,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkMzgxOTYxIzIxIyQxIyQ5IyQ5MiQyNjEwMDIjNzEjJDEjJDgjJDgz,가양산부인과의원,의원,대전,대전동구,"대전광역시 동구 동대전로 272, 타임빌딩 3층 (가양동)",042-623-7766,1,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMiMkOCMkMDAkMzgxMzUxIzIxIyQxIyQ1IyQ4OSQzNjE4MzIjNDEjJDEjJDgjJDgz,감자와눈사람여성의원,의원,서울,강서구,"서울특별시 강서구 마곡중앙5로 22, 5층 10층 일부호 (마곡동)",02-467-6727,4,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjEwMDIjNTEjJDEjJDYjJDgz,강원대학교병원,종합병원,강원,춘천시,"강원도 춘천시 백령로 156, (효자동)",033-258-2000,172,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkMzgxMTkxIzUxIyQxIyQxIyQ5OSQzNjE4MzIjNTEjJDEjJDIjJDgz,검단서울여성의원,의원,인천,인천서구,"인천광역시 서구 원당대로 664, 창신프라자 5층 501-1호 (당하동)",032-566-1992,1,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNzEjJDEjJDgjJDgz,경북대학교병원,상급종합,대구,대구중구,"대구광역시 중구 동덕로 130, (삼덕동2가, 경북대학교병원)",053-200-5114,221,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjEwMDIjNjEjJDEjJDQjJDgz,경상국립대학교병원,상급종합,경남,진주시,"경상남도 진주시 강남로 79, (칠암동)",055-750-8000,188,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQzNjEwMDIjNDEjJDEjJDgjJDgz,경상북도안동의료원,종합병원,경북,안동시,"경상북도 안동시 태사2길 55,  (북문동)",054-850-6000,31,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEyMjIjNjEjJDEjJDQjJDgz,계명대학교동산병원,상급종합,대구,대구달서구,"대구광역시 달서구 달구벌대로 1035, (신당동)",1577-6622,245,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQ0NjEwMDIjNjEjJDEjJDAjJDgz,고려대학교의과대학부속구로병원,상급종합,서울,구로구,"서울특별시 구로구 구로동로 148, 고려대부속구로병원 (구로동)",02-2626-1114,374,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQzNjEwMDIjNTEjJDEjJDIjJDgz,고려대학교의과대학부속안산병원,상급종합,경기,안산단원구,"경기도 안산시 단원구 적금로 123, (고잔동)",031-1577-7516,284,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ5OSQzNjEwMDIjNDEjJDEjJDQjJDgz,광안자모병원,병원,부산,부산수영구,"부산광역시 수영구 수영로 555, (광안동)",051-760-0600,13,1,0,0,인공수정
+JDQ4MTYyMiM3MSMkMiMkMCMkMDAkMzgxNzAyIzExIyQxIyQzIyQwMyQyNjEyMjIjNjEjJDEjJDQjJDgz,광주미래와희망산부인과의원,의원,광주,광주서구,"광주광역시 서구 죽봉대로 68, 7층 (농성동, 다나메디컬센타)",062-361-3344,3,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQyNjEwMDIjODEjJDEjJDIjJDgz,국립중앙의료원,종합병원,서울,중구,"서울특별시 중구 을지로 245, 국립중앙의료원 (을지로6가)",02-2260-7114,178,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4MiQzNjE4MzIjODEjJDEjJDIjJDgz,국민건강보험공단일산병원,종합병원,경기,고양일산동구,"경기도 고양시 일산동구 일산로 100, (백석동,백석1동 1241외1필지 4층)",1577-0013,231,1,0,0,인공수정
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNTgxMzUxIzUxIyQyIyQ1IyQwMCQyNjEwMDIjNDEjJDEjJDQjJDgz,그랑본여성의원,의원,경기,화성시,"경기도 화성시 동탄대로5길 9, 그랑파사쥬 4027~4045호 (송동)",031-377-1677,4,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ3MiQyNjEyMjIjNzEjJDEjJDgjJDgz,그레이스병원,병원,경기,고양일산동구,"경기도 고양시 일산동구 중앙로 1073, (지하2층,지하1층,1층중일부,2~9층)/중앙로1071(1층중 일부, 2~4층) (백석동)",031-901-4000,28,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkNiMkMDAkMzgxMTkxIzQxIyQxIyQ3IyQ3MiQ0NjE0ODEjODEjJDEjJDIjJDgz,그레이프산부인과의원,의원,전북,전주완산구,"전북특별자치도 전주시 완산구 효천중앙로 57, 모악빌딩 204~205호 (효자동2가)",063-227-7887,1,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNTgxMzUxIzUxIyQyIyQxIyQwMCQzNjEwMDIjNTEjJDEjJDYjJDgz,그린산부인과의원,의원,인천,인천서구,"인천광역시 서구 건지로 371, (가좌동)",032-574-3535,7,1,0,0,인공수정
+JDQ4MTYyMiM3MSMkMiMkMCMkMDAkMzgxNzAyIzIxIyQyIyQ5IyQwMCQyNjE0ODEjODEjJDEjJDIjJDgz,김정은산부인과의원,의원,광주,광주광산구,"광주광역시 광산구 목련로 379, 301A호 (신가동)",062-959-3773,1,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ5MiQyNjEwMDIjNDEjJDEjJDQjJDgz,나리여성병원,병원,경기,김포시,"경기도 김포시 돌문로 99, 나리병원 (사우동)",031-982-5700,12,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQzIyQ3MiQyNjE4MzIjODEjJDEjJDIjJDgz,나무정원여성병원,병원,경기,양주시,"경기도 양주시 평화로1489번길 19-11, (덕계동)",031-859-1231,12,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQ3IyQ3OSQyNjEwMDIjNjEjJDEjJDgjJDgz,노원을지대학교병원,종합병원,서울,노원구,"서울특별시 노원구 한글비석로 68, 을지병원 (하계동)",02-970-8000,142,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkNDgxMzUxIzExIyQxIyQ3IyQ3MiQzNjE4MzIjNjEjJDEjJDQjJDgz,뉴본여성의원,의원,부산,부산사하구,"부산광역시 사하구 낙동대로 234, 2~7, 10층 (괴정동, 조일빌딩)",051-291-7777,3,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ3MiQyNjEwMDIjNTEjJDEjJDYjJDgz,달서미즈맘병원,병원,대구,대구달서구,"대구광역시 달서구 월배로 62, 미즈맘병원 지하1,2-5,8층 (진천동)",053-609-5000,6,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkMCMkMDAkNDgxMzUxIzIxIyQxIyQxIyQ3OSQzNjEyMjIjNDEjJDEjJDgjJDgz,대구조이맘산부인과의원,의원,대구,대구중구,"대구광역시 중구 중앙대로 359, 8층 (남산동, 메디칼타워)",053-254-5252,1,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkMCMkMDAkNDgxMTkxIzIxIyQxIyQ1IyQwMyQ0NjEwMDIjNDEjJDEjJDgjJDgz,대구차여성의원,의원,대구,대구중구,"대구광역시 중구 달구벌대로 2095, 삼성생명 4~5층 (덕산동)",053-222-4200,9,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMSMkNiMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQ0NjE0ODEjNDEjJDEjJDgjJDgz,대자인병원,종합병원,전북,전주덕진구,"전북특별자치도 전주시 덕진구 견훤로 390, (우아동3가)",063-240-2000,120,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkNDgxMzUxIzIxIyQxIyQxIyQ3MiQ0NjE0ODEjNDEjJDEjJDQjJDgz,더미즈웰산부인과의원,의원,부산,부산북구,"부산광역시 북구 금곡대로 284, (화명동)",051-365-3575,9,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzIxIyQyIyQ1IyQwMCQzNjEyMjIjNTEjJDEjJDIjJDgz,더블유여성병원,병원,대전,대전서구,"대전광역시 서구 문정로48번길 70, (탄방동)",042-485-7777,10,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQxMyQzNjE4MzIjNDEjJDEjJDgjJDgz,더프라임병원,병원,경남,김해시,"경상남도 김해시 경원로55번길 12, 1층~5층,9층 (내동)",055-328-0059,8,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNDgxMTkxIzIxIyQxIyQ1IyQxMyQyNjE4MzIjNjEjJDEjJDgjJDgz,도곡함춘산부인과의원,의원,서울,강남구,"서울특별시 강남구 논현로 142, 동현빌딩 2~6층 (도곡동)",02-1661-9722,5,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQwMyQ0NjE0ODEjNDEjJDEjJDgjJDgz,동국대학교일산불교병원,종합병원,경기,고양일산동구,"경기도 고양시 일산동구 동국로 27, (식사동, 동국대학교일산병원)",031-1577-7000,151,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkNDgxMzUxIzUxIyQxIyQxIyQ3MiQzNjE4MzIjNTEjJDEjJDYjJDgz,드림아이여성의원,의원,충남,아산시,"충청남도 아산시 배방읍 희망로46번길 45-17, (배방읍)",041-533-6200,3,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxOTYxIzQxIyQxIyQ3IyQxMyQ0NjE0ODEjNDEjJDEjJDgjJDgz,디온여성의원,의원,경기,화성시,"경기도 화성시 동탄오산로 82, 10층 (오산동, 동탄역퍼스트프라자)",031-304-0060,2,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkNDgxMzUxIzMxIyQxIyQ3IyQ5OSQ0NjE0ODEjNzEjJDEjJDgjJDgz,라팡산부인과의원,의원,충남,천안서북구,"충청남도 천안시 서북구 불당21로 67-18, 5층 502호 (불당동)",041-567-7575,1,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkNCMkMDAkMzgxOTYxIzMxIyQxIyQ3IyQ4MiQzNjE4MzIjNjEjJDEjJDgjJDgz,로즈메디산부인과의원,의원,울산,울산동구,"울산광역시 동구 방어진순환도로 747, (전하동)",052-234-3575,2,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMiMkOCMkMDAkMzgxOTYxIzIxIyQxIyQ5IyQ5MiQ0NjEwMDIjNTEjJDEjJDYjJDgz,루트여성의원,의원,서울,광진구,"서울특별시 광진구 능동로 261, 지하1층, 2~6층 (군자동)",02-6958-5755,7,1,0,0,인공수정
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkMzgxMzUxIzIxIyQxIyQ5IyQ5MiQzNjEwMDIjNjEjJDEjJDgjJDgz,리앤아이산부인과의원,의원,인천,인천남동구,"인천광역시 남동구 논고개로 71, 301~303호,401~403호,503호일부호 (논현동, 가산타워 )",270-7777,4,1,0,0,인공수정
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkNDgxOTYxIzIxIyQxIyQ1IyQxMyQ0NjEwMDIjODEjJDEjJDYjJDgz,리오라여성의원,의원,부산,부산진구,"부산광역시 부산진구 중앙대로 736, 3,6,7층 (부전동)",051-714-1930,6,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkNDgxOTYxIzMxIyQxIyQzIyQ2MiQyNjE0ODEjNjEjJDEjJDQjJDgz,리즈앤마리안산부인과의원,의원,충남,천안서북구,"충청남도 천안시 서북구 두정로 204, (두정동)",041-523-6100,1,1,0,0,인공수정
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkNDgxOTYxIzIxIyQxIyQ1IyQwMyQzNjEwMDIjODEjJDEjJDYjJDgz,리즈인여성의원,의원,부산,부산진구,"부산광역시 부산진구 새싹로 22-1, 라이프빌리지 7~9층 (부전동)",051-815-3007,1,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQxMyQyNjEyMjIjNDEjJDEjJDQjJDgz,린여성병원,병원,서울,동대문구,"서울특별시 동대문구 답십리로 266, 파워스빌딩 (장안동)",2244-1212,19,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNDgxMzUxIzUxIyQxIyQ1IyQ3MiQ0NjEwMDIjNjEjJDEjJDQjJDgz,마리나산부인과의원,의원,경기,이천시,"경기도 이천시 경충대로 2564, (중리동)",031-637-0552,11,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkMzgxNzAyIzMxIyQxIyQ3IyQwMyQyNjE4MzIjNTEjJDEjJDYjJDgz,마리본산부인과의원,의원,경기,구리시,"경기도 구리시 건원대로 39-1, 마리본산부인과(3층제외) (인창동)",031-551-2700,7,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNDgxMzUxIzUxIyQyIyQ1IyQwMCQzNjEwMDIjODEjJDEjJDIjJDgz,마리아산부인과의원,의원,인천,인천서구,"인천광역시 서구 가정로 358, (가정동)",575-8870,2,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMiMkNCMkMDAkMzgxNzAyIzExIyQxIyQ3IyQ4MiQ0NjEwMDIjNDEjJDEjJDgjJDgz,마마파파베이비산부인과의원,의원,울산,울산남구,"울산광역시 남구 삼산로 247, 15~17층 (달동, 마마파파&베이비빌딩)",052-258-6006,4,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ3MiQ0NjE0ODEjNDEjJDEjJDgjJDgz,맘스여성병원,병원,울산,울산중구,"울산광역시 중구 남외2길 36, (남외동)",052-290-6000,17,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ2MiQzNjE0ODEjODEjJDEjJDIjJDgz,맘존여성병원,병원,경북,경주시,"경상북도 경주시 원화로 315, (성동동)",054-743-6688,5,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzQxIyQxIyQ3IyQxMyQzNjEyMjIjNjEjJDEjJDQjJDgz,메디아이여성병원,병원,서울,노원구,"서울특별시 노원구 노원로 448, (상계동, 메디아이여성병원)",02-936-2122,12,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNDgxOTYxIzUxIyQxIyQxIyQ3MiQzNjE4MzIjODEjJDEjJDIjJDgz,메디피아산부인과의원,의원,경기,남양주시,"경기도 남양주시 경춘로 1511, (호평동)",031-595-8400,4,1,0,0,인공수정
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxOTYxIzUxIyQxIyQ1IyQwMyQyNjE0ODEjNDEjJDEjJDgjJDgz,모아제일산부인과의원,의원,경기,김포시,"경기도 김포시 김포한강11로 147, 2-6층 (장기동, 은성프라자)",031-988-7004,4,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ2MiQzNjEyMjIjNTEjJDEjJDYjJDgz,모태안여성병원,병원,충북,청주서원구,"충청북도 청주시 서원구 복대로17번길 57-0, 모태안여성병원",043-272-0001,9,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkMCMkMDAkNDgxMTkxIzMxIyQyIyQ3IyQwMCQ0NjE0ODEjNjEjJDEjJDgjJDgz,미라클여성의원,의원,대구,대구중구,"대구광역시 중구 태평로 160, 대구스테이션센터 4층 (북성로1가)",053-424-7700,6,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ4OSQyNjE4MzIjNTEjJDEjJDYjJDgz,미래로병원,병원,부산,부산북구,"부산광역시 북구 금곡대로 15, (덕천동)",051-330-5000,19,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkMCMkMDAkNTgxOTYxIzMxIyQxIyQ3IyQ4OSQzNjEyMjIjNjEjJDEjJDAjJDgz,미래아이산부인과의원,의원,서울,강서구,"서울특별시 강서구 양천로 556, 1-7층 (등촌동, 강서메디칼센터)",02-3665-2002,16,1,0,0,인공수정
+JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ3MiQyNjEyMjIjNDEjJDEjJDgjJDgz,미래여성병원,병원,부산,부산진구,"부산광역시 부산진구 가야대로 459, 지하2~지상10층 (개금동)",051-890-9999,12,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkMzgxMTkxIzExIyQxIyQ3IyQ5OSQyNjE0ODEjODEjJDEjJDYjJDgz,미래여성의원,의원,대전,대전서구,"대전광역시 서구 대덕대로176번길 15, 미래여성병원 1,2층 (둔산동)",042-471-7100,4,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNDgxNzAyIzUxIyQxIyQxIyQ5MiQzNjEyMjIjNTEjJDEjJDYjJDgz,미래연여성의원,의원,서울,송파구,"서울특별시 송파구 올림픽로35다길 42, 2층 202호 (신천동, 한국루터회관)",02-6012-2220,4,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkNiMkMDAkMzgxMzUxIzUxIyQxIyQ1IyQ3MiQ0NjEwMDIjODEjJDEjJDIjJDgz,미래와여성산부인과의원,의원,전북,군산시,"전북특별자치도 군산시 문화로 164, (수송동)",063-441-1100,3,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkMCMkMDAkNTgxMzUxIzExIyQyIyQ3IyQwMCQyNjEyMjIjODEjJDEjJDYjJDgz,미래와희망산부인과의원,의원,서울,강남구,"서울특별시 강남구 언주로 707, 지하1층~11층 (논현동)",02-3446-0011,16,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMSMkNiMkOTkkMzgxMzUxIzExIyQxIyQ3IyQwMyQ0NjEwMDIjNjEjJDEjJDAjJDgz,미르피아여성병원,병원,전북,전주완산구,"전북특별자치도 전주시 완산구 쑥고개로 343, (효자동2가)",063-211-1004,8,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMiMkMCMkMDAkMzgxNzAyIzUxIyQxIyQxIyQ5OSQ0NjE0ODEjNjEjJDEjJDQjJDgz,미리안산부인과의원,의원,경북,구미시,"경상북도 구미시 구미중앙로 149, 4,5층 (원평동)",054-441-2277,6,1,0,0,인공수정
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxNzAyIzIxIyQyIyQ1IyQwMCQyNjEwMDIjNjEjJDEjJDgjJDgz,미사린산부인과의원,의원,경기,하남시,"경기도 하남시 미사강변대로34번길 66, 플레이스이안 3, 4층 (풍산동)",031-794-1212,4,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkMzgxNzAyIzUxIyQxIyQ1IyQ3OSQyNjEyMjIjNzEjJDEjJDgjJDgz,미즈맘 의원,의원,충남,당진시,"충청남도 당진시 당진중앙2로 415, 동성빌딩 2~6.9층 (수청동)",041-355-4800,10,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQ3IyQ4OSQ0NjE0ODEjNDEjJDEjJDgjJDgz,미즈메디병원,종합병원,서울,강서구,"서울특별시 강서구 강서로 295, (내발산동)",02-2007-1000,62,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkNCMkMDAkMzgxOTYxIzQxIyQxIyQ3IyQxMyQyNjE0ODEjNzEjJDEjJDgjJDgz,미즈모아여성의원,의원,경남,양산시,"경상남도 양산시 양산역6길 9, 비와이씨마트 6, 7, 8층 (중부동)",055-365-0202,4,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkOCMkMDAkMzgxOTYxIzQxIyQxIyQ3IyQ3OSQzNjE4MzIjNDEjJDEjJDgjJDgz,미즈산부인과의원,의원,충북,청주청원구,"충청북도 청주시 청원구 오창읍 중심상업로 17, (오창프라자2)",043-241-3030,2,1,0,0,인공수정
+JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQyIyQ5IyQwMCQyNjE0ODEjNzEjJDEjJDgjJDgz,미즈여성아동병원,병원,전남,순천시,"전라남도 순천시 조례1길 10-26,  (조례동)",061-720-8022,15,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkMzgxMTkxIzUxIyQxIyQxIyQ5MiQyNjEwMDIjODEjJDEjJDIjJDgz,미즈의원,의원,대전,대전서구,"대전광역시 서구 문정로2번길 95, 2층 (탄방동, 주안빌딩)",042-488-2255,2,1,1,1,인공+체외
+JDQ4MTYyMiM3MSMkMiMkMCMkMDAkMzgxNzAyIzUxIyQxIyQxIyQ5MiQyNjE0ODEjNTEjJDEjJDIjJDgz,박지현산부인과의원,의원,광주,광주광산구,"광주광역시 광산구 장신로 77, 501호 (장덕동)",062-415-8800,1,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkMzgxNzAyIzMxIyQxIyQ3IyQxMyQzNjE4MzIjNTEjJDEjJDYjJDgz,베일러이화산부인과의원,의원,경기,성남분당구,"경기도 성남시 분당구 성남대로 385, 301호 302호 (정자동, 분당클리닉)",031-710-9670,2,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNTgxOTYxIzExIyQxIyQzIyQ2MiQyNjE0ODEjNjEjJDEjJDAjJDgz,별내마리산부인과의원,의원,경기,남양주시,"경기도 남양주시 별내3로 320, 센트럴프라자 2~6층 (별내동)",031-564-7373,6,1,0,0,인공수정
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkNDgxOTYxIzExIyQxIyQ3IyQ5MiQzNjE0ODEjNDEjJDEjJDgjJDgz,본베베여성의원,의원,부산,부산동래구,"부산광역시 동래구 중앙대로 1325, 이센타워 13층 (온천동)",051-714-6083,1,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEyMjIjNDEjJDEjJDgjJDgz,부산대학교병원,상급종합,부산,부산서구,"부산광역시 서구 구덕로 179, (아미동1가)",240-7000,283,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQwMyQyNjEwMDIjNTEjJDEjJDYjJDgz,분당서울대학교병원,상급종합,경기,성남분당구,"경기도 성남시 분당구 구미로173번길 82, (구미동, 분당서울대학교병원)",031-787-2114,617,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQzIyQxMyQzNjE4MzIjNDEjJDEjJDQjJDgz,분당제일여성병원,병원,경기,성남분당구,"경기도 성남시 분당구 서현로180번길 27, 1~6층 (서현동, 분당제일여성병원)",031-725-8500,36,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNDgxMTkxIzQxIyQxIyQ3IyQ4MiQzNjE0ODEjODEjJDEjJDIjJDgz,사랑아이여성의원,의원,서울,송파구,"서울특별시 송파구 백제고분로 69, 2,3층 (잠실동, 애플타워)",02-419-7501,6,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkMzgxNzAyIzUxIyQxIyQ1IyQ3MiQyNjEyMjIjNjEjJDEjJDQjJDgz,삼성미래산부인과의원,의원,경기,부천원미구,"경기도 부천시 원미구 부흥로 270, 1~6층, 부흥로 268, 1~3층, 5~6층 (중동)",032-662-6100,11,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQ3OSQ0NjE0ODEjNDEjJDEjJDQjJDgz,삼성미래여성병원,병원,서울,구로구,"서울특별시 구로구 서해안로 2296, 삼성미래여성병원 (오류동)",02-2682-2100,12,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ5OSQzNjE4MzIjNTEjJDEjJDYjJDgz,삼성미즈병원,병원,충남,아산시,"충청남도 아산시 배방읍 희망로46번길 16, 지하1~4층, 지상2~6층,10층",1600-8383,14,1,0,0,인공수정
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkMzgxMTkxIzIxIyQxIyQxIyQ3MiQ0NjEwMDIjNTEjJDEjJDIjJDgz,삼성미즈산부인과의원,의원,인천,인천부평구,"인천광역시 부평구 부평대로 93, 2,3층 (부평동)",032-516-3838,1,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQxMyQzNjEwMDIjODEjJDEjJDIjJDgz,삼성서울병원,상급종합,서울,강남구,"서울특별시 강남구 일원로 81, (일원동, 삼성의료원)",02-3410-2114,918,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkNDgxMzUxIzExIyQxIyQ3IyQ3MiQzNjEwMDIjODEjJDEjJDYjJDgz,삼성제일산부인과의원,의원,부산,부산해운대구,"부산광역시 해운대구 해운대로 369, 5층 (우동, 해운대센텀메디칼센타)",051-747-3999,2,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkNiMkMDAkMzgxMTkxIzExIyQxIyQ3IyQ3MiQyNjEyMjIjNDEjJDEjJDgjJDgz,새란산부인과의원,의원,전북,전주완산구,"전북특별자치도 전주시 완산구 홍산로 250, 601,602호 (효자동3가)",063-227-0135,1,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ5MiQ0NjE0ODEjNDEjJDEjJDgjJDgz,새봄여성병원,병원,인천,인천부평구,"인천광역시 부평구 마장로 316, (산곡동)",032-521-7200,9,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkMzgxMTkxIzMxIyQxIyQzIyQ5OSQzNjEwMDIjNjEjJDEjJDQjJDgz,새아산부인과의원,의원,대전,대전대덕구,"대전광역시 대덕구 신탄진로 847, 3,4층 (신탄진동)",042-637-3535,1,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkNDgxOTYxIzMxIyQxIyQ3IyQxMyQzNjEyMjIjNzEjJDEjJDgjJDgz,생명의정원여성의원,의원,대전,대전서구,"대전광역시 서구 둔산로 52, 8층 (둔산동)",042-719-8280,1,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkNDgxOTYxIzExIyQxIyQzIyQ2MiQyNjE0ODEjNTEjJDEjJDYjJDgz,서산부인과의원,의원,세종시,세종시,"세종특별자치시 보듬3로 150, 아름 행복타워 3,4층 (아름동)",044-905-3575,3,1,0,0,인공수정
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxMTkxIzMxIyQyIyQzIyQwMCQzNjE4MzIjNTEjJDEjJDIjJDgz,서연아이여성의원,의원,인천,인천남동구,"인천광역시 남동구 선수촌공원로 36, 더블루시티 2층 201~207호 (구월동)",464-5800,4,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjE4MzIjODEjJDEjJDYjJDgz,서울대학교병원,상급종합,서울,종로구,"서울특별시 종로구 대학로 101, (연건동)",1588-5700,931,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNDgxOTYxIzIxIyQxIyQxIyQwMyQ0NjEwMDIjNjEjJDEjJDgjJDgz,서울라헬여성의원,의원,서울,마포구,"서울특별시 마포구 마포대로 109, 2, 3층 (공덕동, 롯데캐슬프레지던트)",02-3286-7500,6,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNTgxMzUxIzExIyQxIyQzIyQ4OSQ0NjE0ODEjNjEjJDEjJDQjJDgz,서울마리산부인과의원,의원,경기,하남시,"경기도 하남시 신평로 45, SN 타워 7층 701호 (신장동)",031-791-3314,1,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNDgxOTYxIzQxIyQxIyQ3IyQ5MiQzNjE4MzIjNjEjJDEjJDAjJDgz,서울아가온여성의원,의원,서울,구로구,"서울특별시 구로구 디지털로32길 79, 조영빌딩 6,8층 (구로동)",02-864-7500,9,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkOCMkMDAkMzgxOTYxIzExIyQxIyQ3IyQxMyQzNjEwMDIjNjEjJDEjJDgjJDgz,서울아이나여성의원,의원,서울,도봉구,"서울특별시 도봉구 마들로13길 61, 씨드큐브 창동 4층 401-1~5호 (창동)",02-6077-8833,3,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxMTkxIzMxIyQxIyQzIyQ3OSQzNjEyMjIjNTEjJDEjJDIjJDgz,서울아이비에프여성의원,의원,인천,인천남동구,"인천광역시 남동구 인하로507번길 63, 2층 201호, 6층 602호 (구월동)",032-716-6663,3,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkOCMkMDAkMzgxMzUxIzIxIyQxIyQxIyQxMyQzNjEyMjIjNjEjJDEjJDQjJDgz,서울아이앤여성의원,의원,서울,강동구,"서울특별시 강동구 천호대로 1053, 이안 강동 컴홈스테이 1차 4-5층 (천호동)",02-6953-7119,3,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQwMyQzNjE0ODEjODEjJDEjJDIjJDgz,서울여성병원,병원,경기,부천원미구,"경기도 부천시 원미구 길주로 84, 1~7층,8층 일부, 서울여성병원 / 길주로 74 3층 일부 (건강검진센터)  (상동)",032-230-3000,27,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ2MiQyNjE4MzIjNjEjJDEjJDQjJDgz,서울여성병원,병원,대전,대전서구,"대전광역시 서구 문정로 7, (둔산동)",042-488-8275,15,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQzNjE0ODEjODEjJDEjJDYjJDgz,서울특별시보라매병원,종합병원,서울,동작구,"서울특별시 동작구 보라매로5길 20, (신대방동)",02-870-2114,267,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQyNjEyMjIjNjEjJDEjJDgjJDgz,서울특별시서울의료원,종합병원,서울,중랑구,"서울특별시 중랑구 신내로 156, (신내동)",02-2276-7000,162,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkOCMkMDAkMzgxOTYxIzUxIyQxIyQ1IyQ5OSQyNjEyMjIjNDEjJDEjJDgjJDgz,서울퍼틸리티여성의원,의원,서울,강남구,"서울특별시 강남구 강남대로 652, SINSA SQUARE 지층 101호 (신사동)",02-541-3535,4,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5MiQyNjEyMjIjODEjJDEjJDYjJDgz,성심의료재단강동성심병원,종합병원,서울,강동구,"서울특별시 강동구 성안로 150, (길동)",02-2224-2114,167,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkNCMkMDAkMzgxOTYxIzUxIyQxIyQxIyQwMyQ0NjEwMDIjODEjJDEjJDIjJDgz,세가온산부인과의원,의원,강원,강릉시,"강원특별자치도 강릉시 율곡로 2982-6, (교동)",033-643-7114,5,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkMzgxOTYxIzMxIyQxIyQ3IyQ5MiQzNjE4MzIjODEjJDEjJDYjJDgz,세브란스산부인과의원,의원,대전,대전서구,"대전광역시 서구 문정로 88, 2~8층 (탄방동)",042-485-3091,2,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQ3IyQ3MiQyNjEwMDIjODEjJDEjJDIjJDgz,세인트마리여성병원,병원,경기,수원권선구,"경기도 수원시 권선구 금곡로197번길 70, 1~5, 9층 (금곡동)",031-289-3000,15,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQyNjEwMDIjNjEjJDEjJDQjJDgz,세종충남대학교병원,종합병원,세종시,세종시,"세종특별자치시 보듬7로 20, 세종충남대학교병원 (도담동)",1800-3114,129,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ4MiQzNjEyMjIjNzEjJDEjJDgjJDgz,세창의료재단우성여성병원,병원,경기,안산단원구,"경기도 안산시 단원구 고잔로 58-10, (고잔동)",031-412-3000,12,1,0,0,인공수정
+JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQwMyQyNjE4MzIjODEjJDEjJDIjJDgz,세화병원,병원,부산,부산동래구,"부산광역시 동래구 미남로132번길 28, (온천동)",051-505-1333,9,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkNDgxOTYxIzIxIyQxIyQ5IyQ3MiQ0NjEwMDIjNjEjJDEjJDgjJDgz,센텀이룸여성의원,의원,부산,부산해운대구,"부산광역시 해운대구 센텀2로 20, 센텀타워메디컬 1003,1103호 (우동)",051-758-8275,3,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkNDgxOTYxIzUxIyQxIyQxIyQ3OSQzNjE4MzIjODEjJDEjJDYjJDgz,센텀희여성의원,의원,부산,부산해운대구,"부산광역시 해운대구 센텀북대로 60, 센텀아이에스타워 1층 108호 (재송동)",051-710-2021,1,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkNiMkMDAkMzgxMTkxIzExIyQxIyQ3IyQ3MiQyNjE0ODEjNjEjJDEjJDAjJDgz,솔빛산부인과의원,의원,전북,전주덕진구,"전북특별자치도 전주시 덕진구 송천중앙로 169, 2,3,4층 (송천동1가)",063-277-3477,1,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQ5MiQyNjEyMjIjNzEjJDEjJDgjJDgz,수여성병원,병원,경기,수원권선구,"경기도 수원시 권선구 서부로 1592, (고색동)",031-8012-7000,6,1,0,0,인공수정
+JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ4OSQyNjE4MzIjNDEjJDEjJDQjJDgz,순병원,병원,부산,부산금정구,"부산광역시 금정구 중앙대로 1701, (부곡동)",051-515-0005,19,1,0,0,인공수정
+JDQ4MTYyMiM3MSMkMiMkMCMkMDAkNDgxMzUxIzIxIyQxIyQ1IyQ4MiQzNjEyMjIjODEjJDEjJDIjJDgz,순천365여성의원,의원,전남,순천시,"전라남도 순천시 팔마로 212, 5층 (풍덕동)",061-744-8575,3,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQxIyQ3MiQzNjEwMDIjNDEjJDEjJDQjJDgz,쉬즈메디병원,병원,경기,수원팔달구,"경기도 수원시 팔달구 장다리로 288, (인계동)",031-231-7300,20,1,1,1,인공+체외
+JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQxMyQzNjE4MzIjODEjJDEjJDYjJDgz,시엘병원,병원,광주,광주서구,"광주광역시 서구 무진대로 957, (광천동)",062-368-1700,8,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQxMyQzNjE0ODEjODEjJDEjJDYjJDgz,시온여성병원,병원,경기,수원영통구,"경기도 수원시 영통구 반달로 107, (영통동)",031-201-0700,27,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQzIyQ4OSQzNjE0ODEjNzEjJDEjJDgjJDgz,신여성병원,병원,경기,의정부시,"경기도 의정부시 시민로 50, (의정부동)",031-879-3800,9,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkMzgxOTYxIzQxIyQxIyQ3IyQ5MiQzNjEwMDIjNDEjJDEjJDgjJDgz,심현남동탄제일산부인과의원,의원,경기,화성시,"경기도 화성시 동탄반석로 196, 6층 601~603호 (반송동, 아이프라자)",031-8003-3388,3,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkNCMkMDAkNDgxOTYxIzMxIyQxIyQzIyQ4MiQyNjEyMjIjNDEjJDEjJDgjJDgz,아가나여성의원,의원,경남,창원성산구,"경상남도 창원시 성산구 상남로 126, 8층 801호 (상남동)",055-267-7553,3,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNDgxMzUxIzIxIyQxIyQ5IyQxMyQ0NjEwMDIjNDEjJDEjJDgjJDgz,아란태산부인과의원,의원,서울,영등포구,"서울특별시 영등포구 선유로 64, 2-5,7층 (문래동3가)",02-2630-6600,5,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkNCMkMDAkMzgxMTkxIzIxIyQxIyQxIyQ3MiQzNjE4MzIjNzEjJDEjJDgjJDgz,아름다운산부인과의원,의원,강원,춘천시,"강원특별자치도 춘천시 터미널길 21, 1~4층 (온의동)",033-244-7800,2,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkMCMkMDAkNDgxMzUxIzQxIyQxIyQ3IyQwMyQyNjE0ODEjNTEjJDEjJDIjJDgz,아이맘산부인과의원,의원,경북,포항남구,"경상북도 포항시 남구 중흥로 82, (상도동)",054-277-1303,1,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkMzgxMTkxIzIxIyQxIyQ5IyQwMyQzNjE4MzIjNjEjJDEjJDQjJDgz,아이사랑산부인과의원,의원,부산,부산진구,"부산광역시 부산진구 가야대로 470, 아이사랑산부인과 1층일부,2~8층 (개금동)",051-890-7000,5,1,0,0,인공수정
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxOTYxIzIxIyQxIyQ1IyQ3MiQzNjEyMjIjNDEjJDEjJDgjJDgz,아이소망산부인과의원,의원,인천,인천미추홀구,"인천광역시 미추홀구 미추로 56, 지하1, 1, 2층 (숭의동, 아이소망여성병원)",032-883-3643,4,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkMCMkMDAkNTgxOTYxIzIxIyQxIyQxIyQ2MiQ0NjEwMDIjNjEjJDEjJDQjJDgz,아이수산부인과의원,의원,서울,서초구,"서울특별시 서초구 동작대로 108, 303,302,B208,B208-1호 (방배동, 디오슈페리움2)",02-3483-2255,2,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkNCMkMDAkMzgxOTYxIzUxIyQxIyQ1IyQ4MiQ0NjE0ODEjNDEjJDEjJDgjJDgz,아이앤맘산부인과의원,의원,강원,강릉시,"강원특별자치도 강릉시 옥가로 21, 4,5층 (옥천동)",033-648-8114,3,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkNDgxMTkxIzExIyQxIyQzIyQ5MiQyNjEwMDIjNjEjJDEjJDQjJDgz,아이앤젤여성의원,의원,부산,부산기장군,"부산광역시 기장군 정관읍 정관로 601, 3,4층 (대신빌딩)",051-722-3579,5,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNDgxMzUxIzMxIyQxIyQzIyQ4MiQzNjEwMDIjNTEjJDEjJDIjJDgz,아이엘산부인과소아청소년과의원,의원,서울,영등포구,"서울특별시 영등포구 양평로 32, 지하1,2,3층 (당산동6가)",02-2068-5111,2,1,0,0,인공수정
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxNzAyIzIxIyQxIyQxIyQ5MiQ0NjEwMDIjNjEjJDEjJDAjJDgz,아이오라여성의원,의원,경기,수원영통구,"경기도 수원시 영통구 영통로 237, 에이스 하이엔드 타워 영통 B1층 103, 105~113호 (신동)",031-205-5255,6,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQzNjE4MzIjNTEjJDEjJDYjJDgz,아주대학교병원,상급종합,경기,수원영통구,"경기도 수원시 영통구 월드컵로 164, (원천동)",031-219-5114,467,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNDgxMTkxIzMxIyQxIyQ3IyQ4MiQzNjEyMjIjNDEjJDEjJDQjJDgz,안중산부인과의원,의원,경기,평택시,"경기도 평택시 안중읍 안중로131번길 14-15, (안중읍)",031-683-7366,3,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ3OSQzNjE4MzIjODEjJDEjJDYjJDgz,앙즈로여성병원,병원,충남,천안서북구,"충청남도 천안시 서북구 불당33길 1, 외1(불당25로104) (불당동)",041-576-5700,13,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkMzgxMTkxIzMxIyQxIyQzIyQ5MiQzNjEwMDIjNDEjJDEjJDgjJDgz,양정분산부인과의원,의원,경기,이천시,"경기도 이천시 이섭대천로 1186, (중리동)",031-635-5300,16,1,1,1,인공+체외
+JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQzIyQwMyQzNjE0ODEjNDEjJDEjJDgjJDgz,에덴병원,병원,광주,광주북구,"광주광역시 북구 면앙로170번길 10, (두암동)",062-260-3000,22,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMiMkNCMkMDAkNDgxMzUxIzUxIyQyIyQxIyQwMCQyNjE4MzIjNDEjJDEjJDgjJDgz,에델여성의원,의원,경남,양산시,"경상남도 양산시 물금읍 야리로 127, 4층(전부),5층(501~503),6층(607)호",055-912-0300,7,1,0,0,인공수정
+JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQyIyQxIyQwMCQzNjEyMjIjNTEjJDEjJDIjJDgz,에디스여성병원,병원,부산,부산사하구,"부산광역시 사하구 낙동대로 361, (당리동)",051-206-0999,3,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNTgxMzUxIzIxIyQxIyQ5IyQ5MiQzNjEwMDIjNjEjJDEjJDQjJDgz,에이치아이여성의원,의원,서울,강서구,"서울특별시 강서구 강서로 463, 새싹타워 2층 (마곡동)",02-3662-0401,3,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQxMyQzNjEyMjIjNjEjJDEjJDgjJDgz,에이치큐브병원,병원,서울,도봉구,"서울특별시 도봉구 도봉로 604, (창동)",02-900-2000,16,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkNCMkMDAkMzgxOTYxIzIxIyQxIyQxIyQ2MiQyNjE4MzIjNTEjJDEjJDYjJDgz,엘르메디여성의원,의원,경남,창원의창구,"경상남도 창원시 의창구 서상로 1, (동정동, 엘르메디의원)",055-253-2111,5,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkOCMkMDAkMzgxMzUxIzQxIyQyIyQ3IyQwMCQzNjEwMDIjNTEjJDEjJDIjJDgz,엘산부인과의원,의원,제주,제주시,"제주특별자치도 제주시 중앙로 352, 4층 (이도이동)",064-726-6555,1,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ4OSQzNjEwMDIjNjEjJDEjJDQjJDgz,엠앤비여성병원,병원,인천,인천계양구,"인천광역시 계양구 장제로772번길 2, (계산동)",032-552-3500,1,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkOCMkMDAkMzgxMzUxIzIxIyQxIyQ1IyQ4MiQyNjE0ODEjNjEjJDEjJDgjJDgz,엠에스여성의원,의원,충북,청주서원구,"충청북도 청주시 서원구 사직대로 101, (사창동)",043-262-8540,3,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNDgxMTkxIzIxIyQyIyQ1IyQwMCQzNjEwMDIjODEjJDEjJDYjJDgz,엠여성의원,의원,서울,강남구,"서울특별시 강남구 테헤란로 407, 12층 (삼성동, EK타워 )",02-6188-0070,5,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkMCMkMDAkNTgxMzUxIzIxIyQxIyQ1IyQxMyQzNjEyMjIjODEjJDEjJDIjJDgz,엠제이산부인과의원,의원,서울,금천구,"서울특별시 금천구 두산로 81, 지하1층,2~8층 (독산동)",2109-3000,4,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ2MiQyNjE4MzIjNTEjJDEjJDYjJDgz,여성아이병원,병원,경북,포항북구,"경상북도 포항시 북구 우창동로22번길 7,  (우현동)",054-255-5000,27,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjE4MzIjNjEjJDEjJDQjJDgz,연세대학교 원주세브란스기독병원,상급종합,강원,원주시,"강원특별자치도 원주시 일산로 20-0,  (일산동)",033-741-0114,255,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQzNjE0ODEjNTEjJDEjJDYjJDgz,연세대학교의과대학 강남세브란스병원,상급종합,서울,강남구,"서울특별시 강남구 언주로 211, 강남세브란스병원 (도곡동)",02-2019-3114,384,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjE0ODEjNjEjJDEjJDgjJDgz,연세대학교의과대학세브란스병원,상급종합,서울,서대문구,"서울특별시 서대문구 연세로 50-1, (신촌동)",02-2228-0114,941,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNDgxNzAyIzIxIyQxIyQxIyQ2MiQzNjE0ODEjNzEjJDEjJDgjJDgz,연세더블유산부인과의원,의원,서울,서초구,"서울특별시 서초구 반포대로 111, 보광빌딩 4,5층 (서초동)",02-587-2330,3,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkOCMkMDAkMzgxOTYxIzQxIyQxIyQ3IyQ5OSQzNjE0ODEjNDEjJDEjJDgjJDgz,연세미즈산부인과의원,의원,충북,제천시,"충청북도 제천시 독순로 79, (중앙로2가, 내토메디컬센터)",043-652-6700,1,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNTgxOTYxIzUxIyQxIyQ1IyQ5MiQzNjEwMDIjNTEjJDEjJDIjJDgz,연세수피아산부인과의원,의원,서울,송파구,"서울특별시 송파구 위례서로 248, 301~302호 (거여동)",02-408-8275,3,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkNCMkMDAkMzgxOTYxIzUxIyQxIyQ1IyQ2MiQyNjEyMjIjODEjJDEjJDIjJDgz,연세순풍산부인과의원,의원,강원,원주시,"강원특별자치도 원주시 장미공원길 43-6, (단계동)",033-745-0199,2,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxMTkxIzUxIyQxIyQ1IyQ3OSQzNjE4MzIjNjEjJDEjJDgjJDgz,연세아란산부인과의원,의원,경기,하남시,"경기도 하남시 미사강변대로54번길 121, 연세아란빌딩 2~5층 (풍산동)",031-793-7000,8,1,0,0,인공수정
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNTgxMzUxIzMxIyQxIyQ3IyQwMyQyNjE4MzIjNTEjJDEjJDYjJDgz,연세아이봄여성의원,의원,경기,성남분당구,"경기도 성남시 분당구 정자일로 1, 코오롱트리폴리스1 2층 223,224호 (금곡동)",031-607-1000,2,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxMzUxIzMxIyQyIyQ3IyQwMCQzNjEwMDIjNDEjJDEjJDgjJDgz,연세아이소망여성의원,의원,경기,안산단원구,"경기도 안산시 단원구 고잔로 102, 대지스타타워 305~307, 501~504호 (고잔동)",031-365-5245,2,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkOCMkMDAkMzgxOTYxIzUxIyQxIyQxIyQ5OSQyNjE4MzIjNTEjJDEjJDYjJDgz,연세이롬산부인과의원,의원,서울,강남구,"서울특별시 강남구 테헤란로87길 17, 마젤란 21 아스테리움 1동 3층 301호 (삼성동)",02-558-2255,1,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkMzgxMTkxIzExIyQxIyQzIyQ5OSQzNjE4MzIjNDEjJDEjJDQjJDgz,연세하임산부인과의원,의원,충남,천안동남구,"충청남도 천안시 동남구 수곡2길 17-17, 지하1층,지상1,2,3,4,6층 (신방동)",041-412-5555,8,1,0,0,인공수정
+JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ4MiQyNjEyMjIjNjEjJDEjJDAjJDgz,연제일신병원,병원,부산,부산연제구,"부산광역시 연제구 고분로 6, (연산동)",051-862-2002,19,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNDgxOTYxIzIxIyQyIyQ5IyQwMCQyNjE0ODEjNDEjJDEjJDgjJDgz,열린산부인과의원,의원,경기,안산단원구,"경기도 안산시 단원구 선부광장1로 22, 3층,4층 (선부동, 한우리크리닉센타)",031-405-3572,4,1,0,0,인공수정
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxMTkxIzIxIyQxIyQ1IyQ2MiQ0NjEwMDIjNTEjJDEjJDYjJDgz,예일산부인과의원,의원,경기,평택시,"경기도 평택시 중앙로 146-1, (합정동)",031-656-3885,9,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxOTYxIzUxIyQxIyQxIyQ3OSQ0NjE0ODEjNTEjJDEjJDIjJDgz,예진산부인과의원,의원,경기,시흥시,"경기도 시흥시 정왕대로 78, (정왕동, B동 306호, 407호, 408호)",031-431-1134,8,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMiMkNCMkMDAkMzgxNzAyIzIxIyQxIyQ5IyQ4MiQzNjE0ODEjNDEjJDEjJDQjJDgz,오즈산부인과의원,의원,경남,김해시,"경상남도 김해시 계동로 203, (대청동)",055-312-0114,4,1,0,0,인공수정
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkMzgxMTkxIzQxIyQyIyQ3IyQwMCQyNjE0ODEjNjEjJDEjJDgjJDgz,용인제일산부인과의원,의원,경기,용인처인구,"경기도 용인시 처인구 중부대로 1347, (김량장동)",031-8031-0200,7,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkNDgxOTYxIzExIyQxIyQ3IyQ3MiQzNjE4MzIjNDEjJDEjJDgjJDgz,우리기쁜산부인과의원,의원,서울,성북구,"서울특별시 성북구 종암로 147, 지상1~8층 (종암동)",02-2039-1000,6,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNTgxOTYxIzQxIyQyIyQ3IyQwMCQ0NjEwMDIjNjEjJDEjJDQjJDgz,우리들여성산부인과의원,의원,경기,광주시,"경기도 광주시 중앙로 101, 8층 (경안동)",031-768-7535,2,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkMzgxNzAyIzExIyQxIyQzIyQxMyQ0NjEwMDIjNDEjJDEjJDgjJDgz,우리산부인과의원,의원,인천,인천연수구,"인천광역시 연수구 앵고개로 254, (동춘동)",032-818-5121,5,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ5MiQzNjEwMDIjNjEjJDEjJDAjJDgz,우리여성병원,병원,경남,김해시,"경상남도 김해시 내외중앙로 91, (내동)",055-321-0114,6,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkMCMkMDAkNDgxOTYxIzUxIyQxIyQxIyQ4MiQ0NjEwMDIjNTEjJDEjJDYjJDgz,우리여성의원,의원,경북,안동시,"경상북도 안동시 은행나무로 91, 1,3층 (옥동)",054-850-3579,1,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNDgxOTYxIzMxIyQxIyQ3IyQ2MiQyNjEyMjIjNzEjJDEjJDgjJDgz,우먼플러스산부인과의원,의원,경기,수원장안구,"경기도 수원시 장안구 경수대로 892, (조원동)",031-248-8100,8,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ3MiQyNjE0ODEjNjEjJDEjJDQjJDgz,유광사여성병원,병원,서울,강서구,"서울특별시 강서구 강서로 194, (화곡동)",02-2608-1011,8,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ5OSQzNjEwMDIjNjEjJDEjJDAjJDgz,윤호병원,병원,서울,강남구,"서울특별시 강남구 압구정로 304, 윤호병원 (지하1층,지하2층,1층~4층,7층)  (신사동)",02-512-0500,3,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkMzgxMTkxIzMxIyQxIyQzIyQwMyQzNjEwMDIjNjEjJDEjJDgjJDgz,은산부인과의원,의원,서울,은평구,"서울특별시 은평구 연서로 137, 4층 (구산동)",02-359-7175,1,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMiMkMCMkMDAkNDgxNzAyIzIxIyQyIyQxIyQwMCQyNjEyMjIjNDEjJDEjJDQjJDgz,은혜산부인과의원,의원,서울,은평구,"서울특별시 은평구 진흥로 133, D동 B2,B1,2~4층 (대조동)",02-353-4307,2,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQyNjE0ODEjODEjJDEjJDYjJDgz,의료법인 길의료재단 길병원,상급종합,인천,인천남동구,"인천광역시 남동구 남동대로774번길 21-0, 의료법인길의료재단길병원",,330,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNTgxMzUxIzIxIyQxIyQ5IyQ3MiQyNjE0ODEjNDEjJDEjJDgjJDgz,의료법인 마리아의료재단 마리아의원,의원,경기,안양동안구,"경기도 안양시 동안구 동안로 120, 평촌스포츠센타 8,9층 (호계동)",031-470-7600,3,1,1,1,인공+체외
+JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ5OSQzNjE0ODEjNDEjJDEjJDQjJDgz,의료법인 미나의료재단 여수문화병원,병원,전남,여수시,"전라남도 여수시 대치3길 26,  (여서동)",061-650-5000,7,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQxIyQ5OSQzNjE0ODEjNDEjJDEjJDQjJDgz,의료법인 아인의료재단 아인병원,병원,인천,인천미추홀구,"인천광역시 미추홀구 경인로 372, 201동 지하1,지상3~12층 ,13층일부호 (주안동, 포레나 미추홀)",032-247-2000,92,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQyIyQ1IyQwMCQzNjEwMDIjNjEjJDEjJDQjJDgz,의료법인경동의료재단효성병원,병원,대구,대구수성구,"대구광역시 수성구 수성로 194, 효성병원(본관) (중동)",053-766-7070,40,1,1,1,인공+체외
+JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ3MiQ0NjEwMDIjNjEjJDEjJDQjJDgz,의료법인내일의료재단 현대여성아동병원,병원,전남,순천시,"전라남도 순천시 장선배기1길 8,  (조례동)",061-720-1111,17,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkNDgxMzUxIzUxIyQxIyQxIyQ4OSQ0NjE0ODEjODEjJDEjJDYjJDgz,의료법인마리아의료재단 마리아의원,의원,부산,부산연제구,"부산광역시 연제구 월드컵대로 125, 7,8층 (연산동)",051-441-6555,3,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkMCMkMDAkMzgxMTkxIzIxIyQxIyQ1IyQ3MiQ0NjEwMDIjODEjJDEjJDIjJDgz,의료법인마리아의료재단 마리아의원,의원,대구,대구동구,"대구광역시 동구 동부로22길 2, 4(401),7,8층 (신천동)",053-943-6555,6,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ3OSQzNjE4MzIjNjEjJDEjJDQjJDgz,의료법인마리아의료재단마리아병원,병원,서울,송파구,"서울특별시 송파구 송이로 152, 마리아 의료재단 새병원 (가락동)",02-2152-6555,9,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ2MiQzNjEyMjIjNTEjJDEjJDYjJDgz,의료법인마리아의료재단마리아병원,병원,서울,동대문구,"서울특별시 동대문구 천호대로 20, (신설동)",02-2234-6555,11,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkMCMkMDAkMzgxMzUxIzMxIyQyIyQzIyQwMCQzNjEwMDIjNjEjJDEjJDQjJDgz,의료법인마리아의료재단마리아의원,의원,서울,중랑구,"서울특별시 중랑구 망우로 267, (상봉동)",02-2218-7555,7,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNTgxOTYxIzIxIyQxIyQ5IyQ5OSQ0NjEwMDIjODEjJDEjJDYjJDgz,의료법인마리아의료재단마리아의원,의원,경기,고양일산동구,"경기도 고양시 일산동구 중앙로 1060, 2,3층,4(일부)층 (백석동)",031-924-6555,6,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNDgxOTYxIzIxIyQxIyQ5IyQ4OSQyNjEwMDIjNjEjJDEjJDAjJDgz,의료법인마리아의료재단마리아의원,의원,경기,부천원미구,"경기도 부천시 원미구 길주로 205, 솔라리움A동 401,402,403호 (중동)",032-361-6555,5,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkMzgxOTYxIzUxIyQxIyQxIyQ4MiQyNjE0ODEjNzEjJDEjJDgjJDgz,의료법인마리아의료재단마리아의원,의원,대전,대전서구,"대전광역시 서구 청사로 148, 203호,206~208호 (둔산동)",042-522-6555,3,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxMTkxIzIxIyQxIyQxIyQ4MiQ0NjEwMDIjNDEjJDEjJDgjJDgz,의료법인마리아의료재단수지마리아의원,의원,경기,용인수지구,"경기도 용인시 수지구 신수로 767, 분당수지 U-TOWER ,A동 301,318,319,320,321,322,323,324호 (동천동)",031-8019-5555,7,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ4MiQzNjEyMjIjNTEjJDEjJDIjJDgz,의료법인삼정의료재단포항여성병원,병원,경북,포항북구,"경상북도 포항시 북구 포스코대로 269, (죽도동)",054-274-7775,16,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxNzAyIzMxIyQxIyQ3IyQ3MiQyNjE4MzIjNjEjJDEjJDgjJDgz,의료법인상운의료재단(분소) 동탄제일아이희망의원,의원,경기,화성시,"경기도 화성시 삼성1로 130, 세정인디안타워 101,201호 (석우동)",031-613-7797,7,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkOCMkMDAkMzgxOTYxIzIxIyQxIyQ5IyQ5OSQzNjE4MzIjNDEjJDEjJDgjJDgz,의료법인성광의료재단 잠실차여성의원,의원,서울,송파구,"서울특별시 송파구 올림픽로 269, 2,3층 (신천동, 롯데캐슬골드)",02-3457-9500,8,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQzNjE4MzIjNTEjJDEjJDIjJDgz,의료법인성광의료재단일산차병원,종합병원,경기,고양일산동구,"경기도 고양시 일산동구 중앙로 1205, 지하1층(일부),지하2층,지하4층(일부),1층(일부),2층(일부),3층(일부),4~5층,6층(일부), 7~10층 (장항동)",031-782-8300,98,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjEyMjIjNTEjJDEjJDIjJDgz,의료법인안동병원,종합병원,경북,안동시,"경상북도 안동시 앙실로 11,  (수상동)",054-840-1004,107,1,0,0,인공수정
+JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQxMyQ0NjEwMDIjNjEjJDEjJDAjJDgz,의료법인한마음의료재단 여수제일병원,종합병원,전남,여수시,"전라남도 여수시 쌍봉로 70,  (학동)",061-689-8123,54,1,0,0,인공수정
+JDQ4MTAxMiM1MSMkMiMkMCMkMDAkNDgxMzUxIzUxIyQxIyQxIyQxMyQ0NjE0ODEjNzEjJDEjJDgjJDgz,이룸여성의원,의원,부산,부산사하구,"부산광역시 사하구 낙동남로 1417, 10~11층 (하단동)",051-803-2616,2,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkMCMkMDAkNDgxMzUxIzUxIyQxIyQ1IyQ4OSQyNjEwMDIjNTEjJDEjJDIjJDgz,이은지마리산부인과의원,의원,대구,대구수성구,"대구광역시 수성구 달구벌대로 2397, 17층 (범어동, KB손해보험 대구빌딩)",053-745-5888,1,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkMzgxMTkxIzUxIyQxIyQ1IyQ5OSQzNjE4MzIjNzEjJDEjJDgjJDgz,이은희산부인과의원,의원,충남,천안서북구,"충청남도 천안시 서북구 불당33길 24, 701호 (불당동)",041-567-0020,1,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxNzAyIzIxIyQxIyQxIyQxMyQzNjE0ODEjODEjJDEjJDIjJDgz,이정래산부인과의원,의원,경기,평택시,"경기도 평택시 비전5로 20-26, 로데오1103더테라스 301호 (비전동)",031-8054-0015,1,1,1,1,인공+체외
+JDQ4MTYyMiM3MSMkMiMkMCMkMDAkMzgxMTkxIzQxIyQxIyQ3IyQ3OSQzNjEwMDIjNDEjJDEjJDgjJDgz,이지산부인과의원,의원,광주,광주광산구,"광주광역시 광산구 사암로 396, (월곡동)",062-958-3000,1,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMiMkMCMkMDAkMzgxMTkxIzMxIyQxIyQzIyQ3OSQzNjEyMjIjNDEjJDEjJDQjJDgz,이찬응산부인과의원,의원,경북,영주시,"경상북도 영주시 광복로 90, (하망동)",054-631-2011,1,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkOCMkMDAkMzgxMzUxIzQxIyQxIyQ3IyQ5OSQyNjEyMjIjODEjJDEjJDYjJDgz,이화벨라여성의원,의원,충북,청주상당구,"충청북도 청주시 상당구 단재로 141-3, (영운동)",043-223-6755,1,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkNiMkMDAkMzgxMTkxIzQxIyQxIyQ3IyQ5OSQyNjE4MzIjNjEjJDEjJDQjJDgz,이화에스여성산부인과의원,의원,전북,전주덕진구,"전북특별자치도 전주시 덕진구 기린대로 400, 2,4층 (금암동)",063-277-7722,2,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQxMyQyNjEwMDIjNjEjJDEjJDQjJDgz,이화여자대학교의과대학부속목동병원,상급종합,서울,양천구,"서울특별시 양천구 안양천로 1071, (목동)",02-2650-5114,262,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4MiQyNjE0ODEjODEjJDEjJDIjJDgz,인제대학교 해운대백병원,종합병원,부산,부산해운대구,"부산광역시 해운대구 해운대로 875, (좌동)",051-797-0100,236,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjEyMjIjNTEjJDEjJDYjJDgz,인제대학교부산백병원,상급종합,부산,부산진구,"부산광역시 부산진구 복지로 75, 진사로83번길 75, 진사로83번길 81, 1층(일부), 3층 (개금동)",051-890-6114,209,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4MiQzNjEwMDIjNDEjJDEjJDgjJDgz,인제대학교일산백병원,종합병원,경기,고양일산서구,"경기도 고양시 일산서구 주화로 170, (대화동)",031-910-7114,175,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEyMjIjNDEjJDEjJDQjJDgz,장스여성병원,병원,서울,중랑구,"서울특별시 중랑구 용마산로117길 49, 장스여성병원 비동 (7층 일부제외)동 (망우동)",02-490-4000,8,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkNCMkMDAkNDgxMzUxIzUxIyQxIyQxIyQ3MiQyNjEwMDIjODEjJDEjJDYjJDgz,장유산부인과의원,의원,경남,김해시,"경상남도 김해시 번화1로80번길 5, 메카메디칼빌딩 2,3,4층 (대청동)",055-314-9995,4,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMiMkMCMkMDAkNDgxOTYxIzIxIyQxIyQ1IyQ5MiQyNjE0ODEjNjEjJDEjJDQjJDgz,장태기드림산부인과의원,의원,경북,구미시,"경상북도 구미시 신시로 59, 6층 (형곡동, 우인빌딩)",054-457-6699,1,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQwMyQyNjE0ODEjNDEjJDEjJDQjJDgz,재단법인아산사회복지재단 서울아산병원,상급종합,서울,송파구,"서울특별시 송파구 올림픽로43길 88, 서울아산병원 (풍납동)",02-3010-3114,1094,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMSMkNiMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEyMjIjODEjJDEjJDIjJDgz,재단법인예수병원유지재단예수병원,종합병원,전북,전주완산구,"전북특별자치도 전주시 완산구 서원로 365, (중화산동1가, 예수병원)",063-230-8114,184,1,1,1,인공+체외
+JDQ4MTAxMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQyNjE0ODEjNjEjJDEjJDgjJDgz,재단법인일신기독교선교회 일신기독병원,종합병원,부산,부산동구,"부산광역시 동구 정공단로 27, (좌천동)",051-630-0300,34,1,1,1,인공+체외
+JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNTEjJDEjJDYjJDgz,전남대학교병원,상급종합,광주,광주동구,"광주광역시 동구 제봉로 42,  (학동)",062-1899-0000,266,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMSMkNiMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNDEjJDEjJDQjJDgz,전북대학교병원,상급종합,전북,전주덕진구,"전북특별자치도 전주시 덕진구 건지로 20,  (금암동)",063-250-1129,248,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkOCMkMDAkMzgxMzUxIzQxIyQxIyQ3IyQ5OSQ0NjE0ODEjNDEjJDEjJDQjJDgz,제이산부인과의원,의원,제주,제주시,"제주특별자치도 제주시 연북로 38, 6층 (노형동)",064-747-9100,1,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkNiMkMDAkMzgxMzUxIzUxIyQxIyQ1IyQ5MiQyNjE0ODEjODEjJDEjJDYjJDgz,제일산부인과의원,의원,전북,익산시,"전북특별자치도 익산시 동서로 231, (남중동)",063-840-7500,3,1,1,1,인공+체외
+JDU4MTI3MSM1MSMkMiMkMCMkMDAkNDgxMTkxIzIxIyQxIyQ5IyQ3OSQzNjE0ODEjNDEjJDEjJDQjJDgz,조은미래산부인과의원,의원,경기,김포시,"경기도 김포시 김포한강8로 396, 지오타워 4층 402호 (구래동)",031-992-6622,7,1,0,0,인공수정
+JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ5MiQzNjEwMDIjNjEjJDEjJDgjJDgz,좋은날에 드라마여성병원,병원,부산,부산동래구,"부산광역시 동래구 충렬대로 449, (안락동, 좋은날에드라마여성병원)",051-522-7575,10,1,0,0,인공수정
+JDQ4MTAxMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3MiQzNjE0ODEjNTEjJDEjJDYjJDgz,좋은문화병원,종합병원,부산,부산동구,"부산광역시 동구 범일로 119, (범일동)",051-644-2002,78,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkMCMkMDAkNDgxOTYxIzIxIyQxIyQxIyQxMyQ0NjEwMDIjNjEjJDEjJDQjJDgz,지엔산부인과의원,의원,경기,평택시,"경기도 평택시 비전5로 3, (비전동)",,6,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQ3OSQ0NjE0ODEjNDEjJDEjJDgjJDgz,진주미래여성병원,병원,경남,진주시,"경상남도 진주시 진주대로 957, (강남동)",055-760-8000,7,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQwMyQzNjE0ODEjNTEjJDEjJDIjJDgz,차의과학대학교 강남차병원,종합병원,서울,강남구,"서울특별시 강남구 논현로 566, 강남차병원(역삼동650-9, 606-4, 605외2필지(지하7층~지하1층, 지상2층~7층)) (역삼동)",02-3468-3000,103,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3MiQyNjEwMDIjNDEjJDEjJDgjJDgz,차의과학대학교분당차병원,종합병원,경기,성남분당구,"경기도 성남시 분당구 야탑로 59, (야탑동)",031-780-5000,330,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQxMyQzNjE4MzIjODEjJDEjJDYjJDgz,참여성병원,병원,경남,창원마산합포구,"경상남도 창원시 마산합포구 불종거리로 19, (동성동, 참여성병원)",055-249-0600,3,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMiMkNCMkMDAkMzgxMTkxIzExIyQxIyQ3IyQ5MiQyNjEwMDIjODEjJDEjJDIjJDgz,참조은산부인과의원,의원,경남,진주시,"경상남도 진주시 진양호로 317, (신안동)",055-741-5151,8,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4MiQyNjE4MzIjNDEjJDEjJDgjJDgz,창원경상국립대학교병원,종합병원,경남,창원성산구,"경상남도 창원시 성산구 삼정자로 11, (성주동, 창원경상대학교병원)",055-214-2000,132,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQ0NjE0ODEjNzEjJDEjJDgjJDgz,창원한마음병원,종합병원,경남,창원의창구,"경상남도 창원시 의창구 용동로57번길 8, (사림동)",055-225-0000,118,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkMzgxMzUxIzIxIyQxIyQ5IyQ4MiQyNjE0ODEjNTEjJDEjJDYjJDgz,청담마리산부인과의원,의원,서울,강남구,"서울특별시 강남구 삼성로 712, (청담동)",02-2156-9200,10,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQ3IyQ5OSQzNjE4MzIjNjEjJDEjJDQjJDgz,청라여성병원,병원,인천,인천서구,"인천광역시 서구 중봉대로 602, 2~5층,6층일부,9층 (청라동)",032-716-6000,25,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkMzgxNzAyIzUxIyQxIyQ1IyQ4OSQyNjEwMDIjNjEjJDEjJDgjJDgz,청아미즈산부인과의원,의원,충남,아산시,"충청남도 아산시 번영로 204, (모종동)",041-547-2020,5,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNjEjJDEjJDgjJDgz,충남대학교병원,상급종합,대전,대전중구,"대전광역시 중구 문화로 282, (대사동)",042-1599-7123,263,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkOCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjEyMjIjODEjJDEjJDIjJDgz,충북대학교병원,상급종합,충북,청주서원구,"충청북도 청주시 서원구 1순환로 776-0, 충북대학교병원",043-269-6114,206,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMiMkOCMkMDAkMzgxMTkxIzIxIyQxIyQ1IyQ5OSQ0NjEwMDIjNDEjJDEjJDgjJDgz,충주별산부인과의원,의원,충북,충주시,"충청북도 충주시 사천개1길 2, 청보테라스타워 4~5층 504~509호 (호암동)",043-855-3582,5,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjEyMjIjNDEjJDEjJDgjJDgz,충청남도 홍성의료원,종합병원,충남,홍성군,"충청남도 홍성군 홍성읍 조양로 224, (홍성읍)",041-630-6114,60,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkMCMkMDAkNDgxNzAyIzExIyQxIyQ3IyQxMyQ0NjE0ODEjNjEjJDEjJDgjJDgz,퀸스메디산부인과의원,의원,서울,노원구,"서울특별시 노원구 동일로 1059, (공릉동)",2289-2800,5,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkMiMkMDAkNDgxMzUxIzMxIyQxIyQzIyQ3MiQzNjEwMDIjODEjJDEjJDIjJDgz,퀸스산부인과의원,의원,충남,천안서북구,"충청남도 천안시 서북구 성정공원1길 9-13, (성정동)",041-569-2000,11,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ4OSQzNjE0ODEjNDEjJDEjJDgjJDgz,트리니움여성병원,병원,세종시,세종시,"세종특별자치시 한누리대로 1934, 메인타워 (반곡동)",044-270-0114,12,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ3OSQzNjE0ODEjNjEjJDEjJDAjJDgz,포미즈여성병원,병원,서울,양천구,"서울특별시 양천구 공항대로 610, (목동, 정종일산부인과)",02-2651-7500,8,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMiMkMCMkMDAkNDgxMTkxIzIxIyQxIyQ5IyQ5MiQ0NjE0ODEjNjEjJDEjJDQjJDgz,포유문산부인과의원,의원,서울,송파구,"서울특별시 송파구 양재대로60길 3-13, 가락동 문산부인과 (가락동)",02-443-1600,14,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkNiMkMDAkMzgxOTYxIzUxIyQxIyQxIyQ5OSQyNjEwMDIjNDEjJDEjJDQjJDgz,푸른산부인과여성의원,의원,전북,전주완산구,"전북특별자치도 전주시 완산구 유연로 158, 3층 (효자동3가)",063-247-2114,3,1,0,0,인공수정
+JDQ4MTYyMiM3MSMkMiMkMCMkMDAkMzgxMTkxIzMxIyQxIyQzIyQ3MiQyNjEyMjIjNDEjJDEjJDQjJDgz,프레메디산부인과의원,의원,광주,광주서구,"광주광역시 서구 무진대로 950, 3,4층 (농성동)",062-363-6655,3,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkNCMkMDAkMzgxNzAyIzIxIyQxIyQ5IyQ3MiQzNjEwMDIjNDEjJDEjJDgjJDgz,하나산부인과의원,의원,경남,창원마산회원구,"경상남도 창원시 마산회원구 3·15대로 765-1, 3층 (합성동, 우성빌딩)",055-295-0246,1,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQzNjE0ODEjNjEjJDEjJDQjJDgz,학교법인 건양교육재단 건양대학교병원,상급종합,대전,대전서구,"대전광역시 서구 관저동로 158, (관저동)",042-600-9999,184,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjEwMDIjNzEjJDEjJDgjJDgz,학교법인 고려중앙학원 고려대학교의과대학부속병원(안암병원),상급종합,서울,성북구,"서울특별시 성북구 고려대로 73, 고려대병원 (안암동5가)",1577-0083,392,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjE4MzIjNDEjJDEjJDgjJDgz,학교법인 울산공업학원 울산대학교병원,상급종합,울산,울산동구,"울산광역시 동구 대학병원로 25, 울산대학교병원 (전하동)",052-250-7000,272,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjE0ODEjNDEjJDEjJDgjJDgz,학교법인 을지학원 대전을지대학교병원,종합병원,대전,대전서구,"대전광역시 서구 둔산서로 95, (둔산동)",042-611-3000,152,1,1,1,인공+체외
+JDQ4MTYyMiM4MSMkMiMkOCMkMDAkMzgxMzUxIzMxIyQxIyQzIyQ5OSQ0NjEwMDIjNjEjJDEjJDQjJDgz,한나산부인과의원,의원,제주,제주시,"제주특별자치도 제주시 도령로 7, (노형동)",064-711-7717,1,1,0,0,인공수정
+JDQ4MTYyMiM2MSMkMiMkNiMkMDAkMzgxOTYxIzIxIyQyIyQ1IyQwMCQzNjEyMjIjNjEjJDEjJDgjJDgz,한나여성의원,의원,전북,전주덕진구,"전북특별자치도 전주시 덕진구 기린대로 489, 2,3,4,5,8층 (덕진동1가)",063-250-3500,7,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMSMkOCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQ0NjE0ODEjODEjJDEjJDYjJDgz,한마음병원,종합병원,제주,제주시,"제주특별자치도 제주시 연신로 52, (이도이동)",064-750-9000,36,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMiMkNiMkMDAkMzgxOTYxIzIxIyQxIyQ5IyQ4MiQyNjEyMjIjNDEjJDEjJDgjJDgz,한별여성의원,의원,전북,전주덕진구,"전북특별자치도 전주시 덕진구 견훤로 215, (인후동1가)",063-244-3559,6,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQzIyQwMyQzNjE4MzIjNTEjJDEjJDIjJDgz,한빛여성병원,병원,경기,안산단원구,"경기도 안산시 단원구 광덕동로 53, (고잔동)",031-410-3316,7,1,0,0,인공수정
+JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQ4OSQyNjEyMjIjODEjJDEjJDYjJDgz,한아름병원,병원,경남,양산시,"경상남도 양산시 물금읍 범구로 27, 2~6층,10층",055-385-0365,14,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMiMkNCMkMDAkMzgxMTkxIzQxIyQxIyQ3IyQ3MiQyNjE4MzIjNDEjJDEjJDgjJDgz,함춘여성의원,의원,서울,서초구,"서울특별시 서초구 서초중앙로8길 10, 지하~5층 (서초동)",02-522-0123,6,1,1,1,인공+체외
+JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ5OSQyNjE4MzIjNDEjJDEjJDgjJDgz,햇빛병원,병원,서울,강북구,"서울특별시 강북구 도봉로 74, (미아동)",02-983-7771,15,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQyIyQ5IyQwMCQyNjE4MzIjNTEjJDEjJDYjJDgz,허유재병원,병원,경기,고양일산동구,"경기도 고양시 일산동구 중앙로 1317, 지하1층~5층,6층 일부, 8층 (장항동)",031-817-1100,19,1,1,1,인공+체외
+JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ5MiQyNjE4MzIjNDEjJDEjJDgjJDgz,혜성산부인과병원,병원,충남,천안서북구,"충청남도 천안시 서북구 미라2길 18-11, (쌍용동)",041-572-4567,5,1,1,1,인공+체외
+JDQ4MTYyMiM1MSMkMiMkNCMkMDAkMzgxOTYxIzUxIyQxIyQxIyQwMyQyNjEyMjIjNDEjJDEjJDgjJDgz,호산부인과의원,의원,강원,춘천시,"강원특별자치도 춘천시 퇴계로 189, (석사동)",033-264-1700,8,1,0,0,인공수정
+JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ5OSQyNjE4MzIjNjEjJDEjJDAjJDgz,호산여성병원,병원,서울,강남구,"서울특별시 강남구 언주로 871, 호산병원 (신사동)",02-546-3493,11,1,0,0,인공수정
+JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3MiQ0NjEwMDIjNzEjJDEjJDgjJDgz,효산의료재단 안양샘병원,종합병원,경기,안양만안구,"경기도 안양시 만안구 삼덕로 9, (안양동, 안양샘병원)",031-467-9114,92,1,1,1,인공+체외

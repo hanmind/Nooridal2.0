@@ -399,7 +399,6 @@ export default function TransportPage() {
 
           // 나들이 선택된 경우 근처 아웃팅 위치 검색
           if (selectedType === 'outing') {
-            // 현재 설정된 위치 기준으로 주변 아웃팅 위치 검색
             const nearby = await findNearbyOutingLocations(parseFloat(result[0].y), parseFloat(result[0].x), 5);
             
             if (nearby && nearby.length > 0) {
@@ -446,8 +445,8 @@ export default function TransportPage() {
               map.setCenter(coords);
             }
           } else if (selectedType === 'support') {
-            // 현재 설정된 위치 기준으로 주변 무장애 관광지 검색
-            const nearby = await findNearbyBarrierFreeLocations(parseFloat(result[0].y), parseFloat(result[0].x), 50);
+            // 무장애 관광지 정보 표시
+            const nearby = nearbyBarrierFreeLocations;
             
             if (nearby && nearby.length > 0) {
               const markers = nearby.map((location) => {
@@ -557,14 +556,43 @@ export default function TransportPage() {
         }
       });
 
-      // 현재 위치 표시 기능 제거 (GPS 위치 대신 설정된 주소 사용)
+      // 현재 위치 표시 기능
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const locPosition = new window.kakao.maps.LatLng(lat, lng);
+            
+            // 현재 위치 마커 생성
+            const currentLocationMarker = new window.kakao.maps.Marker({
+              map: map,
+              position: locPosition,
+              image: new window.kakao.maps.MarkerImage(
+                'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+                new window.kakao.maps.Size(24, 35)
+              )
+            });
+
+            // 현재 위치 정보 표시
+            const currentInfoWindow = new window.kakao.maps.InfoWindow({
+              content: `<div style="padding:5px;">현재 위치</div>`,
+              position: locPosition
+            });
+            currentInfoWindow.open(map, currentLocationMarker);
+          },
+          (error) => {
+            console.error('현재 위치를 가져올 수 없습니다:', error);
+          }
+        );
+      }
     }
   }, [mapLoaded, address, showMap, mapVisible, selectedType, outingLocations, nearbyBarrierFreeLocations]);
 
   // selectedType이 변경될 때 지도와 주변 위치 정보 처리
   useEffect(() => {
     if (selectedType === 'outing') {
-      // 현재 좌표 구하기 - 위치 기반 서비스 사용
+      // 현재 좌표 구하기
       if (navigator.geolocation) {
         setIsLoading(true);
         navigator.geolocation.getCurrentPosition(
@@ -585,19 +613,30 @@ export default function TransportPage() {
         setMapVisible(true);
       }
     } else if (selectedType === 'support') {
-      // 무장애 관광지 정보 로드 - 설정된 주소 기반
-      if (address) {
+      // 무장애 관광지 정보 로드
+      if (navigator.geolocation) {
         setIsLoading(true);
-        setMapVisible(true);
-        // 주소를 기반으로 한 지도 표시는 카카오맵 초기화 useEffect에서 처리
-        setIsLoading(false);
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            await findNearbyBarrierFreeLocations(lat, lng, 50);
+            setIsLoading(false);
+            setMapVisible(true);
+          },
+          (error) => {
+            console.error('현재 위치를 가져올 수 없습니다:', error);
+            setIsLoading(false);
+            setMapVisible(true);
+          }
+        );
       } else {
         setMapVisible(true);
       }
     } else {
       setMapVisible(false);
     }
-  }, [selectedType, address]);
+  }, [selectedType]);
 
   const transportTypes = [
     {
@@ -886,7 +925,7 @@ export default function TransportPage() {
                   </div>
                 )}
                 
-                {/* 택시 할인 메뉴에만 예약하기, 상담하기 버튼 표시 */}
+                {/* 나들이와 무장애 관광지가 아닌 경우에만 예약하기, 상담하기 버튼 표시 */}
                 {selectedType !== 'outing' && selectedType !== 'support' && (
                   <>
                     <div className="p-4 bg-blue-50 rounded-xl">
