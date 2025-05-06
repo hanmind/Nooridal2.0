@@ -282,18 +282,26 @@ export default function ChatContainer() {
 
   // --- Handlers (Placeholders - To be implemented in later tasks) ---
   const handleSendMessage = async (messageContent: string) => {
-    // Validate inputs and state
+    if (!messageContent.trim() || isProcessing) return;
+
+    // 사용자 ID와 현재 방 ID 유효성 검사
     if (!userId) {
-      setError("로그인이 필요합니다.");
+      setError("사용자 ID가 유효하지 않습니다. 다시 로그인해주세요.");
+      console.error("handleSendMessage: userId is null or undefined");
+      return;
+    }
+    if (!currentRoomId) {
+      setError("현재 채팅방 ID가 유효하지 않습니다. 채팅방을 선택해주세요.");
+      console.error("handleSendMessage: currentRoomId is null or undefined");
       return;
     }
 
-    if (!currentRoomId) {
-      setError("메시지를 보낼 채팅방이 선택되지 않았습니다.");
-      console.error("handleSendMessage called without currentRoomId.");
-      return;
-    }
-    if (!messageContent.trim() || isProcessing) return;
+    console.log(
+      `handleSendMessage: Sending message from user: ${userId} in room: ${currentRoomId}`
+    ); // userId 로깅 추가
+
+    setIsProcessing(true);
+    setError(null);
 
     // Find the current room
     const currentRoom = chatRooms.find((room) => room.id === currentRoomId);

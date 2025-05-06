@@ -1,4 +1,3 @@
-import { createParser } from "eventsource-parser";
 import { fetchWithTimeout } from "../utils/fetch";
 
 // Remove reading env vars at the top level
@@ -32,60 +31,22 @@ interface DifyRequestParams {
     url?: string;
     content?: string;
   }>;
-}
-
-// 스트리밍 이벤트 인터페이스들
-interface BaseEventData {
-  event: string;
-  conversation_id?: string;
-  message_id?: string;
-  created_at?: number;
   task_id?: string;
   workflow_run_id?: string;
 }
 
-interface MessageEventData extends BaseEventData {
-  event: "message";
-  answer: string;
-}
-
-interface MessageEndData extends BaseEventData {
-  event: "message_end";
-  metadata?: Record<string, unknown>;
-}
-
-interface ErrorEventData extends BaseEventData {
-  event: "error";
-  message: string;
-}
-
-interface OtherEventData extends BaseEventData {
-  event:
-    | "workflow_started"
-    | "node_started"
-    | "node_finished"
-    | "workflow_finished";
-  data?: Record<string, unknown>;
-}
-
-type DifyEventData =
-  | MessageEventData
-  | MessageEndData
-  | ErrorEventData
-  | OtherEventData;
-
 /**
- * Dify API에서 새 대화 ID를 초기화하고 가져옵니다.
- * 이 함수는 새 채팅방 생성 시 사용됩니다.
+ * Dify API에서 새 대화 ID를 초기화하고 가져옵니다. (스트리밍 방식)
  *
  * @param {string} userId - 사용자 ID
  * @returns {Promise<string>} - Dify API에서 생성된 대화 ID
  */
 export async function initializeConversation(userId: string): Promise<string> {
   try {
-    console.log(`Initializing new conversation for user: ${userId}`);
+    console.log(
+      `Initializing new conversation (streaming) for user: ${userId}`
+    );
 
-    // 간단한 초기 메시지로 대화 시작 (UI에 표시되지 않음)
     const response = await fetch(DIFY_API_BASE_URL + "/chat-messages", {
       method: "POST",
       headers: {
@@ -94,34 +55,90 @@ export async function initializeConversation(userId: string): Promise<string> {
       },
       body: JSON.stringify({
         inputs: {},
-        query: "_initialize_conversation_", // 특수 쿼리로 표시되지 않을 초기 메시지
+        query: "_initialize_conversation_", // 특수 쿼리
         user: userId,
-        response_mode: "blocking", // 스트리밍이 아닌 일반 응답으로 받음
+        response_mode: "streaming", // 스트리밍 모드로 요청
+        conversation_id: "", // Dify에서 새 대화 시작을 위해 빈 문자열 사용 가능성
         files: [],
       }),
     });
 
     if (!response.ok) {
+      // HTTP 오류 응답 본문 읽기 시도
+      let errorBody = "";
+      try {
+        errorBody = await response.text();
+      } catch (e) {
+        // 응답 본문 읽기 실패 시 무시
+      }
       throw new Error(
-        `대화 초기화 실패: ${response.status} ${response.statusText}`
+        `대화 초기화 실패 (HTTP ${response.status} ${response.statusText}): ${errorBody}`
       );
     }
 
-    const data = await response.json();
-
-    // 응답에서 conversation_id 추출
-    if (data.conversation_id) {
-      console.log(
-        `New conversation initialized with ID: ${data.conversation_id}`
-      );
-      return data.conversation_id;
-    } else {
-      throw new Error("응답에서 conversation_id를 찾을 수 없습니다");
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error("스트림 리더를 가져올 수 없습니다.");
     }
+
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+    let conversationId: string | null = null;
+    let streamCancelled = false;
+
+    // 스트림에서 conversation_id를 포함하는 첫 번째 유효한 JSON을 찾을 때까지 읽기
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) {
+        if (!streamCancelled) {
+          console.log(
+            "Stream ended before conversation_id was found or cancel completed."
+          );
+        }
+        break; // 스트림 종료
+      }
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n\n"); // SSE 이벤트는 보통 \n\n으로 구분됨
+
+      for (let i = 0; i < lines.length - 1; i++) {
+        const line = lines[i];
+        if (line.startsWith("data: ")) {
+          const jsonData = line.substring(5).trim();
+          try {
+            const parsedEvent = JSON.parse(jsonData);
+            if (parsedEvent.conversation_id) {
+              conversationId = parsedEvent.conversation_id;
+              console.log(`Conversation ID from stream: ${conversationId}`);
+              if (!reader.closed) {
+                await reader.cancel();
+                streamCancelled = true;
+                console.log("Stream cancelled after finding conversation_id.");
+              }
+              break; // 내부 루프 종료
+            }
+          } catch (e) {
+            console.warn("스트림 데이터 파싱 중 오류 (무시됨):", jsonData, e);
+          }
+        }
+      }
+      if (conversationId) break; // 외부 루프 종료
+
+      buffer = lines[lines.length - 1]; // 마지막 불완전한 부분은 다음 처리로 넘김
+    }
+
+    // reader.releaseLock(); // 리더 사용 후 락 해제 -> cancel 사용 시 불필요할 수 있음, 확인 필요
+
+    if (!conversationId) {
+      throw new Error("스트리밍 응답에서 conversation_id를 찾을 수 없습니다.");
+    }
+
+    console.log(`New conversation initialized with ID: ${conversationId}`);
+    return conversationId;
   } catch (error) {
-    console.error("대화 초기화 중 오류:", error);
+    console.error("스트리밍 대화 초기화 중 오류:", error);
     throw new Error(
-      `Dify 대화 초기화 실패: ${
+      `Dify 스트리밍 대화 초기화 실패: ${
         error instanceof Error ? error.message : String(error)
       }`
     );
@@ -170,7 +187,7 @@ export async function sendChatRequest(
       try {
         const errorData = await response.json();
         errorMessage = errorData.message || errorData.error || errorMessage;
-      } catch (error) {
+      } catch {
         // JSON 파싱 실패 시 텍스트로 시도
         try {
           const errorText = await response.text();
@@ -214,8 +231,6 @@ async function handleResponse(
 
   const encoder = new TextEncoder();
   const decoder = new TextDecoder("utf-8");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let accumulatedResponse = ""; // 디버깅 용도로만 남김 (미사용 변수 경고 제거)
   let buffer = ""; // 데이터 버퍼
 
   try {
@@ -227,7 +242,7 @@ async function handleResponse(
         // 버퍼에 남은 데이터 처리
         if (buffer.trim()) {
           console.log("서버: 남은 버퍼 데이터 처리", buffer.length);
-          processBuffer(buffer, encoder, controller, accumulatedResponse);
+          processBuffer(buffer, encoder, controller);
         }
 
         // 필요한 경우 스트림 종료 이벤트 전송
@@ -246,7 +261,7 @@ async function handleResponse(
 
       // 완성된 라인들 처리
       for (const line of lines) {
-        processLine(line, encoder, controller, accumulatedResponse);
+        processLine(line, encoder, controller);
       }
     }
   } catch (error) {
@@ -270,8 +285,7 @@ async function handleResponse(
 function processLine(
   line: string,
   encoder: TextEncoder,
-  controller: ReadableStreamController<Uint8Array>, // controller를 직접 사용
-  accumulatedResponse: string
+  controller: ReadableStreamController<Uint8Array> // controller를 직접 사용
 ): void {
   if (!line.trim()) return; // 빈 라인 무시
 
@@ -291,7 +305,7 @@ function processLine(
       // 메시지 이벤트 처리
       if (parsedData.event === "message" && parsedData.answer) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        accumulatedResponse += parsedData.answer; // 값 할당만 하고 사용 안 함 (linter 경고)
+        // accumulatedResponse += parsedData.answer; // 값 할당만 하고 사용 안 함 (linter 경고)
         // console.debug(
         //   `서버: 메시지 응답 누적 (현재 길이: ${accumulatedResponse.length})`
         // );
@@ -325,9 +339,7 @@ function processLine(
 function processBuffer(
   buffer: string,
   encoder: TextEncoder,
-  controller: ReadableStreamController<Uint8Array>, // controller를 직접 사용
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  accumulatedResponse: string
+  controller: ReadableStreamController<Uint8Array> // controller를 직접 사용
 ): void {
   if (buffer.startsWith("data: ")) {
     const data = buffer.substring(6);
@@ -390,7 +402,7 @@ export async function streamingMessage(
               const errorData = await response.json();
               errorText =
                 errorData.error || errorData.message || response.statusText;
-            } catch (parseError) {
+            } catch {
               errorText = `HTTP 오류: ${response.status} ${response.statusText}`;
             }
 

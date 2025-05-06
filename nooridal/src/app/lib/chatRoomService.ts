@@ -163,7 +163,7 @@ export async function getChatRoomConversations(
 }
 
 /**
- * Dify API에서 새 conversation_id를 가져와 채팅방 정보 업데이트
+ * Dify API에서 새 conversation_id를 가져와 채팅방 정보 업데이트하고 로컬 스토리지 초기화
  */
 export async function updateRoomWithDifyConversationId(
   roomId: string,
@@ -175,7 +175,11 @@ export async function updateRoomWithDifyConversationId(
     console.log(`Retrieved conversation_id from Dify: ${conversationId}`);
 
     // 채팅방 정보 업데이트
-    const supabaseClient = createServerSupabaseClient();
+    // createServerSupabaseClient는 서버와 클라이언트 양쪽에서 호출될 수 있으므로,
+    // 로컬 스토리지 접근은 클라이언트 사이드인지 확인 후 진행합니다.
+    const supabaseClient = supabase; // 클라이언트에서 호출된다고 가정하고 supabase 직접 사용 또는 적절한 클라이언트 사용
+    // 만약 이 함수가 서버에서만 실행된다면 로컬 스토리지 로직은 여기서 제거하고 호출부로 옮겨야 합니다.
+
     const { data, error: updateError } = await supabaseClient
       .from("chat_rooms")
       .update({ dify_conversation_id: conversationId })
@@ -190,9 +194,33 @@ export async function updateRoomWithDifyConversationId(
       throw new Error("채팅방 정보 업데이트에 실패했습니다.");
     }
 
+    // 로컬 스토리지 초기화 (브라우저 환경에서만 실행)
+    if (typeof window !== "undefined" && window.localStorage) {
+      try {
+        const localStorageKey = `chatMessages_${conversationId}`;
+        // 기존 메시지가 있을 수도 있으므로, 덮어쓰기 전에 확인하거나
+        // 새로운 채팅방이므로 항상 빈 배열로 시작하는 것이 맞는지 확인 필요.
+        // 여기서는 새로운 채팅방이므로 빈 배열로 초기화한다고 가정합니다.
+        localStorage.setItem(localStorageKey, JSON.stringify([]));
+        console.log(
+          `Local storage initialized for new chat room: ${localStorageKey}`
+        );
+      } catch (localStorageError) {
+        console.error(
+          "Error initializing local storage for new chat room:",
+          localStorageError
+        );
+        // 로컬 스토리지 오류가 전체 기능을 막지 않도록 여기서 오류를 throw하지 않을 수 있습니다.
+        // 필요에 따라 오류 처리 정책을 결정하세요.
+      }
+    }
+
     return conversationId;
   } catch (error) {
     console.error("Error during conversation ID update:", error);
+    if (error instanceof Error) {
+      throw new Error(`Dify 대화 ID 업데이트 실패: ${error.message}`);
+    }
     throw new Error("Dify 대화 ID 업데이트에 실패했습니다.");
   }
 }
