@@ -199,25 +199,24 @@ export default function CalendarPage() {
   const handleTabClick = (tab: Tab) => {
     setActiveTab(tab);
     if (tab === "chat") {
-      window.location.href = "/chat";
+      router.push("/agent");
     } else if (tab === "calendar") {
-      window.location.href = "/calendar";
+      router.push("/calendar");
     } else if (tab === "location") {
-      window.location.href = "/location";
+      router.push("/location");
     } else if (tab === "mypage") {
-      window.location.href = "/mypage";
+      router.push("/mypage");
     }
   };
 
   return (
-    <main className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center relative">
       <Calendar />
-      {/* TabBar Component */}
       <TabBar
         activeTab={activeTab as Tab}
-        tabs={["chat", "calendar", "location", "mypage"] as Tab[]}
+        tabs={["chat", "calendar", "location", "mypage"]}
         onTabClick={handleTabClick}
       />
-    </main>
+    </div>
   );
 }
