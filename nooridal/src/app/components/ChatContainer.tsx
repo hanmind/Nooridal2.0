@@ -31,6 +31,17 @@ export default function ChatContainer() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  // 사용자 정보와 임신 정보를 위한 상태 추가
+  const [userInfo, setUserInfo] = useState<{ name: string | null }>({
+    name: null,
+  });
+  const [pregnancyInfo, setPregnancyInfo] = useState<{
+    baby_name: string | null;
+    due_date: string | null;
+  }>({
+    baby_name: null,
+    due_date: null,
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -54,6 +65,57 @@ export default function ChatContainer() {
 
     fetchUser();
   }, []);
+
+  // 사용자 상세 정보와 임신 정보 가져오기
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (!userId) return;
+
+      try {
+        // 1. users 테이블에서 사용자 정보 가져오기
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("name")
+          .eq("id", userId)
+          .single();
+
+        if (userError) {
+          console.error(
+            "사용자 상세 정보를 가져오는데 실패했습니다:",
+            userError
+          );
+        } else {
+          setUserInfo({
+            name: userData?.name || "사용자",
+          });
+        }
+
+        // 2. pregnancies 테이블에서 임신 정보 가져오기
+        const { data: pregnancyData, error: pregnancyError } = await supabase
+          .from("pregnancies")
+          .select("baby_name, due_date")
+          .eq("user_id", userId)
+          .eq("status", "active") // 활성화된 임신 정보만 가져오기
+          .order("created_at", { ascending: false }) // 최신 정보 우선
+          .limit(1)
+          .single();
+
+        if (pregnancyError && pregnancyError.code !== "PGRST116") {
+          // PGRST116: 결과 없음
+          console.error("임신 정보를 가져오는데 실패했습니다:", pregnancyError);
+        } else {
+          setPregnancyInfo({
+            baby_name: pregnancyData?.baby_name || "아기",
+            due_date: pregnancyData?.due_date || null,
+          });
+        }
+      } catch (err) {
+        console.error("사용자 및 임신 정보를 가져오는데 실패했습니다:", err);
+      }
+    };
+
+    fetchUserDetails();
+  }, [userId]);
 
   // 채팅방 목록 가져오기
   const fetchChatRooms = useCallback(async () => {
@@ -311,7 +373,11 @@ export default function ChatContainer() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          inputs: {},
+          inputs: {
+            username: userInfo.name || "사용자",
+            baby_nickname: pregnancyInfo.baby_name || "아기",
+            due_date: pregnancyInfo.due_date || "미정",
+          },
           query: messageContent,
           user: userId, // 로그인한 사용자 ID 사용
           conversation_id: conversationId, // Dify API conversation ID
