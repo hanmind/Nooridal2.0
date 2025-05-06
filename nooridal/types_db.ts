@@ -262,48 +262,48 @@ export type Database = {
       }
       llm_conversations: {
         Row: {
-          chat_room_id: string | null
-          created_at: string | null
-          id: string
-          query: string
-          response: string
-          source_documents: Json | null
-          updated_at: string | null
-          user_info: Json | null
-          using_rag: boolean | null
-        }
+          chat_room_id: string | null;
+          created_at: string | null;
+          id: string;
+          query: string;
+          response: string;
+          source_documents: Json | null;
+          updated_at: string | null;
+          user_info: Json | null;
+          using_rag: boolean | null;
+        };
         Insert: {
-          chat_room_id?: string | null
-          created_at?: string | null
-          id?: string
-          query: string
-          response: string
-          source_documents?: Json | null
-          updated_at?: string | null
-          user_info?: Json | null
-          using_rag?: boolean | null
-        }
+          chat_room_id?: string | null;
+          created_at?: string | null;
+          id?: string;
+          query: string;
+          response: string;
+          source_documents?: Json | null;
+          updated_at?: string | null;
+          user_info?: Json | null;
+          using_rag?: boolean | null;
+        };
         Update: {
-          chat_room_id?: string | null
-          created_at?: string | null
-          id?: string
-          query?: string
-          response?: string
-          source_documents?: Json | null
-          updated_at?: string | null
-          user_info?: Json | null
-          using_rag?: boolean | null
-        }
+          chat_room_id?: string | null;
+          created_at?: string | null;
+          id?: string;
+          query?: string;
+          response?: string;
+          source_documents?: Json | null;
+          updated_at?: string | null;
+          user_info?: Json | null;
+          using_rag?: boolean | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "llm_conversations_chat_room_id_fkey"
-            columns: ["chat_room_id"]
-            isOneToOne: false
-            referencedRelation: "chat_rooms"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+            foreignKeyName: "llm_conversations_chat_room_id_fkey";
+            columns: ["chat_room_id"];
+            isOneToOne: false;
+            referencedRelation: "chat_rooms";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       pregnancies: {
         Row: {
           baby_gender: string | null

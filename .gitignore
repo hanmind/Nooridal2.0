@@ -31,3 +31,41 @@ next-env.d.ts
 
 .cursor/
 nooridal/supabase/config.toml
+
+# Added by Claude Task Master
+# Logs
+logs
+*.log
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+.env
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+# Task files
+tasks.json
+tasks/
+
+# Task Master
+.taskmaster/
+tasks/
+scripts/prd.txt
+scripts/task-complexity-report.json 
+.env.example
+.roomodes
+.taskmasterconfig
+.windsurfrules
+dev_workflow.md
+roo_rules.md
+taskmaster.md
+self_improve.md
+/.roo/
+/scripts/
