@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import TabBar from "../components/TabBar";
 import { supabase } from "@/app/lib/supabase"; // 수정된 Supabase 클라이언트 경로
 import { User } from "@supabase/supabase-js"; // 사용자 타입 (필요시 경로 확인)
@@ -17,6 +18,7 @@ interface Message {
 export type Tab = "chat" | "calendar" | "location" | "mypage";
 
 export default function ChatPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("chat");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -122,13 +124,13 @@ export default function ChatPage() {
   const handleTabClick = (tab: Tab) => {
     setActiveTab(tab);
     if (tab === "chat") {
-      window.location.href = "/chat";
+      router.push("/agent");
     } else if (tab === "calendar") {
-      window.location.href = "/calendar";
+      router.push("/calendar");
     } else if (tab === "location") {
-      window.location.href = "/location";
+      router.push("/location");
     } else if (tab === "mypage") {
-      window.location.href = "/mypage";
+      router.push("/mypage");
     }
   };
 
@@ -467,6 +469,7 @@ export default function ChatPage() {
             type="submit"
             disabled={isLoading || !inputValue.trim()}
             className="ml-2 w-16 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-md hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="메시지 전송"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

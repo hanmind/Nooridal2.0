@@ -993,7 +993,7 @@ export default function ChatContainer() {
 
   // --- Render ---
   return (
-    <div className="flex h-screen bg-yellow-50 overflow-hidden">
+    <div className="flex h-full bg-yellow-50 overflow-hidden">
       <ChatSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -1004,7 +1004,7 @@ export default function ChatContainer() {
         onCreateNewChat={handleCreateNewChat}
       />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col relative">
         <div className="bg-white shadow-sm p-4 flex items-center sticky top-0 z-10 border-b border-yellow-200">
           <button
             aria-label="Toggle sidebar"
@@ -1031,7 +1031,7 @@ export default function ChatContainer() {
           </h1>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-yellow-50">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-yellow-50 pb-48">
           {isLoadingRooms && (
             <p className="text-center text-yellow-600 opacity-75">
               채팅방 목록 로딩 중...
@@ -1093,16 +1093,15 @@ export default function ChatContainer() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4 border-t border-yellow-200 bg-white">
+        <div className="absolute bottom-[7rem] left-0 right-0 p-4 border-t border-yellow-200 bg-white z-20">
           <ChatInput
             onSendMessage={handleSendMessage}
             disabled={
-              // disabled 조건 수정
-              !userId || // 사용자가 로드되지 않았거나
-              !currentRoomId || // 방이 선택되지 않았거나
-              isProcessing || // 메시지 처리 중이거나
-              isLoadingMessages || // 메시지 로딩 중이거나
-              isLoadingRooms // 방 목록 로딩 중일 때
+              !userId ||
+              !currentRoomId ||
+              isProcessing ||
+              isLoadingMessages ||
+              isLoadingRooms
             }
           />
         </div>

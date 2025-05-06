@@ -11,26 +11,19 @@ const UserMessage: React.FC<UserMessageProps> = ({ message, timestamp }) => {
     ? new Date(timestamp).toLocaleTimeString("ko-KR", {
         hour: "2-digit",
         minute: "2-digit",
+        hour12: false, // 24시간 표기
       })
     : "";
 
   return (
-    <div className="flex justify-end mb-4">
-      <div className="flex items-end max-w-[70%]">
+    <div className="flex justify-end mb-3">
+      <div className="flex items-end max-w-[75%]">
         {formattedTime && (
-          <span className="text-xs text-gray-500 mr-2 mb-1">
+          <span className="text-xs text-gray-500 dark:text-gray-400 mr-2 self-end mb-0.5">
             {formattedTime}
           </span>
         )}
-        <div
-          className="bg-blue-200 text-gray-800 p-3 rounded-lg max-w-lg shadow-sm"
-          style={{
-            borderTopRightRadius: "0.25rem",
-            borderBottomRightRadius: "0.5rem",
-            borderTopLeftRadius: "0.5rem",
-            borderBottomLeftRadius: "0.5rem",
-          }}
-        >
+        <div className="bg-yellow-200 text-yellow-900 p-3 rounded-xl shadow">
           <p className="text-sm whitespace-pre-wrap">{message}</p>
         </div>
       </div>

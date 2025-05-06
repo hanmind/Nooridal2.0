@@ -16,40 +16,49 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled }) => {
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
       handleSend();
     }
   };
 
   return (
-    <div className="flex items-center space-x-3">
-      <input
-        type="text"
+    <div className="flex items-center space-x-2 p-1 bg-white rounded-full border border-gray-300 shadow-sm">
+      <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyDown}
         placeholder="메시지를 입력하세요..."
         disabled={disabled}
-        className="flex-1 px-4 py-2 border border-yellow-300 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-sm"
+        rows={1}
+        className="flex-1 px-4 py-2.5 bg-transparent rounded-full focus:outline-none resize-none overflow-y-auto text-sm placeholder-gray-500"
+        style={{ maxHeight: "100px" }}
       />
       <button
         onClick={handleSend}
         disabled={disabled || !message.trim()}
-        className={`px-5 py-2 rounded-full text-white transition duration-200 shadow-md ${
+        className={`p-2.5 rounded-full transition duration-200 flex items-center justify-center ${
           disabled || !message.trim()
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-yellow-500 hover:bg-yellow-600"
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-gray-500 hover:bg-gray-600 text-white"
         }`}
+        aria-label="전송"
       >
-        {/* 전송 아이콘 */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className="h-5 w-5 transform transition-transform duration-200"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
           <path
-            d="M10.894 2.886l4.107 4.107a1 1 0 010 1.414l-4.107 4.107a1 1 0 01-1.414-1.414L12.586 10l-3.106-3.107a1 1 0 011.414-1.414zM4.894 2.886l4.107 4.107a1 1 0 010 1.414l-4.107 4.107a1 1 0 01-1.414-1.414L6.586 10 3.48 6.893a1 1 0 011.414-1.414z"
+            d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
             clipRule="evenodd"
             fillRule="evenodd"
           />
