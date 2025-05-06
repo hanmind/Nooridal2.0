@@ -89,7 +89,7 @@ export default function WelfarePage() {
         </button>
 
         {/* Current Location Section */}
-        <div className="w-[360px] h-[100px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+        <div className="w-[360px] h-[100px] mx-auto mt-40.5 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           <div className="flex items-start p-6">
             <div className="mr-4">
               <svg className="w-14 h-14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -118,7 +118,7 @@ export default function WelfarePage() {
         </div>
 
         {/* 복지 유형 선택 */}
-        <div className="absolute left-[12px] top-[230px] w-[360px] space-y-4">
+        <div className="mx-auto mt-2 w-[360px] space-y-4">
           {welfareTypes.map((type) => (
             <div key={type.id}>
               {type.id === 'career' && (

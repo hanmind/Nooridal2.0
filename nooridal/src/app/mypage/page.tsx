@@ -195,18 +195,20 @@ export default function MyPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      <div className="w-108 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
+      <div className="w-full max-w-[1080px] h-[900px] relative bg-[#FFF4BB] overflow-hidden">
+        {/* 헤더 */}
         <div className="w-full h-[140px] flex items-center justify-center bg-white shadow-md rounded-b-3xl relative mt-[-10px]">
           <div className="absolute inset-x-0 top-[75px] flex items-center justify-center">
-            <div className="left-[150px] top-[2px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
+            <div className="text-center text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
               마이페이지
             </div>
           </div>
         </div>
 
-        <div className="w-[360px] h-[280px] left-[21.5px] top-[24px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)] relative">
+        {/* 프로필 섹션 */}
+        <div className="w-[360px] h-[270px] mx-auto pt-3 mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           {/* 프로필 원 */}
-          <div className="w-24 h-24 left-[20px] top-[20px] absolute bg-gray-200 rounded-full overflow-hidden flex items-center justify-center">
+          <div className="w-24 h-24 bg-gray-200 rounded-full overflow-hidden ml-5">
             {profileImage ? (
               <img
                 src={profileImage}
@@ -231,33 +233,29 @@ export default function MyPage() {
             )}
           </div>
 
-          {/* 사용자 이름 */}
-          <div className="left-[130px] top-[40px] absolute text-neutral-700 text-xl font-normal font-['Do_Hyeon']">
-            <div className="flex items-center">
-              <div>{name || ""}</div>
+          {/* 사용자 정보 */}
+          <div className="text-center mt-[-74px] ml-9">
+            <div className="flex items-center justify-center">
+              <div className="text-neutral-700 text-xl font-normal font-['Do_Hyeon']">
+                {name || ""}
+              </div>
               {pregnancyInfo?.high_risk && (
-                <div className="ml-30 bg-red-500 text-white text-xs font-['Do_Hyeon'] px-2 py-1 rounded-full">
+                <div className="ml-10 bg-red-500 text-white text-xs font-['Do_Hyeon'] px-2 py-1 rounded-full">
                   고위험
                 </div>
               )}
             </div>
+            <div className="text-stone-500 text-m font-normal font-['Do_Hyeon'] mt-1 ml-4">
+              {email || ""}
+            </div>
           </div>
 
-          {/* 사용자 email */}
-          <div className="left-[130px] top-[75px] absolute text-stone-500 text-m font-normal font-['Do_Hyeon']">
-            {email || ""}
-          </div>
-
-          {/* 아기와 만나기까지, 출산 예정일 */}
+          {/* 임신 정보 */}
           {pregnancyInfo ? (
-            <div className="w-full px-6 top-[130px] absolute">
-              <div
-                className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center"
-                style={{ height: "auto", padding: "10px 0" }}
-              >
-                <span className="text-black text-lg font-normal font-['Do_Hyeon'] ">
-                  🍼 {pregnancyInfo?.baby_name || "사랑스러운 아기"} 세상에
-                  나오기
+            <div className="w-full px-6 mt-9">
+              <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center p-4">
+                <span className="text-black text-lg font-normal font-['Do_Hyeon']">
+                  🍼 {pregnancyInfo?.baby_name || "사랑스러운 아기"} 세상에 나오기
                   {pregnancyInfo?.due_date
                     ? ` D-${Math.ceil(
                         (new Date(pregnancyInfo.due_date).setHours(0, 0, 0, 0) -
@@ -268,8 +266,8 @@ export default function MyPage() {
                   🐥
                 </span>
               </div>
-              <div className="text-black text-sm font-normal font-['Do_Hyeon'] mt-2 ml-[220px]">
-                {pregnancyInfo.due_date}
+              <div className="text-black text-sm font-normal font-['Do_Hyeon'] mt-1 text-center">
+                출산 예정일: {pregnancyInfo.due_date}
               </div>
               <div className="flex items-center mt-4">
                 <div className="w-full h-2 bg-gray-200 rounded-full relative">
@@ -277,7 +275,7 @@ export default function MyPage() {
                     className="h-full bg-blue-500 rounded-full"
                     style={{
                       width: `${(pregnancyInfo.current_week / 40) * 100}%`,
-                    }} // Assuming 40 weeks as full term
+                    }}
                   ></div>
                   <div
                     className="absolute -top-6 text-blue-500"
@@ -285,7 +283,7 @@ export default function MyPage() {
                       left: `calc(${
                         (pregnancyInfo.current_week / 40) * 100
                       }% - 8px)`,
-                    }} // Adjust for icon width
+                    }}
                   >
                     <svg
                       className="w-4 h-4 inline-block"
@@ -303,22 +301,16 @@ export default function MyPage() {
                       <circle cx="12" cy="9" r="2.5" />
                     </svg>
                     <div className="flex items-center justify-center text-center text-s font-['Do_Hyeon'] mt-2">
-                      <span>{pregnancyInfo.current_week}</span>
+                      <span>{pregnancyInfo.current_week}주차</span>
                     </div>
                   </div>
-                </div>
-                <div className="absolute bottom-[-20px] left-[30px] text-gray-400 text-xs font-['Do_Hyeon']">
-                  주
                 </div>
               </div>
             </div>
           ) : (
-            <div className="w-full px-6 top-[130px] absolute">
-              <div
-                className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center"
-                style={{ height: "auto", padding: "10px 0" }}
-              >
-                <span className="text-black text-m font-normal font-['Do_Hyeon'] ">
+            <div className="w-full px-6 mt-10">
+              <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center p-4">
+                <span className="text-black text-m font-normal font-['Do_Hyeon']">
                   아래 버튼을 눌러 임신정보 등록을 해주세요 ❣️
                 </span>
               </div>
@@ -332,7 +324,8 @@ export default function MyPage() {
           )}
         </div>
 
-        <div className="w-[360px] h-62 left-[21.5px] top-[460px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+        {/* 메뉴 섹션 */}
+        <div className="w-full max-w-[360px] h-62 mx-auto mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           {/* 내 정보 관리 */}
           <div
             onClick={handleProfileManagement}
@@ -450,6 +443,7 @@ export default function MyPage() {
           </div>
         </div>
 
+        {/* 로그아웃 버튼 */}
         <button
           onClick={handleLogout}
           className="absolute left-1/2 transform -translate-x-1/2 top-[720px] text-center text-gray-500 text-base font-normal font-['Do_Hyeon'] leading-[50px] w-full"
