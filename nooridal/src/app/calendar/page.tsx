@@ -47,7 +47,7 @@ export default function CalendarPage() {
         try {
           const { data: profileData, error: profileError } = await supabase
             .from("users")
-            .select("id")
+            .select("id, user_type")
             .eq("id", user.id)
             .maybeSingle();
 
@@ -106,40 +106,41 @@ export default function CalendarPage() {
           }
 
           // --- Add Pregnancy Info Check ---
-          console.log(
-            "[Pregnancy Check] Checking for pregnancy record for user:",
-            user.id
-          );
-          const {
-            data: pregnancyData,
-            error: pregnancyError,
-            count,
-          } = await supabase
-            .from("pregnancies")
-            .select("id", { count: "exact", head: true }) // Efficiently check for existence
-            .eq("user_id", user.id);
-
-          if (pregnancyError) {
-            console.error(
-              "[Pregnancy Check] Error fetching pregnancy info:",
-              pregnancyError
-            );
-            setIsLoading(false); // Stop loading on error
-            return; // Don't redirect if fetching fails
-          }
-
-          console.log("[Pregnancy Check] Pregnancy record count:", count);
-
-          if (count === 0) {
+          // Only check/redirect for pregnant users
+          if (profileData && profileData.user_type === "pregnant") {
             console.log(
-              "[Pregnancy Check] No pregnancy record found. Redirecting..."
+              "[Pregnancy Check] Checking for pregnancy record for user:",
+              user.id
             );
-            router.push("/register/pregnant/pregnancy-info");
-          } else {
-            console.log("[Pregnancy Check] Pregnancy record found. Staying.");
-            setIsLoading(false); // Stop loading only if staying
+            const {
+              data: pregnancyData,
+              error: pregnancyError,
+              count,
+            } = await supabase
+              .from("pregnancies")
+              .select("id", { count: "exact", head: true }) // Efficiently check for existence
+              .eq("user_id", user.id);
+
+            if (pregnancyError) {
+              console.error(
+                "[Pregnancy Check] Error fetching pregnancy info:",
+                pregnancyError
+              );
+              setIsLoading(false); // Stop loading on error
+              return; // Don't redirect if fetching fails
+            }
+
+            console.log("[Pregnancy Check] Pregnancy record count:", count);
+
+            if (count === 0) {
+              console.log(
+                "[Pregnancy Check] No pregnancy record found. Redirecting..."
+              );
+              router.push("/register/pregnant/pregnancy-info");
+              return;
+            }
           }
-          // --- End Pregnancy Info Check ---
+          setIsLoading(false); // Stop loading only if staying
         } catch (e) {
           console.error("Unexpected error during profile/pregnancy check:", e);
           setIsLoading(false);

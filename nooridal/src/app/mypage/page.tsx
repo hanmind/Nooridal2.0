@@ -24,6 +24,8 @@ export default function MyPage() {
   const [babyGender, setBabyGender] = useState("");
   const [username, setUsername] = useState<string | null>(null);
   const [invitationCode, setInvitationCode] = useState<string | null>(null);
+  const [userType, setUserType] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -33,37 +35,61 @@ export default function MyPage() {
         console.error("세션 정보를 가져오는데 실패했습니다:", sessionError);
         return;
       }
-
       const user = sessionData?.session?.user;
       if (user) {
         setEmail(user.email || null);
-
         const { data: userData, error: userError } = await supabase
           .from("users")
-          .select("name, username, invitation_code")
+          .select("name, username, invitation_code, user_type")
           .eq("id", user.id)
           .maybeSingle();
-
-        if (userError) {
-          console.error("사용자 정보를 가져오는데 실패했습니다:", userError);
-        } else if (userData) {
+        if (userData) {
           setName(userData.name);
           setUsername(userData.username);
           setInvitationCode(userData.invitation_code);
+          setUserType(userData.user_type || null);
+        }
+      }
+    };
+    fetchUserInfo();
+  }, []);
 
+  useEffect(() => {
+    const sessionPregnancyInfo = sessionStorage.getItem('pregnancy_info');
+    if (sessionPregnancyInfo) {
+      try {
+        const parsed = JSON.parse(sessionPregnancyInfo);
+        setPregnancyInfo(parsed);
+        setBabyName(parsed.baby_name || "");
+        setDueDate(parsed.due_date || "");
+        setWeeks(parsed.current_week || "");
+        setHighRisk(parsed.high_risk || false);
+        setBabyGender(parsed.baby_gender || "");
+      } catch (e) {
+        console.error('세션스토리지 임신정보 파싱 오류:', e);
+      }
+    } else {
+      // Supabase에서 임신정보 로드 (기존 로직)
+      const fetchPregnancyInfo = async () => {
+        const { data: sessionData, error: sessionError } =
+          await supabase.auth.getSession();
+        if (sessionError) {
+          console.error("세션 정보를 가져오는데 실패했습니다:", sessionError);
+          return;
+        }
+        const user = sessionData?.session?.user;
+        if (user) {
           const { data: pregnancyData, error: pregnancyError } = await supabase
             .from("pregnancies")
             .select("baby_name, due_date, current_week, high_risk, baby_gender")
             .eq("user_id", user.id)
             .maybeSingle();
-
           if (pregnancyError) {
             console.error(
               "임신 정보를 가져오는 중 오류 발생:",
               pregnancyError.message
             );
           } else if (pregnancyData) {
-            console.log("임신 정보 가져오기 성공:", pregnancyData);
             setPregnancyInfo(pregnancyData);
             setBabyName(pregnancyData.baby_name || "");
             setDueDate(pregnancyData.due_date || "");
@@ -72,10 +98,9 @@ export default function MyPage() {
             setBabyGender(pregnancyData.baby_gender || "");
           }
         }
-      }
-    };
-
-    fetchUserInfo();
+      };
+      fetchPregnancyInfo();
+    }
   }, []);
 
   useEffect(() => {
@@ -83,7 +108,8 @@ export default function MyPage() {
   }, []);
 
   const handleLogout = () => {
-    // 로그아웃 처리 로직
+    // 로그아웃 시 임신정보 세션스토리지 삭제
+    sessionStorage.removeItem('pregnancy_info');
     router.push("/login");
   };
 
@@ -193,6 +219,8 @@ export default function MyPage() {
     }
   };
 
+  if (userType === null) return null;
+
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-full max-w-[1080px] h-[900px] relative bg-[#FFF4BB] overflow-hidden">
@@ -236,7 +264,7 @@ export default function MyPage() {
           {/* 사용자 정보 */}
           <div className="text-center mt-[-74px] ml-9">
             <div className="flex items-center justify-center">
-              <div className="text-neutral-700 text-xl font-normal font-['Do_Hyeon']">
+              <div className="text-neutral-700 text-xl font-normal font-['Do_Hyeon'] ml-6"> 
                 {name || ""}
               </div>
               {pregnancyInfo?.high_risk && (
@@ -245,14 +273,14 @@ export default function MyPage() {
                 </div>
               )}
             </div>
-            <div className="text-stone-500 text-m font-normal font-['Do_Hyeon'] mt-1 ml-4">
+            <div className="text-stone-500 text-m font-normal font-['Do_Hyeon'] mt-1 ml-[-40px]"> 
               {email || ""}
             </div>
           </div>
 
           {/* 임신 정보 */}
           {pregnancyInfo ? (
-            <div className="w-full px-6 mt-9">
+            <div className={`w-full px-6 mt-10`}>
               <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center p-4">
                 <span className="text-black text-lg font-normal font-['Do_Hyeon']">
                   🍼 {pregnancyInfo?.baby_name || "사랑스러운 아기"} 세상에
@@ -288,8 +316,8 @@ export default function MyPage() {
                   >
                     <svg
                       className="w-4 h-4 inline-block"
-                      fill="currentColor"
-                      stroke="currentColor"
+                      fill="#1A237E"
+                      stroke="#1A237E"
                       viewBox="0 0 24 24"
                       xmlns="http://www.w3.org/2000/svg"
                     >
@@ -302,14 +330,14 @@ export default function MyPage() {
                       <circle cx="12" cy="9" r="2.5" />
                     </svg>
                     <div className="flex items-center justify-center text-center text-s font-['Do_Hyeon'] mt-2">
-                      <span>{pregnancyInfo.current_week}주차</span>
+                      <span>{pregnancyInfo.current_week}</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="w-full px-6 mt-10">
+            <div className={`w-full px-6 mt-10`}>
               <div className="w-full h-full bg-yellow-100 rounded-2xl flex items-center justify-center p-4">
                 <span className="text-black text-m font-normal font-['Do_Hyeon']">
                   아래 버튼을 눌러 임신정보 등록을 해주세요 ❣️
@@ -326,131 +354,78 @@ export default function MyPage() {
         </div>
 
         {/* 메뉴 섹션 */}
-        <div className="w-full max-w-[360px] h-62 mx-auto mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
-          {/* 내 정보 관리 */}
-          <div
-            onClick={handleProfileManagement}
-            className="w-full flex items-center justify-between px-4 py-3 border-b border-stone-300 cursor-pointer hover:bg-stone-50 transition-colors"
-          >
-            <div className="flex items-center">
-              <svg
-                className="w-6 h-6 mr-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-              <div className="text-black text-base font-['Do_Hyeon'] leading-[35px]">
-                내 정보 관리
-              </div>
-            </div>
-            <div className="text-stone-300 text-xl font-['Inter'] leading-[35px]">
-              &gt;
-            </div>
-          </div>
-
-          {/* 임신 정보 관리 */}
-          <div
-            onClick={handlePregnancyInfoManagement}
-            className="w-full flex items-center justify-between px-4 py-3 border-b border-stone-300 cursor-pointer hover:bg-stone-50 transition-colors"
-          >
-            <div className="flex items-center">
-              <svg
-                className="w-6 h-6 mr-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-              <div className="text-black text-base font-['Do_Hyeon'] leading-[35px]">
-                임신 정보 관리
-              </div>
-            </div>
-            <div className="text-stone-300 text-xl font-['Inter'] leading-[35px]">
-              &gt;
-            </div>
-          </div>
-
-          {/* 자주 찾는 질문 */}
-          <div
-            onClick={handleFAQ}
-            className="w-full flex items-center justify-between px-4 py-3 border-b border-stone-300 cursor-pointer hover:bg-stone-50 transition-colors"
-          >
-            <div className="flex items-center">
-              <svg
-                className="w-6 h-6 mr-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <div className="text-black text-base font-['Do_Hyeon'] leading-[35px]">
-                자주 찾는 질문
-              </div>
-            </div>
-            <div className="text-stone-300 text-xl font-['Inter'] leading-[35px]">
-              &gt;
-            </div>
-          </div>
-
-          {/* 앱 정보 */}
-          <div
-            onClick={handleAppInfo}
-            className="w-full flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-stone-50 transition-colors"
-          >
-            <div className="flex items-center">
-              <svg
-                className="w-6 h-6 mr-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <div className="text-black text-base font-['Do_Hyeon'] leading-[35px]">
-                앱 정보
-              </div>
-            </div>
-            <div className="text-stone-300 text-xl font-['Inter'] leading-[35px]">
-              &gt;
-            </div>
+        <div className="w-full max-w-[360px] mx-auto mt-4 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)] p-6">
+          <div className="grid grid-cols-2 gap-y-8 gap-x-2">
+            {userType === 'guardian' ? (
+              <>
+                {/* 내 정보 관리 - 사람 아이콘 (파랑) */}
+                <div className="flex flex-col items-center cursor-pointer" onClick={handleProfileManagement}>
+                  <svg className="w-8 h-8 text-blue-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" strokeWidth="2"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7" strokeWidth="2"/></svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">내 정보 관리</span>
+                </div>
+                {/* 자주 찾는 질문 - 동그라미 안에 물음표 아이콘 (노랑) */}
+                <div className="flex flex-col items-center cursor-pointer" onClick={handleFAQ}>
+                  <svg className="w-8 h-8 text-yellow-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+                    <text x="12" y="16" textAnchor="middle" fontSize="12" fill="#FACC15" fontFamily="Arial" dominantBaseline="middle">?</text>
+                  </svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">자주 찾는 질문</span>
+                </div>
+                {/* 앱 정보 - 환경설정(톱니바퀴) 아이콘 (초록) */}
+                <div className="flex flex-col items-center cursor-pointer" onClick={handleAppInfo}>
+                  <svg className="w-8 h-8 text-green-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" strokeWidth="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" strokeWidth="2"/></svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">앱 정보</span>
+                </div>
+                {/* 로그아웃 - 나가는 문 아이콘 */}
+                <div className="flex flex-col items-center cursor-pointer" onClick={handleLogout}>
+                  <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M16 17v1a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" strokeWidth="2"/>
+                    <path d="M21 12H9" strokeWidth="2"/>
+                    <path d="M18 15l3-3-3-3" strokeWidth="2"/>
+                  </svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">로그아웃</span>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* 내 정보 관리 - 사람 아이콘 (파랑) */}
+                <div className="flex flex-col items-center cursor-pointer" onClick={handleProfileManagement}>
+                  <svg className="w-8 h-8 text-blue-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" strokeWidth="2"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7" strokeWidth="2"/></svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">내 정보 관리</span>
+                </div>
+                {/* 임신 정보 관리 - 동그란 하트 아이콘 (연핑크) */}
+                <div className="flex flex-col items-center cursor-pointer" onClick={handlePregnancyInfoManagement}>
+                  <svg className="w-8 h-8 text-red-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 21s-5.5-4.5-7.5-7.5C2.5 10.5 4.5 7 8 7c1.7 0 3 1.2 4 2.5C13 8.2 14.3 7 16 7c3.5 0 5.5 3.5 3.5 6.5C17.5 16.5 12 21 12 21z" stroke="currentColor" strokeWidth="2" fill="#FCA5A5"/>
+                  </svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">임신 정보 관리</span>
+                </div>
+                {/* 자주 찾는 질문 - 동그라미 안에 물음표 아이콘 (노랑) */}
+                <div className="flex flex-col items-center cursor-pointer" onClick={handleFAQ}>
+                  <svg className="w-8 h-8 text-yellow-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+                    <text x="12" y="16" textAnchor="middle" fontSize="12" fill="#FACC15" fontFamily="Arial" dominantBaseline="middle">?</text>
+                  </svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">자주 찾는 질문</span>
+                </div>
+                {/* 앱 정보 - 환경설정(톱니바퀴) 아이콘 (초록) */}
+                <div className="flex flex-col items-center cursor-pointer" onClick={handleAppInfo}>
+                  <svg className="w-8 h-8 text-green-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" strokeWidth="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" strokeWidth="2"/></svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">앱 정보</span>
+                </div>
+                {/* 로그아웃 - 나가는 문 아이콘 */}
+                <div className="flex flex-col items-center cursor-pointer" onClick={handleLogout}>
+                  <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M16 17v1a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" strokeWidth="2"/>
+                    <path d="M21 12H9" strokeWidth="2"/>
+                    <path d="M18 15l3-3-3-3" strokeWidth="2"/>
+                  </svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">로그아웃</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
-
-        {/* 로그아웃 버튼 */}
-        <button
-          onClick={handleLogout}
-          className="absolute left-1/2 transform -translate-x-1/2 top-[720px] text-center text-gray-500 text-base font-normal font-['Do_Hyeon'] leading-[50px] w-full"
-        >
-          로그아웃
-        </button>
       </div>
       <TabBar
         activeTab={activeTab as Tab}

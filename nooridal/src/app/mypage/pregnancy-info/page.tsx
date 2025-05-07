@@ -95,13 +95,13 @@ export default function PregnancyInfo() {
           console.log("임신 정보가 성공적으로 가져와졌습니다:", pregnancyData);
           if (pregnancyData) {
             const daysUntilBirth = calculateDaysUntilBirth(
-              pregnancyData.due_date
+              pregnancyData.due_date || ""
             );
             const babyName = pregnancyData.baby_name || "";
             setTempBabyName(babyName);
             setFormData({
               babyName: babyName,
-              gender: pregnancyData.baby_gender || "",
+              gender: (pregnancyData.baby_gender as "남자" | "여자" | "모름") || "",
               pregnancyWeek: (pregnancyData.current_week || 1).toString(),
               dueDate:
                 pregnancyData.due_date ||
