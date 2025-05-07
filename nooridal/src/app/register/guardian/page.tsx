@@ -40,6 +40,7 @@ export default function GuardianSignup() {
 
     if (savedInvitationCode) {
       setInvitationCode(savedInvitationCode);
+      console.log('세션스토리지에서 로드된 초대코드:', savedInvitationCode);
     } else {
       // 초대코드가 없으면 초대 페이지로 리다이렉트
       router.push('/register/guardian/invitation');
@@ -47,6 +48,7 @@ export default function GuardianSignup() {
 
     if (savedPregnantUserId) {
       setPregnantUserId(savedPregnantUserId);
+      console.log('세션스토리지에서 로드된 임산부 ID:', savedPregnantUserId);
     }
   }, [router]);
 
@@ -187,8 +189,8 @@ export default function GuardianSignup() {
         // Supabase에서 중복 아이디 확인 - 올바른 방식으로 쿼리 구성
         const { data, error } = await supabase
           .from('users')
-          .select('userId')
-          .eq('userId', value);
+          .select('username')
+          .eq('username', value);
           
         if (error) {
           throw error;
@@ -332,8 +334,8 @@ export default function GuardianSignup() {
       sessionStorage.removeItem('invitation_code');
       sessionStorage.removeItem('pregnant_user_id');
 
-      // 5. 성공 시 로그인 페이지로 이동
-      router.push('/login');
+      // 5. 성공 시 캘린더 페이지로 이동
+      router.push('/calendar');
       
     } catch (error) {
       console.error('회원가입 에러:', error);
