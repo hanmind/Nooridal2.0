@@ -1,4 +1,4 @@
-import { Json, Tables, Enums } from "../types_db";
+import { Json, Tables, Enums } from "../../types_db";
 
 export type PregnancyStatus = Enums<"pregnancy_status">;
 
