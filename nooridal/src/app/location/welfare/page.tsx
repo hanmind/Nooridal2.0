@@ -74,6 +74,12 @@ export default function WelfarePage() {
       title: '육아 휴직 정보',
       icon: '👶',
       description: '육아 휴직 제도 및 지원 정보'
+    },
+    {
+      id: 'center',
+      title: '여성새로일하기센터',
+      icon: '🏢',
+      description: '전국 새일센터 안내'
     }
   ];
 
@@ -133,7 +139,13 @@ export default function WelfarePage() {
                     ? 'bg-purple-100 border-2 border-purple-200'
                     : 'bg-white hover:bg-purple-50'
                 }`}
-                onClick={() => setSelectedType(type.id)}
+                onClick={() => {
+                  if (type.id === 'center') {
+                    router.push("/location/welfare/centers");
+                  } else {
+                    setSelectedType(type.id);
+                  }
+                }}
               >
                 <div className="flex items-center">
                   <div className="text-4xl mr-4">{type.icon}</div>
@@ -186,20 +198,30 @@ export default function WelfarePage() {
                       경력단절 예방 및 재취업 지원 안내
                     </button>
                   )}
-                </div>
-                <div className="p-4 bg-purple-50 rounded-xl">
-                  <div className="font-['Do_Hyeon']">💬 모성보호 신고센터 안내</div>
-                  {selectedType === 'parental' ? (
+                  {selectedType === 'center' && (
                     <button
                       className="mt-2 px-4 py-2 bg-purple-200 text-gray-900 rounded-[10px] font-['Do_Hyeon'] hover:bg-purple-300 transition-colors"
-                      onClick={() => setShowContactPopup(true)}
+                      onClick={() => router.push("/location/welfare/centers")}
                     >
-                      전국 모성보호 신고센터 연락처 보기
+                      전국 여성새로일하기센터 찾기
                     </button>
-                  ) : (
-                    <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']"> 경력단절여성 구직자: 지역 새일센터 방문 <br /> (대표전화 ☎ 1544-1199)</div>
                   )}
                 </div>
+                {selectedType !== 'center' && (
+                  <div className="p-4 bg-purple-50 rounded-xl">
+                    <div className="font-['Do_Hyeon']">💬 모성보호 신고센터 안내</div>
+                    {selectedType === 'parental' ? (
+                      <button
+                        className="mt-2 px-4 py-2 bg-purple-200 text-gray-900 rounded-[10px] font-['Do_Hyeon'] hover:bg-purple-300 transition-colors"
+                        onClick={() => setShowContactPopup(true)}
+                      >
+                        전국 모성보호 신고센터 연락처 보기
+                      </button>
+                    ) : (
+                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']"> 경력단절여성 구직자: 지역 새일센터 방문 <br /> (대표전화 ☎ 1544-1199)</div>
+                    )}
+                  </div>
+                )}
               </div>
               {/* 닫기 버튼 */}
               <div className="flex justify-center mt-6">
@@ -211,6 +233,7 @@ export default function WelfarePage() {
                 </button>
               </div>
             </div>
+
             {/* 육아휴직제도 안내 팝업 */}
             {showParentalInfo && (
               <div className="fixed inset-0 flex items-center justify-center z-40">
@@ -276,7 +299,8 @@ export default function WelfarePage() {
                 </div>
               </div>
             )}
-            {/* 경력단절 예방/재취업/지원센터 안내 팝업 */}
+      
+            {/* 경력단절 예방 안내 팝업 */}
             {showCareerInfo && (
               <div className="fixed inset-0 flex items-center justify-center z-40">
                 <div className="absolute inset-0 bg-black/50" onClick={() => setShowCareerInfo(false)} />
@@ -351,7 +375,8 @@ export default function WelfarePage() {
                 </div>
               </div>
             )}
-            {/* 전국 모성보호 신고센터 연락처 팝업 */}
+      
+            {/* 모성보호 신고센터 팝업 */}
             {showContactPopup && (
               <div className="fixed inset-0 flex items-center justify-center z-30">
                 <div className="absolute inset-0 bg-black/50" onClick={() => setShowContactPopup(false)} />
