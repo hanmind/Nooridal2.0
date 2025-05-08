@@ -3,8 +3,8 @@ const path = require('path');
 const csv = require('csvtojson');
 
 // 입력 및 출력 파일 경로 설정
-const inputFile = path.join(__dirname, '../../rawdata/복지_여성새로일하기센터 현황_20240802.csv');
-const outputFile = path.join(__dirname, '../public/data/women_reemployment_centers.json');
+const inputFile = path.join(__dirname, '../../rawdata/복지_한부모가족복지시설 세부 현황 원본.csv');
+const outputFile = path.join(__dirname, '../public/data/single_parent_family_welfare_facilities.json');
 
 // CSV를 JSON으로 변환
 async function convertCsvToJson() {
@@ -13,42 +13,53 @@ async function convertCsvToJson() {
     const jsonArray = await csv({
       colParser: {
         // 필드 파싱 옵션 설정
-        '연번': 'string',
+        '구  분': 'string',
         '시도': 'string',
-        '기초': 'string',
-        '센터명': 'string',
-        '리플릿 번호': 'string',
-        '주소': 'string'
+        '시 설 명': 'string',
+        '정 원': 'string',
+        '단위': 'string',
+        '전 화': 'string'
       }
     }).fromFile(inputFile);
     
     // 필요한 필드만 추출하여 정리
-    const centers = jsonArray.map(item => ({
-      id: item['연번'],
+    const facilities = jsonArray.map((item, index) => ({
+      id: String(index + 1),
+      type: item['구  분'],
       province: item['시도'],
-      city: item['기초'],
-      name: item['센터명'],
-      phone: item['리플릿 번호'],
-      address: item['주소']
+      name: item['시 설 명'],
+      capacity: item['정 원'],
+      unit: item['단위'],
+      phone: item['전 화'] || '비공개'
     }));
 
-    // 지역별로 그룹화
-    const centersByProvince = {};
-    centers.forEach(center => {
-      if (!centersByProvince[center.province]) {
-        centersByProvince[center.province] = [];
+    // 시설 유형별로 그룹화
+    const facilitiesByType = {};
+    facilities.forEach(facility => {
+      if (!facilitiesByType[facility.type]) {
+        facilitiesByType[facility.type] = [];
       }
-      centersByProvince[center.province].push(center);
+      facilitiesByType[facility.type].push(facility);
+    });
+
+    // 지역별로 그룹화
+    const facilitiesByProvince = {};
+    facilities.forEach(facility => {
+      if (!facilitiesByProvince[facility.province]) {
+        facilitiesByProvince[facility.province] = [];
+      }
+      facilitiesByProvince[facility.province].push(facility);
     });
 
     // 최종 JSON 구조 생성
     const finalData = {
-      totalCount: centers.length,
-      centers: centers,
-      centersByProvince: centersByProvince,
+      totalCount: facilities.length,
+      facilities: facilities,
+      facilitiesByType: facilitiesByType,
+      facilitiesByProvince: facilitiesByProvince,
       meta: {
-        description: "여성새로일하기센터 정보 (Women's Re-employment Centers)",
-        source: "복지_여성새로일하기센터 현황_20240802.csv",
+        description: "한부모가족복지시설 세부 현황",
+        source: "공공데이터포털",
         lastUpdated: new Date().toISOString().split('T')[0]
       }
     };

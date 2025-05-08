@@ -77,9 +77,15 @@ export default function WelfarePage() {
     },
     {
       id: 'center',
-      title: '여성새로일하기센터',
+      title: '여성새로일하기센터 찾기',
       icon: '🏢',
-      description: '전국 새일센터 안내'
+      description: '취업지원 서비스를 제공하는 여성새로일하기센터 안내'
+    },
+    {
+      id: 'single-parent',
+      title: '한부모가족복지시설 찾기',
+      icon: '👨‍👧',
+      description: '전국 출산/양육/생활지원시설 및 일시지원복지시설/한부모가족복지상담소 안내'
     }
   ];
 
@@ -142,6 +148,8 @@ export default function WelfarePage() {
                 onClick={() => {
                   if (type.id === 'center') {
                     router.push("/location/welfare/centers");
+                  } else if (type.id === 'single-parent') {
+                    router.push("/location/welfare/single-parent");
                   } else {
                     setSelectedType(type.id);
                   }
@@ -198,28 +206,16 @@ export default function WelfarePage() {
                       경력단절 예방 및 재취업 지원 안내
                     </button>
                   )}
-                  {selectedType === 'center' && (
-                    <button
-                      className="mt-2 px-4 py-2 bg-purple-200 text-gray-900 rounded-[10px] font-['Do_Hyeon'] hover:bg-purple-300 transition-colors"
-                      onClick={() => router.push("/location/welfare/centers")}
-                    >
-                      전국 여성새로일하기센터 찾기
-                    </button>
-                  )}
                 </div>
-                {selectedType !== 'center' && (
+                {selectedType === 'parental' && (
                   <div className="p-4 bg-purple-50 rounded-xl">
                     <div className="font-['Do_Hyeon']">💬 모성보호 신고센터 안내</div>
-                    {selectedType === 'parental' ? (
-                      <button
-                        className="mt-2 px-4 py-2 bg-purple-200 text-gray-900 rounded-[10px] font-['Do_Hyeon'] hover:bg-purple-300 transition-colors"
-                        onClick={() => setShowContactPopup(true)}
-                      >
-                        전국 모성보호 신고센터 연락처 보기
-                      </button>
-                    ) : (
-                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']"> 경력단절여성 구직자: 지역 새일센터 방문 <br /> (대표전화 ☎ 1544-1199)</div>
-                    )}
+                    <button
+                      className="mt-2 px-4 py-2 bg-purple-200 text-gray-900 rounded-[10px] font-['Do_Hyeon'] hover:bg-purple-300 transition-colors"
+                      onClick={() => setShowContactPopup(true)}
+                    >
+                      전국 모성보호 신고센터 연락처 보기
+                    </button>
                   </div>
                 )}
               </div>
