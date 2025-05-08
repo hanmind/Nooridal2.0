@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import TabBar from "../components/TabBar";
 import { supabase } from "@/app/lib/supabase"; // 수정된 Supabase 클라이언트 경로
 import { User } from "@supabase/supabase-js"; // 사용자 타입 (필요시 경로 확인)
@@ -14,10 +15,11 @@ interface Message {
   time?: string; // 추가
 }
 
-export type Tab = 'chat' | 'calendar' | 'location' | 'mypage';
+export type Tab = "chat" | "calendar" | "location" | "mypage";
 
 export default function ChatPage() {
-  const [activeTab, setActiveTab] = useState<Tab>('chat');
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<Tab>("chat");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -32,7 +34,9 @@ export default function ChatPage() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [expectedDate, setExpectedDate] = useState<string | null>(null);
-  const [selectedDateMessages, setSelectedDateMessages] = useState<Message[]>([]);
+  const [selectedDateMessages, setSelectedDateMessages] = useState<Message[]>(
+    []
+  );
   const [currentWeek, setCurrentWeek] = useState<string>("*");
 
   const messagesEndRef = useRef<HTMLDivElement>(null); // 메시지 목록 맨 아래로 스크롤하기 위한 ref
@@ -120,13 +124,13 @@ export default function ChatPage() {
   const handleTabClick = (tab: Tab) => {
     setActiveTab(tab);
     if (tab === "chat") {
-      window.location.href = "/chat";
+      router.push("/agent");
     } else if (tab === "calendar") {
-      window.location.href = "/calendar";
+      router.push("/calendar");
     } else if (tab === "location") {
-      window.location.href = "/location";
+      router.push("/location");
     } else if (tab === "mypage") {
-      window.location.href = "/mypage";
+      router.push("/mypage");
     }
   };
 
@@ -137,7 +141,7 @@ export default function ChatPage() {
     { w: 24, h: 14, left: 298.49, top: 237.75 },
     { w: 12, h: 7, left: 333.57, top: 274.12 },
     { w: 16, h: 14, left: 235.36, top: 252.57 },
-    { w: 16, h: 14, left: 232.55, top: 233.04 }
+    { w: 16, h: 14, left: 232.55, top: 233.04 },
   ];
 
   // 메시지 전송 핸들러
@@ -295,7 +299,9 @@ export default function ChatPage() {
   };
 
   // Define 'closeSidebar' and 'toggleSidebar' as placeholders
-  const closeSidebar = () => { setIsSidebarOpen(false); };
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
   const toggleSidebar = () => {};
 
   // Function to generate calendar days
@@ -346,29 +352,29 @@ export default function ChatPage() {
 
     // Fetch messages for the selected date from chat_rooms
     const { data: chatRoom, error: chatRoomError } = await supabase
-      .from('chat_rooms')
-      .select('id')
-      .eq('created_at', selectedDate)
+      .from("chat_rooms")
+      .select("id")
+      .eq("created_at", selectedDate)
       .maybeSingle();
 
     if (chatRoomError) {
-      console.error('Error fetching chat room:', chatRoomError);
+      console.error("Error fetching chat room:", chatRoomError);
       return;
     }
 
     if (chatRoom) {
       const { data: messages, error: messagesError } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('chat_room_id', chatRoom.id);
+        .from("messages")
+        .select("*")
+        .eq("chat_room_id", chatRoom.id);
 
       if (messagesError) {
-        console.error('Error fetching messages:', messagesError);
+        console.error("Error fetching messages:", messagesError);
       } else {
         setSelectedDateMessages(messages || []);
       }
     } else {
-      console.log('No chat room found for the selected date.');
+      console.log("No chat room found for the selected date.");
       setSelectedDateMessages([]);
     }
   };
@@ -376,7 +382,11 @@ export default function ChatPage() {
   // 시간 포맷 함수 추가
   const getCurrentTime = () => {
     const now = new Date();
-    return now.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false });
+    return now.toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
   };
 
   return (
@@ -413,7 +423,9 @@ export default function ChatPage() {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex mb-4 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+            className={`flex mb-4 ${
+              msg.sender === "user" ? "justify-end" : "justify-start"
+            }`}
           >
             <div
               className={`max-w-[75%] px-4 py-2 rounded-lg shadow ${
@@ -426,14 +438,17 @@ export default function ChatPage() {
               {msg.sender === "ai" && msg.id === "welcome"
                 ? msg.text.replace("*주차", `${currentWeek}주차`)
                 : msg.text.split("\n").map((line, index) => (
-                    <span key={index}>{line}<br /></span>
+                    <span key={index}>
+                      {line}
+                      <br />
+                    </span>
                   ))}
             </div>
             <div className="text-xs text-gray-400 ml-2 mb-1 self-end">
               {msg.time}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         <div ref={messagesEndRef} />
       </div>
 
@@ -446,27 +461,30 @@ export default function ChatPage() {
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isLoading}
             className="flex-grow h-10 px-5 py-2 text-neutral-700 text-base font-normal font-['Do_Hyeon'] bg-transparent rounded-full focus:outline-none placeholder-gray-400 disabled:opacity-50"
-            placeholder={isLoading ? "답변 생성 중..." : "궁금한 점을 물어보세요!"}
+            placeholder={
+              isLoading ? "답변 생성 중..." : "궁금한 점을 물어보세요!"
+            }
           />
           <button
             type="submit"
             disabled={isLoading || !inputValue.trim()}
             className="ml-2 w-16 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-md hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="메시지 전송"
           >
             <svg
-          xmlns="http://www.w3.org/2000/svg" 
+              xmlns="http://www.w3.org/2000/svg"
               fill="none"
-          viewBox="0 0 24 24" 
+              viewBox="0 0 24 24"
               stroke="currentColor"
               className="w-6 h-6"
-        >
-          <path 
+            >
+              <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
                 d="M2.5 19.5l19-7-19-7v7l13 0-13 0v7z"
-          />
-        </svg>
+              />
+            </svg>
           </button>
         </div>
       </form>
@@ -488,16 +506,14 @@ export default function ChatPage() {
             <div className="text-center mb-4">
               <div className="text-base font-light font-['Do_Hyeon'] text-gray-500">
                 원하시는 날짜의 대화 내역을 확인해보세요
-              </div>
         </div>
+      </div>
 
             <div className="flex justify-between items-center mb-3">
               <button
                 onClick={() =>
                   setCurrentMonth(
-                    new Date(
-                      currentMonth.setMonth(currentMonth.getMonth() - 1)
-                    )
+                    new Date(currentMonth.setMonth(currentMonth.getMonth() - 1))
                   )
                 }
                 aria-label="이전 달 보기"
@@ -505,9 +521,9 @@ export default function ChatPage() {
               >
                 <svg
                   className="w-5 h-5 text-gray-600"
-                  fill="none"
+                fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
+                viewBox="0 0 24 24"
                 >
                   <path
                     strokeLinecap="round"
@@ -523,9 +539,7 @@ export default function ChatPage() {
               <button
                 onClick={() =>
                   setCurrentMonth(
-                    new Date(
-                      currentMonth.setMonth(currentMonth.getMonth() + 1)
-                    )
+                    new Date(currentMonth.setMonth(currentMonth.getMonth() + 1))
                   )
                 }
                 aria-label="다음 달 보기"
@@ -543,27 +557,25 @@ export default function ChatPage() {
                     strokeWidth="2"
                     d="M9 5l7 7-7 7"
                   />
-                </svg>
+              </svg>
               </button>
             </div>
 
             <div className="grid grid-cols-7 mb-1">
-              {["일", "월", "화", "수", "목", "금", "토"].map(
-                (day, index) => (
-                  <div
-                    key={day}
-                    className={`text-center text-sm font-['Do_Hyeon'] py-1 ${
-                      index === 0
-                        ? "text-red-500"
-                        : index === 6
-                        ? "text-blue-500"
-                        : "text-gray-600"
-                    }`}
-                  >
-                    {day}
-                  </div>
-                )
-        )}
+              {["일", "월", "화", "수", "목", "금", "토"].map((day, index) => (
+                <div
+                  key={day}
+                  className={`text-center text-sm font-['Do_Hyeon'] py-1 ${
+                    index === 0
+                      ? "text-red-500"
+                      : index === 6
+                      ? "text-blue-500"
+                      : "text-gray-600"
+                  }`}
+                >
+                  {day}
+          </div>
+        ))}
       </div>
 
             <div className="grid grid-cols-7 gap-0.5">

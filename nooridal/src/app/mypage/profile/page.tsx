@@ -845,7 +845,7 @@ export default function ProfileManagement() {
           </div>
         ) : (
           <div
-            className="w-52 h-11 left-[45px] top-[520px] absolute text-left justify-start text-black text-s font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer"
+            className="w-52 h-11 left-[42px] top-[521px] absolute text-left justify-start text-black text-s font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer"
             onClick={handlePhoneClick}
           >
             {userInfo.phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")}
@@ -868,7 +868,7 @@ export default function ProfileManagement() {
           주소
         </div>
         <div className="w-[250px] h-11 left-[30px] top-[596px] absolute bg-white rounded-[10px] border border-zinc-300 overflow-hidden">
-          <div className="w-full h-full text-left justify-start text-neutral-900 text-m font-normal font-['Do_Hyeon'] leading-[50px] pl-2">
+          <div className="w-full h-full text-left justify-start text-neutral-900 text-m font-normal font-['Do_Hyeon'] leading-[48px] pl-3">
             {address}
           </div>
         </div>
@@ -889,7 +889,7 @@ export default function ProfileManagement() {
         {/* Center the text inside the edit button and navigate back to @page.tsx on click */}
         <button
           onClick={handleSaveChanges}
-          className="w-70 h-10 left-[50%] transform -translate-x-1/2 top-[670px] absolute bg-blue-300 rounded-full flex items-center justify-center text-white text-m font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
+          className="w-35 h-10 left-[50%] transform -translate-x-1/2 top-[670px] absolute bg-blue-300 rounded-full flex items-center justify-center text-white text-m font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
         >
           수정
         </button>

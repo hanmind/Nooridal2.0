@@ -95,13 +95,13 @@ export default function PregnancyInfo() {
           console.log("임신 정보가 성공적으로 가져와졌습니다:", pregnancyData);
           if (pregnancyData) {
             const daysUntilBirth = calculateDaysUntilBirth(
-              pregnancyData.due_date
+              pregnancyData.due_date || ""
             );
             const babyName = pregnancyData.baby_name || "";
             setTempBabyName(babyName);
             setFormData({
               babyName: babyName,
-              gender: pregnancyData.baby_gender || "",
+              gender: (pregnancyData.baby_gender as "남자" | "여자" | "모름") || "",
               pregnancyWeek: (pregnancyData.current_week || 1).toString(),
               dueDate:
                 pregnancyData.due_date ||
@@ -280,7 +280,7 @@ export default function PregnancyInfo() {
           <div className="p-8">
             {/* 프로필 사진 또는 하트 아이콘 */}
             {profileImage ? (
-              <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+              <div className="w-24 h-24 mx-auto mb-2 mt-[-20px] rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
                 <img
                   src={profileImage}
                   alt="프로필 이미지"
@@ -310,7 +310,7 @@ export default function PregnancyInfo() {
                 : "엄마의 임신 정보"}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-7">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="flex items-center justify-between">
                 <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
                   태명
@@ -482,7 +482,7 @@ export default function PregnancyInfo() {
               </div>
               <button
                 type="submit"
-                className="w-70 h-10 left-[50%] transform -translate-x-1/2 top-[520px] absolute bg-blue-300 rounded-full flex items-center justify-center text-white text-m font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
+                className="w-35 h-10 left-[50%] transform -translate-x-1/2 top-[520px] absolute bg-blue-300 rounded-full flex items-center justify-center text-white text-m font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
               >
                 수정
               </button>
