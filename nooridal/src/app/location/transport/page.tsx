@@ -11,6 +11,10 @@ declare global {
   }
 }
 
+// Kakao maps type for MarkerClusterer
+type KakaoMarker = any;
+type KakaoMarkerClusterer = any;
+
 interface TransportCenter {
   id: string;
   name: string;
@@ -374,12 +378,15 @@ export default function TransportPage() {
       map.addControl(mapTypeControl, window.kakao.maps.ControlPosition.TOPRIGHT);
 
       // 마커 클러스터러 생성
-      const clusterer = new window.kakao.maps.MarkerClusterer({
-        map: map,
-        averageCenter: true,
-        minLevel: 10,
-        gridSize: 60
-      });
+      let clusterer: KakaoMarkerClusterer | undefined;
+      if (window.kakao.maps.MarkerClusterer) {
+        clusterer = new window.kakao.maps.MarkerClusterer({
+          map: map,
+          averageCenter: true,
+          minLevel: 10,
+          gridSize: 60
+        });
+      }
 
       // 주소로 좌표 검색
       const geocoder = new window.kakao.maps.services.Geocoder();
@@ -431,13 +438,18 @@ export default function TransportPage() {
               });
 
               // 클러스터러에 마커 추가
-              clusterer.addMarkers(markers);
+              if (clusterer) {
+                clusterer.addMarkers(markers);
+              } else {
+                // 클러스터러가 없는 경우 일반 마커로 추가
+                markers.forEach((marker: KakaoMarker) => marker.setMap(map));
+              }
 
               // 모든 마커를 포함하는 영역으로 지도 범위 설정
               if (markers.length > 0) {
                 const bounds = new window.kakao.maps.LatLngBounds();
                 bounds.extend(coords); // 현재 위치도 포함
-                markers.forEach(marker => bounds.extend(marker.getPosition()));
+                markers.forEach((marker: KakaoMarker) => bounds.extend(marker.getPosition()));
                 map.setBounds(bounds);
               }
             } else {
@@ -487,13 +499,18 @@ export default function TransportPage() {
               });
 
               // 클러스터러에 마커 추가
-              clusterer.addMarkers(markers);
+              if (clusterer) {
+                clusterer.addMarkers(markers);
+              } else {
+                // 클러스터러가 없는 경우 일반 마커로 추가
+                markers.forEach((marker: KakaoMarker) => marker.setMap(map));
+              }
 
               // 모든 마커를 포함하는 영역으로 지도 범위 설정
               if (markers.length > 0) {
                 const bounds = new window.kakao.maps.LatLngBounds();
                 bounds.extend(coords); // 현재 위치도 포함
-                markers.forEach(marker => bounds.extend(marker.getPosition()));
+                markers.forEach((marker: KakaoMarker) => bounds.extend(marker.getPosition()));
                 map.setBounds(bounds);
               }
             } else {
@@ -539,7 +556,12 @@ export default function TransportPage() {
                 });
 
                 // 클러스터러에 마커 추가
-                clusterer.addMarkers(markers);
+                if (clusterer) {
+                  clusterer.addMarkers(markers);
+                } else {
+                  // 클러스터러가 없는 경우 일반 마커로 추가
+                  markers.forEach((marker: KakaoMarker) => marker.setMap(map));
+                }
               }
             }, searchOptions);
 
