@@ -479,10 +479,6 @@ export default function HospitalPage() {
                   <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">가까운 병원을 찾아보세요</div>
                 </div>
                 <div className="p-4 bg-red-50 rounded-xl">
-                  <div className="font-['Do_Hyeon']">📱 예약하기</div>
-                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">온라인으로 예약하세요</div>
-                </div>
-                <div className="p-4 bg-red-50 rounded-xl">
                   <div className="font-['Do_Hyeon']">💬 상담하기</div>
                   <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문의와 상담하세요</div>
                 </div>
