@@ -3,6 +3,9 @@ import DatePopup from '@/app/calendar/DatePopup';
 import SchedulePopup from '@/app/calendar/SchedulePopup';
 import { supabase, getCurrentUser } from '@/utils/supabase';
 import { RRule, rrulestr } from 'rrule';
+import TabBar from '@/app/components/TabBar';
+import { useRouter } from 'next/navigation';
+import type { Tab } from '@/app/chat/page';
 
 // 일정 타입 정의
 interface Event {
@@ -10,16 +13,18 @@ interface Event {
   title: string;
   start_time: string;
   end_time: string | null;
-  color: string;
-  all_day: boolean;
-  description?: string;
-  user_id: string;
+  color: string | null;
+  all_day: boolean | null;
+  description?: string | null;
+  user_id: string | null;
   notification_time?: string | null;
   repeat_pattern?: string | null;
   // 반복 일정 관련 필드 추가
   rrule?: string | null;
   exdate?: string[] | null;
   recurring_event_id?: string | null;
+  created_at?: string | null;
+  is_recurring?: boolean | null;
 }
 
 const Calendar: React.FC = () => {
@@ -361,7 +366,7 @@ const Calendar: React.FC = () => {
   };
   
   return (
-    <div className="w-102 h-[874px] relative bg-'#FFF4BB'  overflow-hidden">
+    <div className="w-102 min-h-screen relative bg-'#FFF4BB' overflow-hidden">
       {/* Add the rectangular box from the chat window */}
       <div className="w-full h-[140px] flex items-center justify-center bg-white shadow-md rounded-b-3xl relative mt-[-10px]">
         {/* Month Selector and Notification Icons */}

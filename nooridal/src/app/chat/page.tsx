@@ -446,9 +446,9 @@ export default function ChatPage() {
             </div>
             <div className="text-xs text-gray-400 ml-2 mb-1 self-end">
               {msg.time}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         <div ref={messagesEndRef} />
       </div>
 
@@ -506,8 +506,8 @@ export default function ChatPage() {
             <div className="text-center mb-4">
               <div className="text-base font-light font-['Do_Hyeon'] text-gray-500">
                 원하시는 날짜의 대화 내역을 확인해보세요
-              </div>
-            </div>
+        </div>
+      </div>
 
             <div className="flex justify-between items-center mb-3">
               <button
@@ -521,9 +521,9 @@ export default function ChatPage() {
               >
                 <svg
                   className="w-5 h-5 text-gray-600"
-                  fill="none"
+                fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
+                viewBox="0 0 24 24"
                 >
                   <path
                     strokeLinecap="round"
@@ -557,7 +557,7 @@ export default function ChatPage() {
                     strokeWidth="2"
                     d="M9 5l7 7-7 7"
                   />
-                </svg>
+              </svg>
               </button>
             </div>
 
@@ -574,9 +574,9 @@ export default function ChatPage() {
                   }`}
                 >
                   {day}
-                </div>
-              ))}
-            </div>
+          </div>
+        ))}
+      </div>
 
             <div className="grid grid-cols-7 gap-0.5">
               {generateCalendarDays().map((day, index) => (
@@ -616,4 +616,4 @@ export default function ChatPage() {
       )}
     </div>
   );
-}
+} 

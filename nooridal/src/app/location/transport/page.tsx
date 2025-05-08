@@ -925,18 +925,12 @@ export default function TransportPage() {
                   </div>
                 )}
                 
-                {/* 나들이와 무장애 관광지가 아닌 경우에만 예약하기, 상담하기 버튼 표시 */}
+                {/* 나들이와 무장애 관광지가 아닌 경우에만 상담하기 버튼 표시 */}
                 {selectedType !== 'outing' && selectedType !== 'support' && (
-                  <>
-                    <div className="p-4 bg-blue-50 rounded-xl">
-                      <div className="font-['Do_Hyeon']">📱 예약하기</div>
-                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">온라인으로 예약하세요</div>
-                    </div>
-                    <div className="p-4 bg-blue-50 rounded-xl">
-                      <div className="font-['Do_Hyeon']">💬 상담하기</div>
-                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문 상담원과 상담하세요</div>
-                    </div>
-                  </>
+                  <div className="p-4 bg-blue-50 rounded-xl">
+                    <div className="font-['Do_Hyeon']">💬 상담하기</div>
+                    <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문 상담원과 상담하세요</div>
+                  </div>
                 )}
               </div>
               
