@@ -10,6 +10,19 @@ interface DiaryEntry {
   date: string;  // Date 객체 대신 문자열로 저장
 }
 
+// LLM 대화 인터페이스 추가
+interface LlmConversation {
+  id: string;
+  chat_room_id: string | null;
+  query: string;
+  response: string;
+  created_at: string | null;
+  updated_at: string | null;
+  user_info: any;
+  source_documents: any;
+  using_rag: boolean | null;
+}
+
 // 일정 타입 정의
 interface Event {
   id: string;
@@ -46,6 +59,9 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  // LLM 대화 상태 추가
+  const [conversations, setConversations] = useState<LlmConversation[]>([]);
+  const [conversationsLoading, setConversationsLoading] = useState(false);
   
   // 삭제 확인 관련 상태 추가
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -53,6 +69,12 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
   const [showRecurringDeleteOptions, setShowRecurringDeleteOptions] = useState(false);
   const [recurringDeleteOption, setRecurringDeleteOption] = useState<'this' | 'thisAndFuture' | 'all'>('this');
   const [eventToDeleteInfo, setEventToDeleteInfo] = useState<{id: string, isRecurring: boolean, date: string} | null>(null);
+
+  // 상태 변수 추가 (const DatePopup 함수 내부 상단)
+  const [policySummary, setPolicySummary] = useState<{
+    summary: string;
+    policies: string[];
+  } | null>(null);
 
   // 팝업이 닫힐 때 상태 초기화
   const handleClose = () => {
@@ -346,8 +368,141 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
   useEffect(() => {
     if (activeTab === 'schedule' && isOpen) {
       fetchEventsForDate();
+    } else if (activeTab === 'today' && isOpen) {
+      // today 탭일 때 LLM 대화 가져오기
+      fetchLlmConversations();
     }
   }, [activeTab]);
+
+  // 날짜에 해당하는 LLM 대화 가져오기
+  const fetchLlmConversations = async () => {
+    if (!isOpen || activeTab !== 'today') return;
+    
+    try {
+      setConversationsLoading(true);
+      
+      // 로그인한 사용자 ID 가져오기
+      const user = await getCurrentUser();
+      const userId = user?.id;
+      
+      // 로그인하지 않은 경우 빈 배열 반환
+      if (!userId) {
+        console.warn('로그인한 사용자 정보가 없습니다. 대화 내용을 가져올 수 없습니다.');
+        setConversations([]);
+        return;
+      }
+      
+      // 선택한 날짜의 시작과 끝 (로컬 시간대 기준)
+      const selectedDate = new Date(date);
+      selectedDate.setHours(0, 0, 0, 0);
+      
+      const nextDay = new Date(selectedDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      nextDay.setMilliseconds(-1); // 23:59:59.999
+      
+      // ISO 문자열로 변환
+      const startDateStr = selectedDate.toISOString();
+      const endDateStr = nextDay.toISOString();
+      
+      // llm_conversations 테이블에서 해당 날짜의 대화 가져오기
+      const { data, error } = await supabase
+        .from('llm_conversations')
+        .select('*')
+        .eq('user_id', userId)
+        .gte('created_at', startDateStr)
+        .lt('created_at', endDateStr)
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('LLM 대화 가져오기 오류:', error);
+        return;
+      }
+      
+      setConversations(data || []);
+      
+      // 데이터를 가져온 후 즉시 정책 정보 추출 실행
+      if (data && data.length > 0) {
+        extractPoliciesInfo(data);
+      } else {
+        // 대화 내용이 없는 경우 정책 요약도 없음
+        setPolicySummary(null);
+      }
+    } catch (err) {
+      console.error('LLM 대화 불러오기 실패:', err);
+    } finally {
+      setConversationsLoading(false);
+    }
+  };
+
+  // 대화 내용에서 유용한 정보 추출
+  const extractPoliciesInfo = (conversationsData = conversations) => {
+    if (!conversationsData || conversationsData.length === 0) return;
+    
+    try {
+      // 정책 정보가 포함된 답변 필터링
+      const policyResponses = conversationsData.filter(conv => {
+        const response = String(conv.response).toLowerCase();
+        return (
+          response.includes('정책') || 
+          response.includes('지원') || 
+          response.includes('혜택') || 
+          response.includes('보조금') ||
+          response.includes('서비스') ||
+          response.includes('법률') ||
+          response.includes('수당')
+        );
+      });
+      
+      if (policyResponses.length === 0) {
+        console.log('정책 관련 대화가 없습니다.');
+        // 정책 관련 대화가 없다는 상태 설정
+        setPolicySummary({ summary: '정책 관련 대화가 없습니다', policies: [] });
+        return;
+      }
+      
+      // 정책 정보 추출
+      const policies: string[] = [];
+      // 날짜 표시 변경 ("오늘" -> 실제 날짜)
+      let summaryText = `${formatDate(date)} 대화에서 다음과 같은 유용한 정보를 찾았습니다:`;
+      
+      // 정책 키워드 추출
+      policyResponses.forEach(conv => {
+        // 간단한 문장 분리 및 정책 관련 정보 추출
+        const sentences = String(conv.response).split(/[.!?]\s+/);
+        sentences.forEach(sentence => {
+          const lowerSentence = sentence.toLowerCase();
+          if (
+            (lowerSentence.includes('정책') || 
+            lowerSentence.includes('지원') || 
+            lowerSentence.includes('혜택') || 
+            lowerSentence.includes('보조금') ||
+            lowerSentence.includes('서비스') ||
+            lowerSentence.includes('법률') ||
+            lowerSentence.includes('수당')) &&
+            sentence.length > 10 &&  // 너무 짧은 문장 제외
+            !policies.some(p => p.includes(sentence.trim())) // 중복 제외
+          ) {
+            policies.push(sentence.trim());
+          }
+        });
+      });
+      
+      // 요약 생성
+      if (policies.length === 0) {
+        // 키워드 기반으로 정책을 찾지 못한 경우, 전체 응답 중 일부 사용
+        const firstPolicy = String(policyResponses[0].response).substring(0, 150) + '...';
+        policies.push(firstPolicy);
+      }
+      
+      setPolicySummary({
+        summary: summaryText,
+        policies: policies.slice(0, 5) // 최대 5개 정책만 표시
+      });
+      
+    } catch (err) {
+      console.error('정책 정보 추출 오류:', err);
+    }
+  };
 
   const handleSaveDiary = (entry: DiaryEntry) => {
     const formattedDate = formatDate(date);
@@ -559,9 +714,103 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
             )}
           </div>
         ) : activeTab === 'today' ? (
-          <div className="flex justify-center mt-[30px]">
-            <div className="w-full h-[240px] bg-white border-2 border-neutral-200 rounded-[15px]">
-            </div>
+          <div className="h-[270px] overflow-y-auto custom-scrollbar">
+            {conversationsLoading ? (
+              <div className="flex justify-center items-center h-full">
+                <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-yellow-400"></div>
+              </div>
+            ) : policySummary ? (
+              <div className="flex flex-col gap-3">
+                {policySummary.policies.length > 0 ? (
+                  // 정책 정보가 있을 경우 표시
+                  <div className="bg-white border border-neutral-200 rounded-lg p-4">
+                    <div className="text-base font-['Do_Hyeon'] text-yellow-600 mb-3">오늘의 유용한 정보</div>
+                    
+                    <ul className="list-disc pl-5">
+                      {policySummary.policies.map((policy, idx) => (
+                        <li key={idx} className="text-sm text-gray-600 mb-2">{policy}</li>
+                      ))}
+                    </ul>
+                    
+                    <div className="flex justify-end mt-3">
+                      <button
+                        className="text-xs text-gray-500 hover:text-gray-700 underline"
+                        onClick={() => setPolicySummary(null)}
+                      >
+                        원본 대화 보기
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  // 정책 정보가 없을 경우 표시
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <div className="text-gray-400 mb-2 font-['Do_Hyeon']">정책 관련 대화가 없습니다</div>
+                    <div className="text-xs text-gray-400 text-center max-w-[250px] mb-4">
+                      대화에서 정부 지원 정책이나 <br /> 유용한 정보를 찾지 못했습니다
+                    </div>
+                    <button
+                      className="text-xs text-gray-500 hover:text-gray-700 underline"
+                      onClick={() => setPolicySummary(null)}
+                    >
+                      원본 대화 보기
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : conversations.length > 0 ? (
+              // 기존 대화 내용 표시
+              <div className="flex flex-col gap-3">
+                <div className="flex justify-center mb-2">
+                  <button
+                    className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs hover:bg-yellow-200"
+                    onClick={() => extractPoliciesInfo()}
+                  >
+                    유용한 정보 다시 정리하기
+                  </button>
+                </div>
+                
+                {conversations.map((conversation) => (
+                  <div key={conversation.id} className="bg-white border border-neutral-200 rounded-lg p-4">
+                    <div>
+                      <div className="text-sm font-['Do_Hyeon'] text-gray-700 mb-2">
+                        <span className="font-bold">질문:</span> {conversation.query}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-2 line-clamp-3">
+                        <span className="font-bold">답변:</span> {conversation.response}
+                      </div>
+                      
+                      {/* 정부 정책 정보 추출 (source_documents에서 찾을 수 있다면) */}
+                      {conversation.source_documents && Array.isArray(conversation.source_documents) && conversation.source_documents.length > 0 && (
+                        <div className="mt-2">
+                          <div className="text-sm font-['Do_Hyeon'] text-yellow-600 mb-1">관련 정책</div>
+                          <ul className="list-disc pl-5">
+                            {conversation.source_documents.slice(0, 3).map((doc: any, idx: number) => (
+                              <li key={idx} className="text-xs text-gray-600">
+                                {doc.metadata?.title || doc.pageContent?.substring(0, 50) || "정책 정보"}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      <div className="text-xs text-gray-400 mt-2">
+                        {conversation.created_at && new Date(conversation.created_at).toLocaleTimeString('ko-KR', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full">
+                <div className="text-gray-400 mb-2 font-['Do_Hyeon']">오늘 나눈 대화가 없습니다</div>
+                <div className="text-xs text-gray-400 text-center max-w-[250px]">
+                  채팅에서 대화를 나누면 이곳에서 <br /> 유용한 정보와 정책을 확인할 수 있습니다.
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex flex-col gap-4">
