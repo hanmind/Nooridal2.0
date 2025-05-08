@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 // import ChatContainer from "../components/ChatContainer"; // Use relative path from agent page to components directory
 import ChatContainer from "@/app/components/ChatContainer"; // Use absolute path alias
 import TabBar from "@/app/components/TabBar"; // TabBar import
-import { Tab } from "@/app/chat/page"; // Tab 타입 import (chat/page.tsx에서 가져옴)
+import { Tab } from "@/types/ui"; // Tab 타입 import 경로 수정
 
 export default function AgentPage() {
   const router = useRouter();

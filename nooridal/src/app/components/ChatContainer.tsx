@@ -32,8 +32,12 @@ export default function ChatContainer() {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   // 사용자 정보와 임신 정보를 위한 상태 추가
-  const [userInfo, setUserInfo] = useState<{ name: string | null }>({
+  const [userInfo, setUserInfo] = useState<{
+    name: string | null;
+    address: string | null;
+  }>({
     name: null,
+    address: null,
   });
   const [pregnancyInfo, setPregnancyInfo] = useState<{
     baby_name: string | null;
@@ -75,7 +79,7 @@ export default function ChatContainer() {
         // 1. users 테이블에서 사용자 정보 가져오기
         const { data: userData, error: userError } = await supabase
           .from("users")
-          .select("name")
+          .select("name, address")
           .eq("id", userId)
           .single();
 
@@ -87,6 +91,7 @@ export default function ChatContainer() {
         } else {
           setUserInfo({
             name: userData?.name || "사용자",
+            address: userData?.address || "미정",
           });
         }
 
@@ -385,6 +390,7 @@ export default function ChatContainer() {
             username: userInfo.name || "사용자",
             baby_nickname: pregnancyInfo.baby_name || "아기",
             due_date: pregnancyInfo.due_date || "미정",
+            address: userInfo.address || "미정",
           },
           query: messageContent,
           user: userId, // 로그인한 사용자 ID 사용
