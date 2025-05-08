@@ -14,9 +14,9 @@ export interface ChatRequest {
 
 // Dify API 설정
 const DIFY_API_BASE_URL =
-  process.env.NEXT_PUBLIC_DIFY_API_BASE_URL || "https://api.dify.ai/v1";
+  process.env.VERCEL_PUBLIC_DIFY_API_BASE_URL || "https://api.dify.ai/v1";
 const DIFY_API_KEY =
-  process.env.NEXT_PUBLIC_DIFY_API_KEY || "app-AHbg5SN6JV2jqf306jV00qBc";
+  process.env.VERCEL_PUBLIC_DIFY_API_KEY || "app-AHbg5SN6JV2jqf306jV00qBc";
 
 // Dify API 요청 인터페이스
 interface DifyRequestParams {

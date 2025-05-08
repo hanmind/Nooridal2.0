@@ -1,12 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "../../../types_db"; // Adjusted path based on potential location
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+const supabaseUrl = process.env.VERCEL_PUBLIC_SUPABASE_URL as string;
+const supabaseAnonKey = process.env.VERCEL_PUBLIC_SUPABASE_ANON_KEY as string;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
-    "Supabase URL or Anon Key is missing. Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set in your environment variables."
+    "Supabase URL or Anon Key is missing. Ensure VERCEL_PUBLIC_SUPABASE_URL and VERCEL_PUBLIC_SUPABASE_ANON_KEY are set in your environment variables."
   );
   // Optionally, you could throw an error here if Supabase is critical for the app to run
   // throw new Error('Supabase configuration is missing.');
@@ -18,8 +18,8 @@ export const supabase = createClient<Database>(supabaseUrl!, supabaseAnonKey!); 
 // Function to create a new client (can be used for server components/routes if needed,
 // though Supabase SSR helpers might be preferred for server-side auth)
 export const createServerSupabaseClient = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+  const url = process.env.VERCEL_PUBLIC_SUPABASE_URL as string;
+  const key = process.env.VERCEL_PUBLIC_SUPABASE_ANON_KEY as string;
   if (!url || !key) {
     console.warn("Server Supabase Client: URL or Key missing.");
     // Consider throwing an error or returning a dummy client
