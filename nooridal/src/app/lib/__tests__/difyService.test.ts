@@ -8,9 +8,9 @@ beforeEach(() => {
   jest.resetModules(); // Most important - it clears the cache
   process.env = {
     ...OLD_ENV, // Make a copy
-    VERCEL_PUBLIC_DIFY_API_URL: "https://api.dify.ai/v1", // Mock URL
-    VERCEL_PUBLIC_DIFY_API_KEY: "test-api-key", // Mock Key
-    VERCEL_PUBLIC_DIFY_USER: "test-user", // Mock User
+    NEXT_PUBLIC_DIFY_API_URL: "https://api.dify.ai/v1", // Mock URL
+    NEXT_PUBLIC_DIFY_API_KEY: "test-api-key", // Mock Key
+    NEXT_PUBLIC_DIFY_USER: "test-user", // Mock User
   };
 });
 
@@ -40,17 +40,17 @@ describe("Dify Service", () => {
 
       expect(mockedFetch).toHaveBeenCalledTimes(1);
       expect(mockedFetch).toHaveBeenCalledWith(
-        `${process.env.VERCEL_PUBLIC_DIFY_API_URL}/chat-messages`,
+        `${process.env.NEXT_PUBLIC_DIFY_API_URL}/chat-messages`,
         expect.objectContaining({
           method: "POST",
           headers: expect.objectContaining({
-            Authorization: `Bearer ${process.env.VERCEL_PUBLIC_DIFY_API_KEY}`,
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_DIFY_API_KEY}`,
             "Content-Type": "application/json",
           }),
           body: JSON.stringify({
             inputs: {}, // Assuming empty for now, adjust if needed
             query: "Hello", // Last user message content
-            user: process.env.VERCEL_PUBLIC_DIFY_USER,
+            user: process.env.NEXT_PUBLIC_DIFY_USER,
             response_mode: "streaming",
             conversation_id: conversationId,
           }),
@@ -70,7 +70,7 @@ describe("Dify Service", () => {
 
       expect(mockedFetch).toHaveBeenCalledTimes(1);
       expect(mockedFetch).toHaveBeenCalledWith(
-        `${process.env.VERCEL_PUBLIC_DIFY_API_URL}/chat-messages`,
+        `${process.env.NEXT_PUBLIC_DIFY_API_URL}/chat-messages`,
         expect.objectContaining({
           response_mode: "blocking", // Check non-streaming mode
         })

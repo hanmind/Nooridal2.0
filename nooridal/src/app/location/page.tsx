@@ -38,7 +38,7 @@ export default function LocationPage() {
   // 카카오맵 스크립트 로드
   useEffect(() => {
     const script = document.createElement("script");
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.VERCEL_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services&autoload=false`;
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services&autoload=false`;
     script.async = true;
     script.onload = () => {
       window.kakao.maps.load(() => {
