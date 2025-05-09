@@ -71,6 +71,10 @@ declare global {
   }
 }
 
+// Kakao maps type for MarkerClusterer
+type KakaoMarker = any;
+type KakaoMarkerClusterer = any;
+
 export default function HospitalPage() {
   const router = useRouter();
   const { address, setAddress } = useAddress();
@@ -255,12 +259,15 @@ export default function HospitalPage() {
       map.addControl(mapTypeControl, window.kakao.maps.ControlPosition.TOPRIGHT);
 
       // 마커 클러스터러 생성
-      const clusterer = new window.kakao.maps.MarkerClusterer({
-        map: map,
-        averageCenter: true,
-        minLevel: 10,
-        gridSize: 60
-      });
+      let clusterer: KakaoMarkerClusterer | undefined;
+      if (window.kakao.maps.MarkerClusterer) {
+        clusterer = new window.kakao.maps.MarkerClusterer({
+          map: map,
+          averageCenter: true,
+          minLevel: 10,
+          gridSize: 60
+        });
+      }
 
       // 주소로 좌표 검색
       const geocoder = new window.kakao.maps.services.Geocoder();
@@ -316,19 +323,28 @@ export default function HospitalPage() {
               });
 
               // 클러스터러에 마커 추가
-              clusterer.addMarkers(markers);
+              if (clusterer) {
+                clusterer.addMarkers(markers);
+              } else {
+                markers.forEach((marker: KakaoMarker) => marker.setMap(map));
+              }
+
+              // 지도 중심 이동
+              map.setCenter(coords);
+
+              // 현재 위치 정보 표시
+              const infoWindow = new window.kakao.maps.InfoWindow({
+                content: `<div style="padding:5px;">현재 위치</div>`,
+                position: coords
+              });
+              infoWindow.open(map, currentMarker);
+
+              // 지도 줌 컨트롤 설정
+              const bounds = new window.kakao.maps.LatLngBounds();
+              markers.forEach((marker: KakaoMarker) => bounds.extend(marker.getPosition()));
+              map.setBounds(bounds);
             }
           }, searchOptions);
-
-          // 지도 중심 이동
-          map.setCenter(coords);
-
-          // 현재 위치 정보 표시
-          const infoWindow = new window.kakao.maps.InfoWindow({
-            content: `<div style="padding:5px;">현재 위치</div>`,
-            position: coords
-          });
-          infoWindow.open(map, currentMarker);
         }
       });
 
