@@ -16,6 +16,21 @@ interface ObstetricsClinic {
   reviewCount: number;
 }
 
+// 난임 시술 병원 인터페이스 추가
+interface InfertilityClinic {
+  id: string;
+  name: string;
+  type: string;
+  province: string;
+  city: string;
+  address: string;
+  phone: string;
+  doctors: number;
+  servicesArtificial: boolean;
+  servicesInVitro: boolean;
+  serviceTypesProvided: string;
+}
+
 // 더미 데이터
 const DUMMY_CLINICS: ObstetricsClinic[] = [
   {
@@ -74,6 +89,124 @@ declare global {
 // Kakao maps type for MarkerClusterer
 type KakaoMarker = any;
 type KakaoMarkerClusterer = any;
+
+// 난임 시술 병원 목록을 표시하는 모달 컴포넌트 (새로 추가)
+interface InfertilityModalProps {
+  show: boolean;
+  onClose: () => void;
+  clinics: InfertilityClinic[];
+  isLoading: boolean;
+  error: string | null;
+  address: string; // 현재 주소 또는 검색 기준 주소
+  getShortAddress: (fullAddress: string) => string; // 주소 축약 함수
+  handleCall: (phone: string) => void; // 전화걸기 함수
+  handleMap: (address: string) => void; // 지도보기 함수
+}
+
+const InfertilityClinicsModal: React.FC<InfertilityModalProps> = ({ 
+  show, 
+  onClose, 
+  clinics, 
+  isLoading, 
+  error,
+  address,
+  getShortAddress,
+  handleCall,
+  handleMap
+}) => {
+  if (!show) return null;
+
+  // 현재 주소(동까지만)와 가장 유사한 병원들을 우선적으로 필터링하고, 그 외 병원들을 뒤에 추가
+  // 간단한 문자열 포함 여부로 필터링 (더 정교한 로직이 필요할 수 있음)
+  const shortUserAddress = getShortAddress(address).split(' ')[0]; // 예: "서울시 강남구" -> "서울시"
+  
+  const prioritizedClinics = clinics.filter(clinic => 
+    clinic.address.includes(shortUserAddress)
+  );
+  const otherClinics = clinics.filter(clinic => 
+    !clinic.address.includes(shortUserAddress)
+  );
+  const sortedClinics = [...prioritizedClinics, ...otherClinics];
+
+  return (
+    <>
+      {/* 반투명 배경 */}
+      <div 
+        className="fixed inset-0 bg-black/50 z-30"
+        onClick={onClose}
+      />
+      
+      {/* 모달 컨테이너 */}
+      <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[370px] max-h-[80vh] bg-white rounded-3xl shadow-xl z-40 p-6 overflow-y-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-['Do_Hyeon'] text-neutral-700">난임시술 병원 정보</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 text-2xl"
+          >
+            ✕
+          </button>
+        </div>
+
+        {isLoading && (
+          <div className="flex justify-center items-center h-40">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-400"></div>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-center text-red-500 p-4 bg-red-50 rounded-lg">
+            <p>오류: {error}</p>
+            <p>잠시 후 다시 시도해주세요.</p>
+          </div>
+        )}
+
+        {!isLoading && !error && clinics.length === 0 && (
+          <div className="text-center text-gray-600 p-4 bg-gray-50 rounded-lg">
+            <p>주변에 등록된 난임시술 병원 정보가 없습니다.</p>
+          </div>
+        )}
+
+        {!isLoading && !error && clinics.length > 0 && (
+          <div className="space-y-4">
+            {sortedClinics.map((clinic) => (
+              <div key={clinic.id} className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                <h3 className="text-lg font-['Do_Hyeon'] text-blue-600">{clinic.name}</h3>
+                <p className="text-sm text-gray-600 mt-1 font-['Do_Hyeon']">종류: {clinic.type}</p>
+                <p className="text-sm text-gray-700 mt-1 font-['Do_Hyeon']">주소: {clinic.address}</p>
+                {clinic.phone && <p className="text-sm text-gray-700 mt-1 font-['Do_Hyeon']">전화: {clinic.phone}</p>}
+                <p className="text-sm text-gray-600 mt-1 font-['Do_Hyeon']">의사수: {clinic.doctors}</p>
+                <div className="text-sm text-gray-600 mt-1 font-['Do_Hyeon']">
+                  시술: 
+                  {clinic.servicesArtificial && <span className="ml-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">인공</span>}
+                  {clinic.servicesInVitro && <span className="ml-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs">체외</span>}
+                  {!clinic.servicesArtificial && !clinic.servicesInVitro && <span className="ml-1 text-gray-500">정보없음</span>}
+                </div>
+                {clinic.serviceTypesProvided && <p className="text-xs text-gray-500 mt-1 font-['Do_Hyeon']">제공시술 상세: {clinic.serviceTypesProvided}</p>}
+                <div className="mt-3 flex space-x-2">
+                  {clinic.phone && (
+                    <button 
+                      onClick={() => handleCall(clinic.phone)}
+                      className="px-3 py-1 bg-blue-500 text-white text-xs rounded-md hover:bg-blue-600 transition-colors font-['Do_Hyeon']"
+                    >
+                      전화걸기
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => handleMap(clinic.address)}
+                    className="px-3 py-1 bg-yellow-400 text-gray-800 text-xs rounded-md hover:bg-yellow-500 transition-colors font-['Do_Hyeon']"
+                  >
+                    지도보기
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
 
 export default function HospitalPage() {
   const router = useRouter();
@@ -389,12 +522,6 @@ export default function HospitalPage() {
       description: '산전검사, 초음파, 분만 등'
     },
     {
-      id: 'infertility',
-      title: '난임시술',
-      icon: '👶',
-      description: '인공수정, 시험관아기 등'
-    },
-    {
       id: 'postpartum',
       title: '산후조리원',
       icon: '🍼',
@@ -487,7 +614,32 @@ export default function HospitalPage() {
                 {hospitalTypes.find(t => t.id === selectedType)?.title} 정보
               </div>
               <div className="space-y-4">
-                <div 
+                {selectedType === 'obstetrics' && (
+                  <>
+                    <div 
+                      className="p-4 bg-blue-50 rounded-xl cursor-pointer hover:bg-blue-100"
+                      onClick={() => router.push('/location/hospital/infertility')}
+                    >
+                      <div className="font-['Do_Hyeon']">난임시술 정보 알아보기</div>
+                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">관련 정보를 확인하세요</div>
+                    </div>
+                    <div 
+                      className="p-4 bg-green-50 rounded-xl cursor-pointer hover:bg-green-100"
+                      onClick={() => console.log('인큐베이터 버튼 클릭')} // 임시 핸들러
+                    >
+                      <div className="font-['Do_Hyeon']">인큐베이터 현황 알아보기</div>
+                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">실시간 현황을 확인하세요</div>
+                    </div>
+                    <div 
+                      className="p-4 bg-yellow-50 rounded-xl cursor-pointer hover:bg-yellow-100"
+                      onClick={() => console.log('병상수 버튼 클릭')} // 임시 핸들러
+                    >
+                      <div className="font-['Do_Hyeon']">병상수 정보 알아보기</div>
+                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">입원 가능 병상 정보를 확인하세요</div>
+                    </div>
+                  </>
+                )}
+                {/* <div 
                   className="p-4 bg-red-50 rounded-xl cursor-pointer"
                   onClick={() => setShowMap(true)}
                 >
@@ -497,7 +649,7 @@ export default function HospitalPage() {
                 <div className="p-4 bg-red-50 rounded-xl">
                   <div className="font-['Do_Hyeon']">💬 상담하기</div>
                   <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문의와 상담하세요</div>
-                </div>
+                </div> */}
               </div>
               
               {/* 닫기 버튼 */}
