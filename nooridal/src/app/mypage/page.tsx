@@ -222,17 +222,14 @@ export default function MyPage() {
   if (userType === null) return null;
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      <div className="w-full max-w-[1080px] h-[900px] relative bg-[#FFF4BB] overflow-hidden">
-        {/* 헤더 */}
-        <div className="w-full h-[140px] flex items-center justify-center bg-white shadow-md rounded-b-3xl relative mt-[-10px]">
-          <div className="absolute inset-x-0 top-[75px] flex items-center justify-center">
-            <div className="text-center text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
-              마이페이지
-            </div>
-          </div>
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center">
+      {/* 헤더 */}
+      <div className="w-screen h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px] px-2 sm:px-4">
+        <div className="flex items-center justify-center w-full">
+          <span className="text-xl sm:text-2xl text-neutral-700 font-['Do_Hyeon'] text-center w-full mt-8 sm:mt-15">마이페이지</span>
         </div>
-
+      </div>
+      <main className="w-full max-w-md h-[874px] relative bg-[#FFF4BB] overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
         {/* 프로필 섹션 */}
         <div className="w-[360px] h-[270px] mx-auto pt-3 mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           {/* 프로필 원 */}
@@ -426,7 +423,7 @@ export default function MyPage() {
             )}
           </div>
         </div>
-      </div>
+      </main>
       <TabBar
         activeTab={activeTab as Tab}
         tabs={["chat", "calendar", "location", "mypage"] as Tab[]}

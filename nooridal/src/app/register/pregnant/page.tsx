@@ -377,14 +377,14 @@ export default function PregnantSignup() {
   */
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      {/* Load Daum Postcode API script */}
-      <Script
-        src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
-        strategy="beforeInteractive"
-      />
+    <div className="min-h-screen w-full flex justify-center items-center px-2 sm:px-4 md:px-8 bg-white">
+      <main className="w-full max-w-md min-h-[600px] relative bg-white overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
+        {/* Load Daum Postcode API script */}
+        <Script
+          src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+          strategy="beforeInteractive"
+        />
 
-      <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
         <div className="w-82 h-[725px] left-[28px] top-[67px] absolute bg-white rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />
 
         {/* 누리달 로고 */}
@@ -610,7 +610,7 @@ export default function PregnantSignup() {
             로그인하기
           </button>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
