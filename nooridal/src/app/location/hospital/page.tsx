@@ -625,7 +625,7 @@ export default function HospitalPage() {
                     </div>
                     <div 
                       className="p-4 bg-green-50 rounded-xl cursor-pointer hover:bg-green-100"
-                      onClick={() => console.log('인큐베이터 버튼 클릭')} // 임시 핸들러
+                      onClick={() => router.push('/location/hospital/incubator')}
                     >
                       <div className="font-['Do_Hyeon']">인큐베이터 현황 알아보기</div>
                       <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">실시간 현황을 확인하세요</div>

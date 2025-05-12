@@ -336,7 +336,13 @@ export default function FacilitiesPage() {
                     ? 'bg-yellow-100 border-2 border-yellow-200'
                     : 'bg-white hover:bg-yellow-50'
                 }`}
-                onClick={() => setSelectedType(type.id)}
+                onClick={() => {
+                  if (type.id === 'discount') {
+                    router.push('/location/facilities/discount-shops');
+                  } else {
+                    setSelectedType(type.id);
+                  }
+                }}
               >
                 <div className="flex items-center">
                   <div className="text-4xl mr-4">{type.icon}</div>
