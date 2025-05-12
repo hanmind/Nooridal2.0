@@ -21,8 +21,22 @@ async function convertCsvToJson() {
       }
     }).fromFile(inputFile);
     
+    // 필터링: 모든 병상 수가 0인 병원은 제외
+    const filteredArray = jsonArray.filter(item => {
+      return (
+        item['분만실병상수'] > 0 ||
+        item['신생아중환자병상수'] > 0 ||
+        item['일반입원실상급병상수'] > 0 ||
+        item['일반입원실일반병상수'] > 0 ||
+        item['수술실병상수'] > 0 ||
+        item['응급실병상수'] > 0
+      );
+    });
+    
+    console.log(`총 ${jsonArray.length}개 중 ${filteredArray.length}개 항목이 필터링되었습니다. (${jsonArray.length - filteredArray.length}개 항목 제외)`);
+    
     // 필요한 필드만 추출하여 정리
-    const facilities = jsonArray.map((item, index) => ({
+    const facilities = filteredArray.map((item, index) => ({
       id: `${item['요양기관명']}_${item['주소']}`.replace(/\s+/g, '_'),
       name: item['요양기관명'],
       type: item['종별코드명'],
