@@ -585,7 +585,13 @@ export default function HospitalPage() {
                     ? 'bg-red-100 border-2 border-red-200'
                     : 'bg-white hover:bg-red-50'
                 }`}
-                onClick={() => setSelectedType(type.id)}
+                onClick={() => {
+                  if (type.id === 'postpartum') {
+                    router.push('/location/hospital/postpartum'); // Navigate to postpartum page
+                  } else {
+                    setSelectedType(type.id);
+                  }
+                }}
               >
                 <div className="flex items-center">
                   <div className="text-4xl mr-4">{type.icon}</div>
