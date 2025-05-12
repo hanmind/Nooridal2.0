@@ -457,7 +457,7 @@ export default function Login() {
                     />
                   </svg>
                 </button>
-                {/* Naver */}
+                {/* Naver: Supabase에서 제공하는 로그인 기능이 없어서 주석처리
                 <button
                   aria-label="네이버 계정으로 로그인"
                   className="w-12 h-12 flex items-center justify-center bg-[#03C75A] rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
@@ -468,7 +468,7 @@ export default function Login() {
                       d="M15.5 12.5L8.5 3H3v18h5.5v-8.5L16 22h5.5V4H15.5z"
                     />
                   </svg>
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
