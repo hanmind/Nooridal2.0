@@ -439,15 +439,96 @@ export default function ProfileManagement() {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        const { error } = await supabase
+        console.log("탈퇴 시작 - 사용자 ID:", user.id);
+
+        // 1. 사용자의 모든 채팅 대화 삭제
+        const { error: convError } = await supabase
+          .from("llm_conversations")
+          .delete()
+          .eq("user_id", user.id);
+        if (convError) console.error("채팅 대화 삭제 실패:", convError);
+        else console.log("채팅 대화 삭제 완료");
+
+        // 2. 사용자의 모든 채팅방 삭제
+        const { error: roomError } = await supabase
+          .from("chat_rooms")
+          .delete()
+          .eq("user_id", user.id);
+        if (roomError) console.error("채팅방 삭제 실패:", roomError);
+        else console.log("채팅방 삭제 완료");
+
+        // 3. 사용자의 모든 일정 삭제
+        const { error: eventError } = await supabase
+          .from("events")
+          .delete()
+          .eq("user_id", user.id);
+        if (eventError) console.error("일정 삭제 실패:", eventError);
+        else console.log("일정 삭제 완료");
+
+        // 4. 사용자의 임신 정보 삭제
+        const { error: pregError } = await supabase
+          .from("pregnancies")
+          .delete()
+          .eq("user_id", user.id);
+        if (pregError) console.error("임신 정보 삭제 실패:", pregError);
+        else console.log("임신 정보 삭제 완료");
+
+        // 5. 사용자의 일기 삭제
+        const { error: diaryError } = await supabase
+          .from("baby_diaries")
+          .delete()
+          .eq("user_id", user.id);
+        if (diaryError) console.error("일기 삭제 실패:", diaryError);
+        else console.log("일기 삭제 완료");
+
+        // 6. 사용자의 프로필 이미지 삭제
+        const { error: profileError } = await supabase
+          .from("users")
+          .update({ profile_image: null })
+          .eq("id", user.id);
+        if (profileError) console.error("프로필 이미지 삭제 실패:", profileError);
+        else console.log("프로필 이미지 삭제 완료");
+
+        // 7. 사용자 계정 삭제
+        console.log("users 테이블에서 사용자 삭제 시도...");
+        console.log("삭제할 사용자 ID:", user.id);
+        
+        // 먼저 사용자 정보 확인
+        const { data: userData, error: userCheckError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+          
+        if (userCheckError) {
+          console.error("사용자 정보 확인 실패:", userCheckError);
+          throw userCheckError;
+        }
+        
+        console.log("삭제할 사용자 정보:", userData);
+
+        // 사용자 삭제 시도 (RLS 정책을 고려하여 수정)
+        const { error: userDeleteError } = await supabase
           .from("users")
           .delete()
           .eq("id", user.id);
 
-        if (error) throw error;
+        if (userDeleteError) {
+          console.error("users 테이블 삭제 실패:", userDeleteError);
+          throw userDeleteError;
+        }
+        console.log("users 테이블에서 사용자 삭제 완료");
 
-        await supabase.auth.signOut();
-        alert("계정이 삭제되었습니다.");
+        // 8. 로그아웃 처리
+        const { error: signOutError } = await supabase.auth.signOut();
+        if (signOutError) console.error("로그아웃 실패:", signOutError);
+        else console.log("로그아웃 완료");
+        
+        // 9. 세션 스토리지의 임신 정보 삭제
+        sessionStorage.removeItem('pregnancy_info');
+        console.log("세션 스토리지 임신 정보 삭제 완료");
+        
+        alert("계정이 완전히 삭제되었습니다.");
         router.push("/login");
       }
     } catch (error) {
