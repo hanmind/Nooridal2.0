@@ -532,8 +532,6 @@ export default function TransportPage() {
               keyword = '무장애 관광지';
             } else if (selectedType === 'outing') {
               keyword = '나들이 지원';
-            } else if (selectedType === 'taxi') {
-              keyword = '임산부 택시';
             }
 
             places.keywordSearch(keyword, (data: any, status: any) => {
@@ -672,12 +670,6 @@ export default function TransportPage() {
       title: '나들이',
       icon: '🌳',
       description: '산책, 휴식, 여가 활동 지원'
-    },
-    {
-      id: 'taxi',
-      title: '택시 할인',
-      icon: '🚕',
-      description: '임산부 택시 할인 서비스'
     }
   ];
 
