@@ -632,7 +632,7 @@ export default function HospitalPage() {
                     </div>
                     <div 
                       className="p-4 bg-yellow-50 rounded-xl cursor-pointer hover:bg-yellow-100"
-                      onClick={() => console.log('병상수 버튼 클릭')} // 임시 핸들러
+                      onClick={() => router.push('/location/hospital/bed-count')}
                     >
                       <div className="font-['Do_Hyeon']">병상수 정보 알아보기</div>
                       <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">입원 가능 병상 정보를 확인하세요</div>

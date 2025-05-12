@@ -3,26 +3,32 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
-// 기존 HospitalPage의 InfertilityClinic 인터페이스와 동일하게 정의
-interface InfertilityClinic {
+// 병상수 인터페이스
+interface BedCountClinic {
   id: string;
   name: string;
   type: string; // 병원 유형 (예: 의원, 병원, 종합병원)
   province: string; // 시도
-  city: string; // 시군구
   address: string;
   phone: string;
-  doctors: number;
-  servicesArtificial: boolean;
-  servicesInVitro: boolean;
-  serviceTypesProvided: string;
+  bedCounts: {
+    delivery: number; // 분만실병상수
+    nicu: number; // 신생아중환자병상수
+    premium: number; // 일반입원실상급병상수
+    general: number; // 일반입원실일반병상수
+    operation: number; // 수술실병상수
+    emergency: number; // 응급실병상수
+  };
 }
 
-interface InfertilityData {
+interface BedCountData {
   totalCount: number;
-  facilities: InfertilityClinic[]; // 키 이름을 facilities로 사용 (JSON 파일 구조에 맞춤)
-  facilitiesByProvince: { // 키 이름을 facilitiesByProvince로 사용
-    [province: string]: InfertilityClinic[];
+  facilities: BedCountClinic[];
+  facilitiesByProvince: {
+    [province: string]: BedCountClinic[];
+  };
+  facilitiesByType: {
+    [type: string]: BedCountClinic[];
   };
   meta: {
     description: string;
@@ -31,29 +37,33 @@ interface InfertilityData {
   };
 }
 
-export default function InfertilityClinicsPage() {
+export default function BedCountClinicsPage() {
   const router = useRouter();
-  const [clinicsData, setClinicsData] = useState<InfertilityData | null>(null);
+  const [clinicsData, setClinicsData] = useState<BedCountData | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredClinics, setFilteredClinics] = useState<InfertilityClinic[]>([]);
+  const [filteredClinics, setFilteredClinics] = useState<BedCountClinic[]>([]);
   const [selectedProvince, setSelectedProvince] = useState<string>("all");
-  const [selectedServiceType, setSelectedServiceType] = useState<string>("all"); // "all", "artificial", "inVitro"
+  const [selectedBedType, setSelectedBedType] = useState<string>("all"); // "all", "delivery", "nicu", "premium", "general", "operation", "emergency"
   const [provinces, setProvinces] = useState<string[]>([]);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
 
-  const serviceTypeOptions = [
-    { id: "all", name: "전체 시술" },
-    { id: "artificial", name: "인공수정" },
-    { id: "inVitro", name: "체외수정" },
+  const bedTypeOptions = [
+    { id: "all", name: "전체 병상" },
+    { id: "delivery", name: "분만실" },
+    { id: "nicu", name: "신생아중환자" },
+    { id: "premium", name: "상급병상" },
+    { id: "general", name: "일반병상" },
+    { id: "operation", name: "수술실" },
+    { id: "emergency", name: "응급실" },
   ];
 
   // 페이지 로드 시 데이터 불러오기
   useEffect(() => {
     const fetchClinicsData = async () => {
       try {
-        const response = await fetch('/data/infertility_hospitals.json');
-        const data: InfertilityData = await response.json();
+        const response = await fetch('/data/detailed_bed_count.json');
+        const data: BedCountData = await response.json();
         setClinicsData(data);
         
         const provinceList = Object.keys(data.facilitiesByProvince || {});
@@ -62,7 +72,7 @@ export default function InfertilityClinicsPage() {
         setFilteredClinics(data.facilities || []);
         setLoading(false);
       } catch (error) {
-        console.error('Failed to fetch infertility clinics data:', error);
+        console.error('Failed to fetch bed count data:', error);
         setLoading(false);
       }
     };
@@ -80,11 +90,9 @@ export default function InfertilityClinicsPage() {
       filtered = clinicsData.facilitiesByProvince?.[selectedProvince] || [];
     }
     
-    if (selectedServiceType !== "all") {
+    if (selectedBedType !== "all") {
       filtered = filtered.filter(clinic => {
-        if (selectedServiceType === "artificial") return clinic.servicesArtificial;
-        if (selectedServiceType === "inVitro") return clinic.servicesInVitro;
-        return true;
+        return clinic.bedCounts[selectedBedType as keyof typeof clinic.bedCounts] > 0;
       });
     }
     
@@ -92,13 +100,12 @@ export default function InfertilityClinicsPage() {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(clinic => 
         clinic.name.toLowerCase().includes(term) || 
-        clinic.address.toLowerCase().includes(term) ||
-        (clinic.city && clinic.city.toLowerCase().includes(term))
+        clinic.address.toLowerCase().includes(term)
       );
     }
     
     setFilteredClinics(filtered);
-  }, [searchTerm, selectedProvince, selectedServiceType, clinicsData]);
+  }, [searchTerm, selectedProvince, selectedBedType, clinicsData]);
 
   const handleCall = (phone: string) => {
     if (phone) window.location.href = `tel:${phone.replace(/─/g, '-')}`;
@@ -106,6 +113,14 @@ export default function InfertilityClinicsPage() {
 
   const handleMap = (address: string) => {
     if (address) window.open(`https://map.kakao.com/link/search/${encodeURIComponent(address)}`, '_blank');
+  };
+
+  // 병상 수에 따라 색상 클래스 반환
+  const getBedCountColorClass = (count: number) => {
+    if (count === 0) return "bg-gray-100 text-gray-500";
+    if (count < 3) return "bg-yellow-100 text-yellow-700";
+    if (count < 6) return "bg-green-100 text-green-700";
+    return "bg-blue-100 text-blue-700";
   };
 
   return (
@@ -121,15 +136,8 @@ export default function InfertilityClinicsPage() {
           </button>
           <div className="relative w-full text-center">
             <span className="text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
-              난임시술 병원
+              병상수 정보
             </span>
-            {/* 정보 버튼 필요시 추가 */}
-            {/* <button 
-              onClick={() => setShowInfoPopup(true)}
-              className="absolute right-[24px] top-1/2 -translate-y-1/2 w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-sm"
-            >
-              ?
-            </button> */}
           </div>
         </div>
 
@@ -174,17 +182,25 @@ export default function InfertilityClinicsPage() {
               </div>
             </div>
             
-            {/* 시술 유형 필터 */}
+            {/* 병상 유형 필터 */}
             <div>
-              <div className="text-sm font-['Do_Hyeon'] mb-1.5 text-gray-700">시술 유형 선택</div>
+              <div className="text-sm font-['Do_Hyeon'] mb-1.5 text-gray-700">병상 유형 선택</div>
               <div className="flex gap-2 overflow-x-auto pb-2">
-                {serviceTypeOptions.map(type => (
+                {bedTypeOptions.map(type => (
                   <button
                     key={type.id}
-                    onClick={() => setSelectedServiceType(type.id)}
+                    onClick={() => setSelectedBedType(type.id)}
                     className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-['Do_Hyeon'] transition-colors ${
-                      selectedServiceType === type.id 
-                        ? (type.id === "artificial" ? "bg-green-500 text-white shadow-md" : type.id === "inVitro" ? "bg-purple-500 text-white shadow-md" : "bg-gray-700 text-white shadow-md")
+                      selectedBedType === type.id 
+                        ? (
+                          type.id === "delivery" ? "bg-pink-500 text-white shadow-md" :
+                          type.id === "nicu" ? "bg-blue-500 text-white shadow-md" :
+                          type.id === "premium" ? "bg-purple-500 text-white shadow-md" :
+                          type.id === "general" ? "bg-green-500 text-white shadow-md" :
+                          type.id === "operation" ? "bg-yellow-500 text-white shadow-md" :
+                          type.id === "emergency" ? "bg-red-500 text-white shadow-md" :
+                          "bg-gray-700 text-white shadow-md"
+                        )
                         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     }`}
                   >
@@ -220,11 +236,42 @@ export default function InfertilityClinicsPage() {
                       <p className="text-xs text-gray-700 mt-1.5 font-['Do_Hyeon']">
                         {clinic.address}
                       </p>
-                      <div className="mt-2 flex items-center space-x-2">
-                        {clinic.servicesArtificial && <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full text-[10px] font-['Do_Hyeon']">인공</span>}
-                        {clinic.servicesInVitro && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-['Do_Hyeon']">체외</span>}
+                      
+                      {/* 병상 정보 */}
+                      <div className="mt-2 grid grid-cols-3 gap-1.5">
+                        {clinic.bedCounts.delivery > 0 && (
+                          <span className={`px-1.5 py-0.5 ${getBedCountColorClass(clinic.bedCounts.delivery)} rounded-full text-[10px] font-['Do_Hyeon'] text-center`}>
+                            분만실: {clinic.bedCounts.delivery}
+                          </span>
+                        )}
+                        {clinic.bedCounts.nicu > 0 && (
+                          <span className={`px-1.5 py-0.5 ${getBedCountColorClass(clinic.bedCounts.nicu)} rounded-full text-[10px] font-['Do_Hyeon'] text-center`}>
+                            신생아중환자: {clinic.bedCounts.nicu}
+                          </span>
+                        )}
+                        {clinic.bedCounts.premium > 0 && (
+                          <span className={`px-1.5 py-0.5 ${getBedCountColorClass(clinic.bedCounts.premium)} rounded-full text-[10px] font-['Do_Hyeon'] text-center`}>
+                            상급병상: {clinic.bedCounts.premium}
+                          </span>
+                        )}
+                        {clinic.bedCounts.general > 0 && (
+                          <span className={`px-1.5 py-0.5 ${getBedCountColorClass(clinic.bedCounts.general)} rounded-full text-[10px] font-['Do_Hyeon'] text-center`}>
+                            일반병상: {clinic.bedCounts.general}
+                          </span>
+                        )}
+                        {clinic.bedCounts.operation > 0 && (
+                          <span className={`px-1.5 py-0.5 ${getBedCountColorClass(clinic.bedCounts.operation)} rounded-full text-[10px] font-['Do_Hyeon'] text-center`}>
+                            수술실: {clinic.bedCounts.operation}
+                          </span>
+                        )}
+                        {clinic.bedCounts.emergency > 0 && (
+                          <span className={`px-1.5 py-0.5 ${getBedCountColorClass(clinic.bedCounts.emergency)} rounded-full text-[10px] font-['Do_Hyeon'] text-center`}>
+                            응급실: {clinic.bedCounts.emergency}
+                          </span>
+                        )}
                       </div>
-                      <div className="mt-3 flex items-center space-x-1.5">
+                      
+                      <div className="mt-3 flex items-center justify-end space-x-1.5">
                         {clinic.phone && clinic.phone !== '비공개' && (
                           <a
                             href={`tel:${clinic.phone}`}
@@ -253,9 +300,6 @@ export default function InfertilityClinicsPage() {
             </div>
           )}
         </div>
-        
-        {/* 정보 팝업 (필요시 centers/single-parent 페이지 참고하여 구현) */}
-        {/* {showInfoPopup && ( ... )} */}
       </div>
     </div>
   );

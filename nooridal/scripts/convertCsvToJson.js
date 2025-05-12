@@ -41,8 +41,6 @@ async function convertCsvToJson() {
       name: item['요양기관명'],
       type: item['종별코드명'],
       province: item['시도코드명'],
-      city: item['시군구코드명'],
-      town: item['읍면동'],
       address: item['주소'],
       phone: item['전화번호'],
       bedCounts: {
