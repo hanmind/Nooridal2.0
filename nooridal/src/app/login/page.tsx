@@ -257,24 +257,15 @@ export default function Login() {
   };
 
   return (
-    <div
-      className={`min-h-screen w-full ${
-        showFoundId ? "backdrop-blur-sm" : ""
-      } bg-gradient-to-b from-[#FFF4BB] to-[#FFE999] flex flex-col`}
-    >
+    <div className="min-h-screen w-full bg-white flex flex-col items-center">
+      <div className="w-screen h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px] px-2 sm:px-4">
+        <div className="flex items-center justify-center w-full">
+          <Image src="/images/logo/Group 226.png" alt="누리달 로고" width={120} height={40} />
+        </div>
+      </div>
+
       {/* 메인 컨텐츠 영역 */}
       <div className="flex-1 w-full flex flex-col items-center justify-center px-4">
-        {/* 로고 */}
-        <div className="mb-6">
-          <Image
-            src="/images/logo/로고 구름.png"
-            alt="누리달 로고"
-            width={180}
-            height={72}
-            className="drop-shadow-md"
-          />
-        </div>
-
         {/* 로그인 컨테이너 */}
         <div className="w-full max-w-[360px] h-[560px] relative bg-white rounded-[30px] shadow-2xl overflow-hidden mb-8">
           {/* 배경 이미지 */}
@@ -457,7 +448,7 @@ export default function Login() {
                     />
                   </svg>
                 </button>
-                {/* Naver */}
+                {/* Naver: Supabase에서 제공하는 로그인 기능이 없어서 주석처리
                 <button
                   aria-label="네이버 계정으로 로그인"
                   className="w-12 h-12 flex items-center justify-center bg-[#03C75A] rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
@@ -468,7 +459,7 @@ export default function Login() {
                       d="M15.5 12.5L8.5 3H3v18h5.5v-8.5L16 22h5.5V4H15.5z"
                     />
                   </svg>
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

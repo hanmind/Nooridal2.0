@@ -26,7 +26,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white flex justify-center items-center">
+    <div className="min-h-screen w-full bg-white flex flex-col items-center">
+      <div className="w-screen h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px] px-2 sm:px-4">
+        <div className="flex items-center justify-center w-full">
+          <Image src="/images/logo/Group 226.png" alt="누리달 로고" width={120} height={40} />
+        </div>
+      </div>
       <main className="w-96 h-[874px] relative bg-white overflow-hidden">
         {/* 배경 이미지 */}
         <div className="relative w-full h-full" onClick={handleMapSquareClick} style={{ cursor: 'pointer' }}>

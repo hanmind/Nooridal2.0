@@ -191,370 +191,200 @@ export default function PregnancyInfo() {
   };
 
   return (
-    <PregnancyFormLayout
-      title="임신 정보를 입력해주세요"
-      subtitle="누리달에서 맞춤 서비스를 제공해 드립니다"
-      currentStep={currentStep}
-      onPrevious={handlePrevious}
-      onNext={handleNext}
-      isNextDisabled={currentStep === 1 && !isPregnant}
-    >
-      {currentStep === 1 && (
-        <div className="w-full p-4 bg-white rounded-full border-2 border-[#FFB6C1] mb-4 flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            id="isPregnantCheckbox"
-            aria-label="뱃속에 아기가 있어요 체크박스"
-            checked={isPregnant}
-            onChange={() => {
-              setIsPregnant(!isPregnant);
-              setWaitingForBaby(false);
-            }}
-            className="w-4 h-4 mr-4"
-          />
-          <span className="text-black font-['Do_Hyeon']">
-            🤰🏻 뱃속에 아기가 있어요
-          </span>
-        </div>
-      )}
-
-      {currentStep === 2 && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">
-            태명
-          </label>
-          <input
-            type="text"
-            value={babyName}
-            onChange={(e) => setBabyName(e.target.value)}
-            placeholder="태명을 입력하세요"
-            className="mt-1 block w-full p-2.5 bg-white rounded-full border-2 border-[#FFB6C1] text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFB6C1] focus:border-2 transition-colors"
-            style={{
-              fontFamily: "Do Hyeon, sans-serif",
-              backgroundColor: "transparent",
-              borderRadius: "30px",
-              border: "2px solid #FFB6C1",
-              color: "#333",
-              padding: "10px",
-              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-              fontSize: "16px",
-            }}
-          />
-          <div
-            className="mt-3 flex items-center cursor-pointer"
-            onClick={() => {
-              setNoName(!noName);
-              if (!noName) {
-                setBabyName("아기");
-              } else {
-                setBabyName("");
-              }
-            }}
-          >
-            <input
-              type="checkbox"
-              id="noNameCheckbox"
-              aria-label="아직 이름이 없어요 체크박스"
-              checked={noName}
-              onChange={() => {
-                setNoName(!noName);
-                if (!noName) {
-                  setBabyName("아기");
-                } else {
-                  setBabyName("");
-                }
-              }}
-              className="w-4 h-4 mr-2"
-            />
-            <span className="text-black text-sm font-['Do_Hyeon']">
-              아직 이름이 없어용
-            </span>
-          </div>
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">
-              성별
-            </label>
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={() => setBabyGender("남자")}
-                className={`flex-1 p-2 rounded-xl border ${
-                  babyGender === "남자"
-                    ? "bg-blue-200 border-blue-200"
-                    : "bg-white border-gray-300"
-                } cursor-pointer transition-colors font-['Do_Hyeon']`}
-              >
-                <span className="text-black text-sm">남자</span>
-              </button>
-              <button
-                onClick={() => setBabyGender("여자")}
-                className={`flex-1 p-2 rounded-xl border ${
-                  babyGender === "여자"
-                    ? "bg-red-200 border-red-200"
-                    : "bg-white border-gray-300"
-                } cursor-pointer transition-colors font-['Do_Hyeon']`}
-              >
-                <span className="text-black text-sm">여자</span>
-              </button>
-              <button
-                onClick={() => setBabyGender("모름")}
-                className={`flex-1 p-2 rounded-xl border ${
-                  babyGender === "모름"
-                    ? "bg-gray-200 border-gray-200"
-                    : "bg-white border-gray-300"
-                } cursor-pointer transition-colors font-['Do_Hyeon']`}
-              >
-                <span className="text-black text-sm">비밀</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {currentStep === 3 && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">
-            현재 임신 주차
-          </label>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setIsWeekSelectorOpen(!isWeekSelectorOpen)}
-              className="mt-1 block w-full p-2.5 bg-white rounded-full border-2 border-[#FFB6C1] text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFB6C1] focus:border-2 transition-colors"
-              style={{
-                fontFamily: "Do Hyeon, sans-serif",
-                backgroundColor: "transparent",
-                borderRadius: "30px",
-                border: "2px solid #FFB6C1",
-                color: "#333",
-                padding: "10px",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                fontSize: "16px",
-              }}
-            >
-              {pregnancyWeek ? `${pregnancyWeek}주차` : "주차를 선택하세요"}
-            </button>
-            {isWeekSelectorOpen && (
-              <div className="absolute top-12 left-0 w-full bg-white border-2 border-[#FFB6C1] rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto">
-                <div className="py-1">
-                  {Array.from({ length: 40 }, (_, i) => (
-                    <button
-                      key={i + 1}
-                      type="button"
-                      onClick={() => handleWeekSelect(i + 1)}
-                      className={`w-full px-4 py-2 text-left font-['Do_Hyeon'] hover:bg-[#FFB6C1] transition-colors
-                        ${
-                          pregnancyWeek === (i + 1).toString()
-                            ? "bg-[#FFB6C1] text-black"
-                            : "text-gray-700"
-                        }
-                      `}
-                    >
-                      {i + 1}주차
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon'] mt-4">
-            출산 예정일
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={expectedDate}
-              onClick={() => setShowCalendar(true)}
-              placeholder="날짜를 선택해 주세요"
-              className="mt-1 block w-full p-2.5 bg-white rounded-full border-2 border-[#FFB6C1] text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFB6C1] focus:border-2 transition-colors"
-              style={{
-                fontFamily: "Do Hyeon, sans-serif",
-                backgroundColor: "transparent",
-                borderRadius: "30px",
-                border: "2px solid #FFB6C1",
-                color: "#333",
-                padding: "10px",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                fontSize: "16px",
-              }}
-              readOnly
-            />
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <svg
-                className="w-5 h-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 8h18M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8M16 12h4M8 12h4M8 16h4"
-                />
-              </svg>
-            </div>
-          </div>
-
-          {showCalendar && (
-            <div className="fixed inset-0 flex items-center justify-center z-50">
-              <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                onClick={() => setShowCalendar(false)}
+    <div className="min-h-screen w-full flex justify-center items-center px-2 sm:px-4 md:px-8 bg-white">
+      <main className="w-full max-w-md min-h-[600px] relative bg-white overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
+        <PregnancyFormLayout
+          title="임신 정보를 입력해주세요"
+          subtitle="누리달에서 맞춤 서비스를 제공해 드립니다"
+          currentStep={currentStep}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          isNextDisabled={currentStep === 1 && !isPregnant}
+        >
+          {currentStep === 1 && (
+            <div className="w-full p-4 bg-white rounded-full border-2 border-[#FFB6C1] mb-4 flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="isPregnantCheckbox"
+                aria-label="뱃속에 아기가 있어요 체크박스"
+                checked={isPregnant}
+                onChange={() => {
+                  setIsPregnant(!isPregnant);
+                  setWaitingForBaby(false);
+                }}
+                className="w-4 h-4 mr-4"
               />
-              <div className="bg-white p-4 rounded-2xl shadow-lg w-[320px] relative z-10 mx-4">
-                <div className="text-center mb-4">
-                  <div className="text-lg font-['Do_Hyeon'] text-gray-900">
-                    출산 예정일을 선택해주세요
-                  </div>
-                </div>
+              <span className="text-black font-['Do_Hyeon']">
+                🤰🏻 뱃속에 아기가 있어요
+              </span>
+            </div>
+          )}
 
-                <div className="flex justify-between items-center mb-3">
-                  <button
-                    onClick={() =>
-                      setCurrentMonth(
-                        new Date(
-                          currentMonth.setMonth(currentMonth.getMonth() - 1)
-                        )
-                      )
+          {currentStep === 2 && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">
+                태명
+              </label>
+              <input
+                type="text"
+                value={babyName}
+                onChange={(e) => setBabyName(e.target.value)}
+                placeholder="태명을 입력하세요"
+                className="mt-1 block w-full p-2.5 bg-white rounded-full border-2 border-[#FFB6C1] text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFB6C1] focus:border-2 transition-colors"
+                style={{
+                  fontFamily: "Do Hyeon, sans-serif",
+                  backgroundColor: "transparent",
+                  borderRadius: "30px",
+                  border: "2px solid #FFB6C1",
+                  color: "#333",
+                  padding: "10px",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  fontSize: "16px",
+                }}
+              />
+              <div
+                className="mt-3 flex items-center cursor-pointer"
+                onClick={() => {
+                  setNoName(!noName);
+                  if (!noName) {
+                    setBabyName("아기");
+                  } else {
+                    setBabyName("");
+                  }
+                }}
+              >
+                <input
+                  type="checkbox"
+                  id="noNameCheckbox"
+                  aria-label="아직 이름이 없어요 체크박스"
+                  checked={noName}
+                  onChange={() => {
+                    setNoName(!noName);
+                    if (!noName) {
+                      setBabyName("아기");
+                    } else {
+                      setBabyName("");
                     }
-                    aria-label="이전 달 보기"
-                    className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <svg
-                      className="w-5 h-5 text-gray-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M15 19l-7-7 7-7"
-                      />
-                    </svg>
-                  </button>
-                  <div className="text-base font-['Do_Hyeon'] text-gray-900">
-                    {formatYearMonth(currentMonth)}
-                  </div>
+                  }}
+                  className="w-4 h-4 mr-2"
+                />
+                <span className="text-black text-sm font-['Do_Hyeon']">
+                  아직 이름이 없어용
+                </span>
+              </div>
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">
+                  성별
+                </label>
+                <div className="flex gap-2 mt-2">
                   <button
-                    onClick={() =>
-                      setCurrentMonth(
-                        new Date(
-                          currentMonth.setMonth(currentMonth.getMonth() + 1)
-                        )
-                      )
-                    }
-                    aria-label="다음 달 보기"
-                    className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
+                    onClick={() => setBabyGender("남자")}
+                    className={`flex-1 p-2 rounded-xl border ${
+                      babyGender === "남자"
+                        ? "bg-blue-200 border-blue-200"
+                        : "bg-white border-gray-300"
+                    } cursor-pointer transition-colors font-['Do_Hyeon']`}
                   >
-                    <svg
-                      className="w-5 h-5 text-gray-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    <span className="text-black text-sm">남자</span>
                   </button>
-                </div>
-
-                <div className="grid grid-cols-7 mb-1">
-                  {["일", "월", "화", "수", "목", "금", "토"].map(
-                    (day, index) => (
-                      <div
-                        key={day}
-                        className={`text-center text-sm font-['Do_Hyeon'] py-1 ${
-                          index === 0
-                            ? "text-red-500"
-                            : index === 6
-                            ? "text-blue-500"
-                            : "text-gray-600"
-                        }`}
-                      >
-                        {day}
-                      </div>
-                    )
-                  )}
-                </div>
-
-                <div className="grid grid-cols-7 gap-0.5">
-                  {generateCalendarDays().map((day, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleDateSelect(day.date)}
-                      disabled={!day.isCurrentMonth}
-                      className={`
-                        w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
-                        ${
-                          day.isCurrentMonth
-                            ? day.date.toISOString().split("T")[0] ===
-                              expectedDate
-                              ? "bg-[#FFE999] text-gray-900 font-bold"
-                              : "hover:bg-gray-100 text-gray-900"
-                            : "text-gray-400"
-                        }
-                        ${day.date.getDay() === 0 ? "text-red-500" : ""}
-                        ${day.date.getDay() === 6 ? "text-blue-500" : ""}
-                        disabled:opacity-50 disabled:cursor-not-allowed
-                      `}
-                    >
-                      {day.date.getDate()}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="mt-3 flex justify-center">
                   <button
-                    onClick={() => setShowCalendar(false)}
-                    className="px-6 py-2 bg-gray-200 text-gray-700 rounded-full font-['Do_Hyeon'] hover:bg-gray-300 transition-colors text-sm"
+                    onClick={() => setBabyGender("여자")}
+                    className={`flex-1 p-2 rounded-xl border ${
+                      babyGender === "여자"
+                        ? "bg-red-200 border-red-200"
+                        : "bg-white border-gray-300"
+                    } cursor-pointer transition-colors font-['Do_Hyeon']`}
                   >
-                    취소
+                    <span className="text-black text-sm">여자</span>
+                  </button>
+                  <button
+                    onClick={() => setBabyGender("모름")}
+                    className={`flex-1 p-2 rounded-xl border ${
+                      babyGender === "모름"
+                        ? "bg-gray-200 border-gray-200"
+                        : "bg-white border-gray-300"
+                    } cursor-pointer transition-colors font-['Do_Hyeon']`}
+                  >
+                    <span className="text-black text-sm">비밀</span>
                   </button>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="mt-4 flex items-center">
-            <input
-              type="checkbox"
-              id="noInfoCheckbox"
-              aria-label="주차와 예정일을 잘 모르겠어요 체크박스"
-              checked={noInfo}
-              onChange={() => setNoInfo(!noInfo)}
-              className="w-4 h-4 mr-2"
-            />
-            <span className="text-sm font-['Do_Hyeon'] text-gray-700">
-              두 개 다 잘 모르겠어요
-            </span>
-          </div>
-
-          {noInfo && (
-            <div className="mt-4">
+          {currentStep === 3 && (
+            <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">
-                마지막 생리일
+                현재 임신 주차
+              </label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsWeekSelectorOpen(!isWeekSelectorOpen)}
+                  className="mt-1 block w-full p-2.5 bg-white rounded-full border-2 border-[#FFB6C1] text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFB6C1] focus:border-2 transition-colors"
+                  style={{
+                    fontFamily: "Do Hyeon, sans-serif",
+                    backgroundColor: "transparent",
+                    borderRadius: "30px",
+                    border: "2px solid #FFB6C1",
+                    color: "#333",
+                    padding: "10px",
+                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    fontSize: "16px",
+                  }}
+                >
+                  {pregnancyWeek ? `${pregnancyWeek}주차` : "주차를 선택하세요"}
+                </button>
+                {isWeekSelectorOpen && (
+                  <div className="absolute top-12 left-0 w-full bg-white border-2 border-[#FFB6C1] rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto">
+                    <div className="py-1">
+                      {Array.from({ length: 40 }, (_, i) => (
+                        <button
+                          key={i + 1}
+                          type="button"
+                          onClick={() => handleWeekSelect(i + 1)}
+                          className={`w-full px-4 py-2 text-left font-['Do_Hyeon'] hover:bg-[#FFB6C1] transition-colors
+                            ${
+                              pregnancyWeek === (i + 1).toString()
+                                ? "bg-[#FFB6C1] text-black"
+                                : "text-gray-700"
+                            }
+                          `}
+                        >
+                          {i + 1}주차
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon'] mt-4">
+                출산 예정일
               </label>
               <div className="relative">
                 <input
                   type="text"
-                  value={lastPeriodDate}
+                  value={expectedDate}
                   onClick={() => setShowCalendar(true)}
                   placeholder="날짜를 선택해 주세요"
-                  className="mt-1 block w-full p-2.5 bg-[#FFF4BB] rounded-xl border border-yellow-300 text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFE999] focus:border-2 transition-colors"
+                  className="mt-1 block w-full p-2.5 bg-white rounded-full border-2 border-[#FFB6C1] text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFB6C1] focus:border-2 transition-colors"
+                  style={{
+                    fontFamily: "Do Hyeon, sans-serif",
+                    backgroundColor: "transparent",
+                    borderRadius: "30px",
+                    border: "2px solid #FFB6C1",
+                    color: "#333",
+                    padding: "10px",
+                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    fontSize: "16px",
+                  }}
                   readOnly
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -584,7 +414,7 @@ export default function PregnancyInfo() {
                   <div className="bg-white p-4 rounded-2xl shadow-lg w-[320px] relative z-10 mx-4">
                     <div className="text-center mb-4">
                       <div className="text-lg font-['Do_Hyeon'] text-gray-900">
-                        마지막 생리일을 선택해주세요
+                        출산 예정일을 선택해주세요
                       </div>
                     </div>
 
@@ -669,11 +499,12 @@ export default function PregnancyInfo() {
                           key={index}
                           onClick={() => handleDateSelect(day.date)}
                           disabled={!day.isCurrentMonth}
-                          className={`                            w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
+                          className={`
+                            w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
                             ${
                               day.isCurrentMonth
                                 ? day.date.toISOString().split("T")[0] ===
-                                  lastPeriodDate
+                                  expectedDate
                                   ? "bg-[#FFE999] text-gray-900 font-bold"
                                   : "hover:bg-gray-100 text-gray-900"
                                 : "text-gray-400"
@@ -699,84 +530,257 @@ export default function PregnancyInfo() {
                   </div>
                 </div>
               )}
+
+              <div className="mt-4 flex items-center">
+                <input
+                  type="checkbox"
+                  id="noInfoCheckbox"
+                  aria-label="주차와 예정일을 잘 모르겠어요 체크박스"
+                  checked={noInfo}
+                  onChange={() => setNoInfo(!noInfo)}
+                  className="w-4 h-4 mr-2"
+                />
+                <span className="text-sm font-['Do_Hyeon'] text-gray-700">
+                  두 개 다 잘 모르겠어요
+                </span>
+              </div>
+
+              {noInfo && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 font-['Do_Hyeon']">
+                    마지막 생리일
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={lastPeriodDate}
+                      onClick={() => setShowCalendar(true)}
+                      placeholder="날짜를 선택해 주세요"
+                      className="mt-1 block w-full p-2.5 bg-[#FFF4BB] rounded-xl border border-yellow-300 text-black font-['Do_Hyeon'] focus:outline-none focus:border-[#FFE999] focus:border-2 transition-colors"
+                      readOnly
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <svg
+                        className="w-5 h-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 8h18M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8M16 12h4M8 12h4M8 16h4"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {showCalendar && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50">
+                      <div
+                        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                        onClick={() => setShowCalendar(false)}
+                      />
+                      <div className="bg-white p-4 rounded-2xl shadow-lg w-[320px] relative z-10 mx-4">
+                        <div className="text-center mb-4">
+                          <div className="text-lg font-['Do_Hyeon'] text-gray-900">
+                            마지막 생리일을 선택해주세요
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center mb-3">
+                          <button
+                            onClick={() =>
+                              setCurrentMonth(
+                                new Date(
+                                  currentMonth.setMonth(currentMonth.getMonth() - 1)
+                                )
+                              )
+                            }
+                            aria-label="이전 달 보기"
+                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
+                          >
+                            <svg
+                              className="w-5 h-5 text-gray-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M15 19l-7-7 7-7"
+                              />
+                            </svg>
+                          </button>
+                          <div className="text-base font-['Do_Hyeon'] text-gray-900">
+                            {formatYearMonth(currentMonth)}
+                          </div>
+                          <button
+                            onClick={() =>
+                              setCurrentMonth(
+                                new Date(
+                                  currentMonth.setMonth(currentMonth.getMonth() + 1)
+                                )
+                              )
+                            }
+                            aria-label="다음 달 보기"
+                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
+                          >
+                            <svg
+                              className="w-5 h-5 text-gray-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-7 mb-1">
+                          {["일", "월", "화", "수", "목", "금", "토"].map(
+                            (day, index) => (
+                              <div
+                                key={day}
+                                className={`text-center text-sm font-['Do_Hyeon'] py-1 ${
+                                  index === 0
+                                    ? "text-red-500"
+                                    : index === 6
+                                    ? "text-blue-500"
+                                    : "text-gray-600"
+                                }`}
+                              >
+                                {day}
+                              </div>
+                            )
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-7 gap-0.5">
+                          {generateCalendarDays().map((day, index) => (
+                            <button
+                              key={index}
+                              onClick={() => handleDateSelect(day.date)}
+                              disabled={!day.isCurrentMonth}
+                              className={`                            w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
+                                ${
+                                  day.isCurrentMonth
+                                    ? day.date.toISOString().split("T")[0] ===
+                                      lastPeriodDate
+                                      ? "bg-[#FFE999] text-gray-900 font-bold"
+                                      : "hover:bg-gray-100 text-gray-900"
+                                    : "text-gray-400"
+                                }
+                                ${day.date.getDay() === 0 ? "text-red-500" : ""}
+                                ${day.date.getDay() === 6 ? "text-blue-500" : ""}
+                                disabled:opacity-50 disabled:cursor-not-allowed
+                              `}
+                            >
+                              {day.date.getDate()}
+                            </button>
+                          ))}
+                        </div>
+
+                        <div className="mt-3 flex justify-center">
+                          <button
+                            onClick={() => setShowCalendar(false)}
+                            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-full font-['Do_Hyeon'] hover:bg-gray-300 transition-colors text-sm"
+                          >
+                            취소
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
 
-      {currentStep === 4 && (
-        <div className="mb-4 flex items-center justify-center cursor-pointer bg-white p-2 rounded-full border-2 border-[#FFB6C1]">
-          <input
-            type="checkbox"
-            aria-label="고위험 임신 체크박스"
-            checked={highRisk}
-            onChange={() => setShowHighRiskModal(true)}
-            className={`w-4 h-6 mr-2 rounded border-gray-300 ${
-              highRisk ? "bg-[#FFB6C1]" : ""
-            }`}
-          />
-          <span className="text-red-500 text-sm font-['Do_Hyeon']">
-            고위험 임신입니다
-          </span>
-        </div>
-      )}
+          {currentStep === 4 && (
+            <div className="mb-4 flex items-center justify-center cursor-pointer bg-white p-2 rounded-full border-2 border-[#FFB6C1]">
+              <input
+                type="checkbox"
+                aria-label="고위험 임신 체크박스"
+                checked={highRisk}
+                onChange={() => setShowHighRiskModal(true)}
+                className={`w-4 h-6 mr-2 rounded border-gray-300 ${
+                  highRisk ? "bg-[#FFB6C1]" : ""
+                }`}
+              />
+              <span className="text-red-500 text-sm font-['Do_Hyeon']">
+                고위험 임신입니다
+              </span>
+            </div>
+          )}
 
-      {showHighRiskModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-[20px] shadow-lg w-[90%] max-w-md z-10 mx-4">
-            <div className="text-center mb-6">
-              <div className="text-xl font-['Do_Hyeon'] text-gray-900 mb-2">
-                고위험 임신이란?
-              </div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-600">
-                다음과 같은 경우 고위험 임신으로 분류됩니다:
+          {showHighRiskModal && (
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-[20px] shadow-lg w-[90%] max-w-md z-10 mx-4">
+                <div className="text-center mb-6">
+                  <div className="text-xl font-['Do_Hyeon'] text-gray-900 mb-2">
+                    고위험 임신이란?
+                  </div>
+                  <div className="text-sm font-['Do_Hyeon'] text-gray-600">
+                    다음과 같은 경우 고위험 임신으로 분류됩니다:
+                  </div>
+                </div>
+
+                <div className="mb-6 space-y-3 bg-gray-50 p-4 rounded-xl">
+                  <div className="text-sm font-['Do_Hyeon'] text-gray-700">
+                    • 만 35세 이상의 고령 임신
+                  </div>
+                  <div className="text-sm font-['Do_Hyeon'] text-gray-700">
+                    • 임신성 당뇨
+                  </div>
+                  <div className="text-sm font-['Do_Hyeon'] text-gray-700">
+                    • 임신성 고혈압
+                  </div>
+                  <div className="text-sm font-['Do_Hyeon'] text-gray-700">
+                    • 다태 임신
+                  </div>
+                  <div className="text-sm font-['Do_Hyeon'] text-gray-700">
+                    • 전치태반
+                  </div>
+                  <div className="text-sm font-['Do_Hyeon'] text-gray-700">
+                    • 조기진통
+                  </div>
+                  <div className="text-sm font-['Do_Hyeon'] text-gray-700">
+                    • 산부인과 전문의가 고위험 임신으로 판단한 경우
+                  </div>
+                </div>
+
+                <div className="text-sm font-['Do_Hyeon'] text-gray-600 mb-6 p-3 bg-[#FFF4BB] rounded-xl">
+                  누리달에서는 고위험 임신부를 위한 맞춤 서비스를 제공해 드립니다.
+                </div>
+
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => {
+                      setShowHighRiskModal(false);
+                      setHighRisk(true);
+                    }}
+                    className="w-20 h-9 rounded-2xl bg-[#FFE999] hover:bg-[#FFD999] transition-colors"
+                  >
+                    <span className="text-gray-900 text-sm font-['Do_Hyeon']">
+                      확인
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div className="mb-6 space-y-3 bg-gray-50 p-4 rounded-xl">
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">
-                • 만 35세 이상의 고령 임신
-              </div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">
-                • 임신성 당뇨
-              </div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">
-                • 임신성 고혈압
-              </div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">
-                • 다태 임신
-              </div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">
-                • 전치태반
-              </div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">
-                • 조기진통
-              </div>
-              <div className="text-sm font-['Do_Hyeon'] text-gray-700">
-                • 산부인과 전문의가 고위험 임신으로 판단한 경우
-              </div>
-            </div>
-
-            <div className="text-sm font-['Do_Hyeon'] text-gray-600 mb-6 p-3 bg-[#FFF4BB] rounded-xl">
-              누리달에서는 고위험 임신부를 위한 맞춤 서비스를 제공해 드립니다.
-            </div>
-
-            <div className="flex justify-center">
-              <button
-                onClick={() => {
-                  setShowHighRiskModal(false);
-                  setHighRisk(true);
-                }}
-                className="w-20 h-9 rounded-2xl bg-[#FFE999] hover:bg-[#FFD999] transition-colors"
-              >
-                <span className="text-gray-900 text-sm font-['Do_Hyeon']">
-                  확인
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </PregnancyFormLayout>
+          )}
+        </PregnancyFormLayout>
+      </main>
+    </div>
   );
 }

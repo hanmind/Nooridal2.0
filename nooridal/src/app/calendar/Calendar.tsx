@@ -27,8 +27,12 @@ interface Event {
   is_recurring?: boolean | null;
 }
 
-const Calendar: React.FC = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
+interface CalendarProps {
+  currentDate: Date;
+  setCurrentDate: (date: Date) => void;
+}
+
+const Calendar: React.FC<CalendarProps> = ({ currentDate, setCurrentDate }) => {
   const [isMonthSelectorOpen, setIsMonthSelectorOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -403,11 +407,6 @@ const Calendar: React.FC = () => {
     setIsMonthSelectorOpen(false);
   };
 
-  // 달력 그리드 계산
-  const totalWidth = 372; // 전체 달력 너비
-  const dayWidth = totalWidth / 7; // 각 요일 칸의 너비
-  const startLeft = 20; // 시작 위치
-
   // 특정 날짜에 이벤트 표시 (수정)
   const getEventsForDate = (date: Date) => {
     // 확장된 이벤트 목록 사용
@@ -428,55 +427,7 @@ const Calendar: React.FC = () => {
   };
 
   return (
-    <div className="w-102 min-h-screen relative bg-'#FFF4BB' overflow-hidden">
-      {/* Add the rectangular box from the chat window */}
-      <div className="w-full h-[140px] flex items-center justify-center bg-white shadow-md rounded-b-3xl relative mt-[-10px]">
-        {/* Month Selector and Notification Icons */}
-        <div className="absolute right-[-35px] top-[50%] translate-y-[-50%] cursor-pointer transition-transform duration-300 hover:scale-110 z-50">
-          {/* Month Selector Icon */}
-          <svg
-            width="25"
-            height="30"
-            viewBox="0 4 30 25"
-            fill="none"
-            onClick={() => setIsMonthSelectorOpen(!isMonthSelectorOpen)}
-          >
-            <path
-              d="M15 22C15 22 6 11 6 11C6 11 24 11 24 11C24 11 15 22 15 22Z"
-              fill="#FCD34D"
-              stroke="#FCD34D"
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-
-        <div className="absolute right-[18px] top-[72px] z-50">
-          {/* Notification Icon */}
-          <div
-            className="material-symbols--notifications-outline-rounded bg-neutral-400 cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-            style={
-              {
-                display: "inline-block",
-                width: "36px",
-                height: "36px",
-                "--svg":
-                  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M5 19q-.425 0-.712-.288T4 18t.288-.712T5 17h1v-7q0-2.075 1.25-3.687T10.5 4.2v-.7q0-.625.438-1.062T12 2t1.063.438T13.5 3.5v.7q2 .5 3.25 2.113T18 10v7h1q.425 0 .713.288T20 18t-.288.713T19 19zm7 3q-.825 0-1.412-.587T10 20h4q0 .825-.587 1.413T12 22m-4-5h8v-7q0-1.65-1.175-2.825T12 6T9.175 7.175T8 10z'/%3E%3C/svg%3E\")",
-                backgroundColor: "currentColor",
-                WebkitMaskImage: "var(--svg)",
-                maskImage: "var(--svg)",
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskSize: "100% 100%",
-                maskSize: "100% 100%",
-              } as React.CSSProperties
-            }
-          />
-        </div>
-      </div>
-
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center">
       {/* 알림 패널 오버레이 */}
       {isNotificationOpen && (
         <>
@@ -654,164 +605,92 @@ const Calendar: React.FC = () => {
         </>
       )}
 
-      {/* 요일 헤더 */}
-      {dayNames.map((day, index) => {
-        const leftPosition = startLeft + index * dayWidth + 10;
-        const isSunday = index === 0;
-        const isSaturday = index === 6;
+    
 
-        return (
-          <div
-            key={`header-${day}`}
-            className={`w-5 h-14 absolute text-center justify-start text-l font-normal font-['Do_Hyeon'] leading-[50px] ${
-              isSunday
-                ? "text-red-400"
-                : isSaturday
-                ? "text-indigo-400"
-                : "text-black"
-            }`}
-            style={{ left: `${leftPosition}px`, top: "145px" }}
-          >
-            {day}
-          </div>
-        );
-      })}
-
-      {/* 월 표시 */}
-      <div className="left-[148px] top-[70px] absolute text-center text-neutral-700 text-2xl font-['Do_Hyeon'] leading-[50px]">
-        {currentDate.getFullYear()}.
-        {String(currentDate.getMonth() + 1).padStart(2, "0")}
-        <svg
-          width="25"
-          height="30"
-          viewBox="0 4 30 25"
-          fill="none"
-          className="absolute right-[-35px] top-[50%] translate-y-[-50%] cursor-pointer transition-transform duration-300 hover:scale-110"
-          onClick={() => setIsMonthSelectorOpen(!isMonthSelectorOpen)}
-        >
-          <path
-            d="M15 22C15 22 6 11 6 11C6 11 24 11 24 11C24 11 15 22 15 22Z"
-            fill="#FCD34D"
-            stroke="#FCD34D"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        {/* 월 선택 박스 */}
-        {isMonthSelectorOpen && (
-          <div className="absolute right-[-100px] top-[60px] w-[200px] bg-white rounded-2xl shadow-lg p-4 grid grid-cols-3 gap-2 z-50 border-2 border-yellow-100">
-            {months.map((month, index) => (
-              <div
-                key={month}
-                onClick={() => handleMonthSelect(index)}
-                className={`p-2 text-base cursor-pointer rounded-lg transition-colors duration-200 hover:bg-yellow-50
-                  ${
-                    currentDate.getMonth() === index
-                      ? "bg-yellow-100 text-yellow-600"
-                      : "text-neutral-600"
-                  }
-                `}
-              >
-                {month}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 달력 날짜 */}
-      {Array.from({ length: daysInMonth }, (_, i) => {
-        const day = i + 1;
-        const dayOfWeek = (firstDayOfMonth + i) % 7;
-        const isSunday = dayOfWeek === 0;
-        const isSaturday = dayOfWeek === 6;
-        const isToday =
-          day === new Date().getDate() &&
-          currentDate.getMonth() === new Date().getMonth() &&
-          currentDate.getFullYear() === new Date().getFullYear();
-
-        // 날짜 위치 계산 (요일 헤더와 동일한 간격 유지, 숫자만 +10px 오른쪽으로 이동)
-        const leftPosition = startLeft + dayOfWeek * dayWidth + 10;
-        const topPosition = 205 + Math.floor((firstDayOfMonth + i) / 7) * 105;
-
-        // 해당 날짜의 일정
-        const dayEvents = getEventsForDay(day);
-
-        return (
-          <div key={`day-${day}`}>
+      {/* 요일 헤더 + 달력 날짜: Responsive Grid */}
+      <div className="w-full max-w-md mx-auto mt-8 flex flex-col items-center justify-center">
+        <div className="grid grid-cols-7 w-full bg-transparent">
+          {dayNames.map((day, index) => (
             <div
-              className={`absolute text-center justify-start text-base font-normal font-['Do_Hyeon'] leading-[50px] w-6 h-6 flex items-center justify-center cursor-pointer hover:bg-yellow-50 transition-colors ${
-                isToday ? "bg-yellow-200 rounded-[30px]" : ""
-              } ${
-                isSunday
-                  ? "text-red-400"
-                  : isSaturday
-                  ? "text-indigo-400"
-                  : "text-black"
-              }`}
-              style={{
-                left: `${leftPosition}px`,
-                top: `${topPosition}px`,
-                backgroundColor: isToday ? "#fef3c7" : "transparent",
-              }}
-              onClick={() => {
-                const clickedDate = new Date(
-                  currentDate.getFullYear(),
-                  currentDate.getMonth(),
-                  day
-                );
-                setSelectedDate(clickedDate);
-              }}
+              key={`header-${day}`}
+              className={`text-center text-l font-normal font-['Do_Hyeon'] py-2 sm:py-3 select-none
+                ${index === 0 ? 'text-red-400' : index === 6 ? 'text-indigo-400' : 'text-black'}`}
             >
               {day}
             </div>
-
-            {/* 일정 표시 (최대 3개까지) */}
-            {dayEvents.slice(0, 3).map((event, index) => (
-              <div
-                key={`event-${event.id}-${index}`}
-                className={`absolute text-xs rounded-md px-1 truncate`}
-                style={{
-                  left: `${leftPosition - 10}px`,
-                  top: `${topPosition + 23 + index * 15}px`,
-                  width: `${dayWidth - 2}px`,
-                  height: "12px",
-                  backgroundColor: getColorForEvent(event.color),
-                  overflow: "hidden",
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // 일정 상세 보기 기능 추가 가능
-                  const clickedDate = new Date(
-                    currentDate.getFullYear(),
-                    currentDate.getMonth(),
-                    day
-                  );
-                  setSelectedDate(clickedDate);
-                }}
-              >
-                {event.title}
+          ))}
+        </div>
+        {/* 날짜 그리드 */}
+        <div className="grid grid-cols-7 w-full bg-transparent min-h-[320px] sm:min-h-[420px]">
+          {/* 빈 칸 (1일 시작 요일 맞추기) */}
+          {Array.from({ length: firstDayOfMonth }).map((_, i) => (
+            <div key={`empty-${i}`} />
+          ))}
+          {/* 날짜 셀 */}
+          {Array.from({ length: daysInMonth }, (_, i) => {
+            const day = i + 1;
+            const dayOfWeek = (firstDayOfMonth + i) % 7;
+            const isSunday = dayOfWeek === 0;
+            const isSaturday = dayOfWeek === 6;
+            const isToday =
+              day === new Date().getDate() &&
+              currentDate.getMonth() === new Date().getMonth() &&
+              currentDate.getFullYear() === new Date().getFullYear();
+            const dayEvents = getEventsForDay(day);
+            return (
+              <div key={`day-${day}`} className="flex flex-col items-center py-1 sm:py-2">
+                <button
+                  className={`w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center rounded-full text-base font-normal font-['Do_Hyeon'] transition-colors
+                    ${isToday ? 'bg-yellow-200' : 'hover:bg-yellow-50'}
+                    ${isSunday ? 'text-red-400' : isSaturday ? 'text-indigo-400' : 'text-black'}`}
+                  onClick={() => {
+                    const clickedDate = new Date(
+                      currentDate.getFullYear(),
+                      currentDate.getMonth(),
+                      day
+                    );
+                    setSelectedDate(clickedDate);
+                  }}
+                  style={{ backgroundColor: isToday ? '#fef3c7' : undefined }}
+                >
+                  {day}
+                </button>
+                {/* 일정 표시 (최대 3개까지) */}
+                <div className="flex flex-col w-full gap-[2px] mt-1">
+                  {dayEvents.slice(0, 3).map((event, index) => (
+                    <div
+                      key={`event-${event.id}-${index}`}
+                      className="text-xs rounded-md px-1 truncate cursor-pointer"
+                      style={{
+                        backgroundColor: getColorForEvent(event.color),
+                        height: '16px',
+                        overflow: 'hidden',
+                      }}
+                      onClick={e => {
+                        e.stopPropagation();
+                        const clickedDate = new Date(
+                          currentDate.getFullYear(),
+                          currentDate.getMonth(),
+                          day
+                        );
+                        setSelectedDate(clickedDate);
+                      }}
+                    >
+                      {event.title}
+                    </div>
+                  ))}
+                  {/* 추가 일정 표시 (+N개 더) */}
+                  {dayEvents.length > 3 && (
+                    <div className="text-xs text-gray-500 text-center">
+                      +{dayEvents.length - 3}개 더
+                    </div>
+                  )}
+                </div>
               </div>
-            ))}
-
-            {/* 추가 일정 표시 (+N개 더) */}
-            {dayEvents.length > 3 && (
-              <div
-                className={`absolute text-xs text-gray-500`}
-                style={{
-                  left: `${leftPosition}px`,
-                  top: `${topPosition + 23 + 3 * 15}px`,
-                  width: `${dayWidth - 2}px`,
-                  textAlign: "center",
-                }}
-              >
-                +{dayEvents.length - 3}개 더
-              </div>
-            )}
-          </div>
-        );
-      })}
+            );
+          })}
+        </div>
+      </div>
 
       {/* DatePopup */}
       {selectedDate && (

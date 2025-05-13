@@ -100,20 +100,20 @@ export default function LocationPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      <div className="w-full max-w-[400px] h-[900px] bg-[#FFF4BB]">
+      <div className="w-screen h-[900px] bg-[#FFF4BB]">
         {/* 헤더 */}
-        <div className="w-full h-[140px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px]">
-          <div className="flex items-center justify-center px-4 w-full">
-            <div className="text-2xl text-neutral-700 font-['Do_Hyeon'] text-center w-full mt-15">
+        <div className="w-screen h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px] px-2 sm:px-4">
+          <div className="flex items-center justify-center w-full">
+            <div className="text-xl sm:text-2xl text-neutral-700 font-['Do_Hyeon'] text-center w-full mt-8 sm:mt-15">
               위치
             </div>
           </div>
         </div>
 
         {/* 현재 위치 섹션 */}
-        <div className="w-[360px] mx-auto mt-8">
+        <div className="w-full max-w-[360px] mx-auto mt-8 px-2 sm:px-0">
           <div className="bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
-            <div className="flex items-start p-6">
+            <div className="flex items-start p-4 sm:p-6">
               <div className="mr-4">
                 <svg
                   className="w-14 h-14"
@@ -150,7 +150,7 @@ export default function LocationPage() {
         </div>
 
         {/* 메뉴 그리드 */}
-        <div className="grid grid-cols-2 gap-4 p-1 w-[360px] mx-auto mt-8">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-[360px] mx-auto mt-8 px-2 sm:px-0">
           {[
             { icon: "🏥", title: "병원", link: "/location/hospital" },
             { icon: "🏪", title: "편의 시설", link: "/location/facilities" },
@@ -159,7 +159,7 @@ export default function LocationPage() {
           ].map((item, index) => (
             <div
               key={index}
-              className="bg-white p-6 rounded-[20px] shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors h-[140px]"
+              className="bg-white w-full p-3 sm:p-6 rounded-[20px] shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors h-[100px] sm:h-[140px]"
               onClick={() => router.push(item.link)}
             >
               <div className="text-3xl mb-2">{item.icon}</div>

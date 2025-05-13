@@ -1,10 +1,48 @@
 const fs = require('fs');
 const path = require('path');
 const csv = require('csvtojson');
+const proj4 = require('proj4');
 
 // 입력 및 출력 파일 경로 설정
-const inputFile = path.join(__dirname, '../../rawdata/복지_한부모가족복지시설 세부 현황 원본.csv');
-const outputFile = path.join(__dirname, '../public/data/single_parent_family_welfare_facilities.json');
+const inputFile = path.join(__dirname, '../../rawdata/산후조리원.csv');
+const outputFile = path.join(__dirname, '../public/data/postpartum_centers.json');
+
+/**
+ * @typedef {object} PostpartumCenter
+ * @property {string} id - Unique identifier (name_address)
+ * @property {string} name - Center name
+ * @property {string} address - Road name address (도로명전체주소) or Lot number address (소재지전체주소)
+ * @property {string} phone - Phone number
+ * @property {number | null} lat - Latitude (WGS84) - Placeholder
+ * @property {number | null} lng - Longitude (WGS84) - Placeholder
+ * @property {number} motherCapacity - Capacity for mothers (임산부정원수)
+ * @property {number} infantCapacity - Capacity for infants (영유아정원수)
+ * @property {number | null} nurseCount - Number of nurses (간호사수)
+ * @property {number | null} nurseAidCount - Number of nurse aids (간호조무사수)
+ */
+
+// 좌표 변환 함수 (EPSG:5174 -> WGS84)
+// Node.js 환경에서는 proj4js 같은 라이브러리 사용 가능
+function convertCoordinates(x, y) {
+  if (!x || !y) return { lat: null, lng: null };
+  // 실제 변환 로직 구현 필요
+  // 예: const proj4 = require('proj4');
+  proj4.defs('EPSG:5174', '+proj=tmerc +lat_0=38 +lon_0=127.0028902777778 +k=1 +x_0=200000 +y_0=500000 +ellps=bessel +units=m +no_defs');
+  try { // Added try-catch for potential conversion errors
+    const [lng, lat] = proj4('EPSG:5174', 'EPSG:4326', [x, y]);
+    // Round coordinates to a reasonable precision
+    return { 
+      lat: parseFloat(lat.toFixed(7)), 
+      lng: parseFloat(lng.toFixed(7)) 
+    };
+  } catch (error) {
+    console.warn(`Coordinate conversion failed for x=${x}, y=${y}: ${error.message}`);
+    return { lat: null, lng: null };
+  }
+  // 임시: 변환 로직 없으므로 null 반환 - Removed this section
+  // console.warn(`Coordinate conversion needed for x=${x}, y=${y}`);
+  // return { lat: null, lng: null };
+}
 
 // CSV를 JSON으로 변환
 async function convertCsvToJson() {
@@ -12,70 +50,63 @@ async function convertCsvToJson() {
     // CSV 파일 읽기 및 변환
     const jsonArray = await csv({
       colParser: {
-        // 필드 파싱 옵션 설정
-        '구  분': 'string',
-        '시도': 'string',
-        '시 설 명': 'string',
-        '정 원': 'string',
-        '단위': 'string',
-        '전 화': 'string'
-      }
+        '좌표정보x(epsg5174)': 'number',
+        '좌표정보y(epsg5174)': 'number',
+        '임산부정원수': 'number',
+        '영유아정원수': 'number',
+        '간호사수': 'number',
+        '간호조무사수': 'number',
+      },
+      checkType: true
     }).fromFile(inputFile);
-    
-    // 필요한 필드만 추출하여 정리
-    const facilities = jsonArray.map((item, index) => ({
-      id: String(index + 1),
-      type: item['구  분'],
-      province: item['시도'],
-      name: item['시 설 명'],
-      capacity: item['정 원'],
-      unit: item['단위'],
-      phone: item['전 화'] || '비공개'
-    }));
 
-    // 시설 유형별로 그룹화
-    const facilitiesByType = {};
-    facilities.forEach(facility => {
-      if (!facilitiesByType[facility.type]) {
-        facilitiesByType[facility.type] = [];
-      }
-      facilitiesByType[facility.type].push(facility);
-    });
+    // 데이터 필터링 및 변환
+    const filteredData = jsonArray
+      .filter(item => item['영업상태명'] === '영업/정상') // 영업중인 곳만 필터링
+      .map(item => {
+        const address = item['도로명전체주소'] || item['소재지전체주소'] || '주소 정보 없음';
+        const name = item['사업장명'] || '이름 없음';
+        
+        // 좌표 변환
+        const { lat, lng } = convertCoordinates(item['좌표정보x(epsg5174)'], item['좌표정보y(epsg5174)']);
 
-    // 지역별로 그룹화
-    const facilitiesByProvince = {};
-    facilities.forEach(facility => {
-      if (!facilitiesByProvince[facility.province]) {
-        facilitiesByProvince[facility.province] = [];
-      }
-      facilitiesByProvince[facility.province].push(facility);
-    });
+        /** @type {PostpartumCenter} */
+        const center = {
+          id: `${name}_${address}`.replace(/\s+/g, '_'), // 간단한 ID 생성
+          name: name,
+          address: address,
+          phone: item['소재지전화'] || '',
+          lat: lat, // 변환된 위도
+          lng: lng, // 변환된 경도
+          motherCapacity: item['임산부정원수'] || 0,
+          infantCapacity: item['영유아정원수'] || 0,
+          nurseCount: item['간호사수'], // null 가능
+          nurseAidCount: item['간호조무사수'], // null 가능
+        };
+        return center;
+      })
+      .filter(center => center.address !== '주소 정보 없음'); // 주소가 없는 데이터 제외
 
-    // 최종 JSON 구조 생성
-    const finalData = {
-      totalCount: facilities.length,
-      facilities: facilities,
-      facilitiesByType: facilitiesByType,
-      facilitiesByProvince: facilitiesByProvince,
+    // 최종 JSON 데이터 구조
+    const jsonData = {
+      totalCount: filteredData.length,
+      centers: filteredData,
       meta: {
-        description: "한부모가족복지시설 세부 현황",
-        source: "공공데이터포털",
-        lastUpdated: new Date().toISOString().split('T')[0]
+        description: "전국 산후조리원 현황 데이터",
+        source: "공공데이터포털 (rawdata/산후조리원.csv)",
+        lastUpdated: new Date().toISOString()
       }
     };
 
-    // 출력 디렉토리가 없으면 생성
-    const outputDir = path.dirname(outputFile);
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
-
     // JSON 파일로 저장
-    fs.writeFileSync(outputFile, JSON.stringify(finalData, null, 2), 'utf8');
-    console.log(`변환 완료: ${outputFile}`);
+    fs.writeFileSync(outputFile, JSON.stringify(jsonData, null, 2), 'utf-8');
+    console.log(`Successfully converted ${inputFile} to ${outputFile}`);
+    console.log(`Total centers processed: ${jsonData.totalCount}`);
+
   } catch (error) {
-    console.error('변환 실패:', error);
+    console.error('Error converting CSV to JSON:', error);
   }
 }
 
+// 스크립트 실행
 convertCsvToJson(); 
