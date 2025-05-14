@@ -41,20 +41,35 @@ export default function FAQ() {
 
   return (
     <div className="min-h-screen w-full flex justify-center items-center px-2 sm:px-4 md:px-8 bg-white">
-      <main className="w-full max-w-md min-h-[600px] relative bg-white overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
+      <main className="w-full max-w-md min-h-screen relative bg-white overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
         {/* 헤더 */}
-        <div className="left-[145px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
-          자주 찾는 질문
+        <div className="w-full h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl px-2 sm:px-4 relative">
+          <button 
+            onClick={() => router.back()}
+            className="absolute left-10 text-yellow-600 hover:text-yellow-800"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+          <h1 className="text-xl sm:text-2xl text-neutral-700 font-['Do_Hyeon']">
+            자주 찾는 질문
+          </h1>
         </div>
-        <button 
-          onClick={() => router.back()}
-          className="left-[24px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
-        >
-          &lt;
-        </button>
 
         {/* FAQ 카드 */}
-        <div className="w-96 h-[538px] left-0 top-[200px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)] overflow-y-auto">
+        <div className="w-full h-[calc(100vh-140px)] sm:h-[calc(100vh-180px)] bg-yellow-50 overflow-y-auto">
           <div className="p-6">
             {/* 상단 아이콘 */}
             <div className="flex justify-center mb-6">
@@ -97,45 +112,6 @@ export default function FAQ() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* 하단 네비게이션 바 */}
-        <div className="absolute bottom-0 w-full">
-          <div className="w-[462px] h-52 relative">
-            <div className="w-44 h-44 left-[-24px] top-[742px] absolute bg-white rounded-full" />
-            <div className="w-44 h-44 left-[109px] top-[742px] absolute bg-white rounded-full" />
-            <div className="w-44 h-44 left-[250px] top-[742px] absolute bg-white rounded-full" />
-            <div className="w-44 h-44 left-[-28px] top-[723px] absolute bg-white/40 rounded-full" />
-            <div className="w-44 h-44 left-[105px] top-[723px] absolute bg-white/40 rounded-full" />
-            <div className="w-44 h-44 left-[246px] top-[723px] absolute bg-white/40 rounded-full" />
-            
-            {/* 채팅 아이콘 */}
-            <div className="w-8 h-7 left-[52.71px] top-[786px] absolute bg-white rounded-full border-[3px] border-neutral-400" />
-            <div className="w-2.5 h-1.5 left-[59.40px] top-[816.33px] absolute origin-top-left rotate-[-141.02deg] bg-white rounded-[0.50px] border-[3px] border-neutral-400" />
-            <div className="w-1.5 h-1.5 left-[60.46px] top-[812.90px] absolute origin-top-left rotate-[-141.02deg] bg-white rounded-[0.50px] border-2 border-yellow-400/0" />
-            
-            {/* 캘린더 아이콘 */}
-            <div className="w-8 h-7 left-[140.75px] top-[787.34px] absolute bg-white rounded-[5px] border-[3px] border-neutral-400" />
-            <div className="w-7 h-0 left-[142.49px] top-[796.10px] absolute outline outline-[3px] outline-offset-[-1.50px] outline-neutral-400"></div>
-            <div className="w-1 h-0 left-[146.83px] top-[784px] absolute origin-top-left rotate-90 outline outline-[3px] outline-offset-[-1.50px] outline-neutral-400"></div>
-            <div className="w-1 h-0 left-[162.90px] top-[784px] absolute origin-top-left rotate-90 outline outline-[3px] outline-offset-[-1.50px] outline-neutral-400"></div>
-            
-            {/* 위치 아이콘 */}
-            <div className="w-8 h-8 left-[222px] top-[784px] absolute overflow-hidden">
-              <div className="w-5 h-7 left-[6.88px] top-[2.75px] absolute bg-neutral-400" />
-            </div>
-            
-            {/* 마이페이지 아이콘 */}
-            <div className="w-4 h-4 left-[323.75px] top-[787px] absolute bg-white rounded-full border-[3px] border-yellow-400" />
-            <div className="w-9 h-3.5 left-[314.40px] top-[803.78px] absolute bg-white rounded-[5px] border-[3px] border-yellow-400" />
-            <div className="w-10 h-1 left-[310.68px] top-[813.46px] absolute bg-white" />
-
-            {/* 네비게이션 텍스트 */}
-            <div className="w-20 h-16 left-[25px] top-[803px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">채팅</div>
-            <div className="w-9 h-8 left-[138px] top-[803px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">캘린더</div>
-            <div className="w-20 h-10 left-[201px] top-[802.60px] absolute text-center justify-start text-neutral-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">위치</div>
-            <div className="w-20 h-10 left-[293px] top-[802.60px] absolute text-center justify-start text-yellow-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">마이페이지</div>
           </div>
         </div>
       </main>

@@ -274,42 +274,39 @@ export default function PregnancyInfo() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
-        <div className="w-[360px] h-[580px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
-          <div className="p-8">
-            {/* 프로필 사진 또는 하트 아이콘 */}
-            {profileImage ? (
-              <div className="w-24 h-24 mx-auto mb-2 mt-[-20px] rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                <img
-                  src={profileImage}
-                  alt="프로필 이미지"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ) : (
-              <div className="mx-auto mb-4 flex items-center justify-center">
-                <svg
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                    fill="#FF69B4"
-                  />
-                </svg>
-              </div>
-            )}
+    <div className="min-h-screen w-full flex justify-center items-center px-2 sm:px-4 md:px-8 bg-white">
+      <main className="w-full max-w-md min-h-screen relative bg-white overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
+        {/* 헤더 */}
+        <div className="w-full h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl px-2 sm:px-4 relative">
+          <button 
+            onClick={() => router.back()}
+            className="absolute left-10 text-yellow-600 hover:text-yellow-800"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+          <h1 className="text-xl sm:text-2xl text-neutral-700 font-['Do_Hyeon']">
+            {formData.babyName
+              ? `${formData.babyName} 엄마의 임신 정보`
+              : "엄마의 임신 정보"}
+          </h1>
+        </div>
 
-            <div className="text-center text-xl font-['Do_Hyeon'] mb-12">
-              {formData.babyName
-                ? `${formData.babyName} 엄마의 임신 정보`
-                : "엄마의 임신 정보"}
-            </div>
-
+        {/* 임신 정보 카드 */}
+        <div className="w-full h-[calc(100vh-140px)] sm:h-[calc(100vh-180px)] bg-yellow-50 overflow-y-auto">
+          <div className="p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="flex items-center justify-between">
                 <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
@@ -319,12 +316,7 @@ export default function PregnancyInfo() {
                   type="text"
                   value={tempBabyName}
                   onChange={(e) => setTempBabyName(e.target.value)}
-                  className={`w-40 px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white focus:outline-none transition-colors duration-300
-                    ${
-                      tempBabyName
-                        ? "border-sky-200 focus:border-sky-300"
-                        : "border-gray-200 focus:border-sky-200"
-                    }`}
+                  className={`w-40 px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white focus:outline-none transition-colors duration-300 border-[#E5E7EB]`}
                   placeholder="태명을 입력하세요"
                 />
               </div>
@@ -379,12 +371,7 @@ export default function PregnancyInfo() {
                   <button
                     type="button"
                     onClick={() => setIsWeekSelectorOpen(!isWeekSelectorOpen)}
-                    className={`w-full px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center transition-colors duration-300
-                      ${
-                        formData.pregnancyWeek !== "*"
-                          ? "border-sky-200"
-                          : "border-gray-200"
-                      }`}
+                    className={`w-full px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center transition-colors duration-300 border-[#E5E7EB]`}
                   >
                     <span>
                       {formData.pregnancyWeek !== "*"
@@ -405,7 +392,6 @@ export default function PregnancyInfo() {
                       />
                     </svg>
                   </button>
-
                   {isWeekSelectorOpen && (
                     <div className="absolute top-12 left-0 w-full bg-white border-2 border-sky-200 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto">
                       <div className="py-1">
@@ -443,10 +429,7 @@ export default function PregnancyInfo() {
                   <button
                     type="button"
                     onClick={() => setShowCalendar(true)}
-                    className={`w-full px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center transition-colors duration-300
-                      ${
-                        formData.dueDate ? "border-sky-200" : "border-gray-200"
-                      }`}
+                    className={`w-full px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center transition-colors duration-300 border-[#E5E7EB]`}
                   >
                     <span>{formData.dueDate || "선택"}</span>
                     <svg
@@ -469,36 +452,36 @@ export default function PregnancyInfo() {
                 <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
                   고위험 임신
                 </label>
-                <input
-                  type="checkbox"
-                  id="highRiskCheckbox"
-                  aria-label="고위험 임신 여부"
-                  checked={formData.isHighRisk}
-                  onChange={(e) =>
-                    setFormData({ ...formData, isHighRisk: e.target.checked })
-                  }
-                  className="w-4 h-4"
-                />
+                <div className="flex space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, isHighRisk: true })}
+                    className={`px-4 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 outline-none
+                      ${formData.isHighRisk ? 'bg-[#F87171] text-white' : 'bg-white text-gray-600 hover:bg-[#FECACA]/40'}
+                      border-none`}
+                  >
+                    예
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, isHighRisk: false })}
+                    className={`px-4 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 outline-none
+                      ${!formData.isHighRisk ? 'bg-[#E5E7EB] text-white' : 'bg-white text-gray-600 hover:bg-[#E5E7EB]/60'}
+                      border-none`}
+                  >
+                    아니오
+                  </button>
+                </div>
               </div>
               <button
                 type="submit"
-                className="w-35 h-10 left-[50%] transform -translate-x-1/2 top-[520px] absolute bg-blue-300 rounded-full flex items-center justify-center text-white text-m font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
+                className="w-full h-12 bg-blue-300 rounded-full flex items-center justify-center text-white text-lg font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10 mt-4"
               >
                 수정
               </button>
             </form>
           </div>
         </div>
-
-        <div className="left-[148px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
-          내 임신 정보
-        </div>
-        <button
-          onClick={() => router.back()}
-          className="left-[24px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
-        >
-          &lt;
-        </button>
 
         {/* 커스텀 달력 모달 */}
         {showCalendar && (
@@ -586,8 +569,7 @@ export default function PregnancyInfo() {
                     key={index}
                     onClick={() => handleDateSelect(day.date)}
                     disabled={!day.isCurrentMonth}
-                    className={`
-                      w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
+                    className={`                      w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
                       ${
                         day.isCurrentMonth
                           ? day.date.toISOString().split("T")[0] ===
@@ -618,7 +600,8 @@ export default function PregnancyInfo() {
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }
+

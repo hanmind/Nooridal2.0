@@ -39,7 +39,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
     <>
       {/* Overlay for mobile */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity lg:hidden ${
+        className={`fixed inset-0 backdrop-blur-md z-30 transition-opacity lg:hidden ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
@@ -49,11 +49,10 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
       <div
         className={`fixed lg:static inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform z-40 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 flex flex-col border-r border-yellow-200`}
+        } lg:translate-x-0 flex flex-col border-r border-yellow-200 font-['Do_Hyeon']`}
       >
         {/* Header */}
-        <div className="p-4 border-b border-yellow-200 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-yellow-800">채팅 목록</h2>
+        <div className="p-4 flex justify-end items-center">
           <button
             onClick={onClose}
             className="text-yellow-600 hover:text-yellow-800 lg:hidden"
@@ -80,7 +79,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
         <div className="p-4 border-b border-yellow-100">
           <button
             onClick={onCreateNewChat}
-            className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg shadow hover:bg-yellow-500 transition duration-200 flex items-center justify-center gap-2"
+            className="w-full bg-[#FFF4BB] text-[#A67C52] py-2 px-4 rounded-lg shadow hover:bg-[#FFE999] transition duration-200 flex items-center justify-center gap-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -98,6 +97,11 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
             </svg>
             새 채팅 시작하기
           </button>
+        </div>
+
+        {/* Guide Text */}
+        <div className="px-4 py-2">
+          <p className="text-xs text-gray-500 text-center">대화 내역을 확인해보세요</p>
         </div>
 
         {/* Chat Room List */}
