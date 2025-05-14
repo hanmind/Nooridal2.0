@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SchedulePopup from '@/app/calendar/SchedulePopup';
 import DiaryPopup from '@/app/calendar/DiaryPopup';
 import { supabase, getCurrentUser } from '@/utils/supabase';
@@ -75,6 +75,9 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
     summary: string;
     policies: string[];
   } | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // 팝업이 닫힐 때 상태 초기화
   const handleClose = () => {
@@ -504,10 +507,33 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
     }
   };
 
-  const handleSaveDiary = (entry: DiaryEntry) => {
+  const handleSaveDiary = async (entry: DiaryEntry) => {
     const formattedDate = formatDate(date);
-    const newEntry = { ...entry, date: formattedDate };
+    const user = await getCurrentUser();
+    const userId = user?.id;
+    if (!userId) {
+      alert('로그인 정보가 없습니다.');
+      return;
+    }
+    // 여러 장 지원: selectedImages 배열로 확장 (기존 selectedImage 1장만 지원)
+    const images = selectedImage ? [selectedImage] : [];
+    const newEntry = { ...entry, date: formattedDate, diary_images: images };
     setDiaryEntries(prevEntries => [...prevEntries, newEntry]);
+    // Supabase에 저장
+    const { data, error } = await supabase
+      .from('baby_diaries')
+      .upsert([
+        {
+          user_id: userId,
+          content: newEntry.content,
+          diary_date: newEntry.date,
+          diary_images: newEntry.diary_images
+        }
+      ], { onConflict: 'user_id,diary_date' });
+    if (error) {
+      alert('일기 저장 오류: ' + error.message);
+      console.error('일기 저장 오류:', error);
+    }
     handleClose();
   };
 
@@ -568,6 +594,23 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
     setSelectedEvent(event);
     setIsSchedulePopupOpen(true);
   };
+
+  const handlePhotoButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const [showImageDeleteConfirm, setShowImageDeleteConfirm] = useState(false);
 
   if (!isOpen) return null;
 
@@ -806,7 +849,7 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
             ) : (
               <div className="flex flex-col items-center justify-center h-full">
                 <div className="text-gray-400 mb-2 font-['Do_Hyeon']">오늘 나눈 대화가 없습니다</div>
-                <div className="text-xs text-gray-400 text-center max-w-[250px]">
+                <div className="text-xs text-gray-400 text-center max-w-[250px]font-['Do_Hyeon']">
                   채팅에서 대화를 나누면 이곳에서 <br /> 유용한 정보와 정책을 확인할 수 있습니다.
                 </div>
               </div>
@@ -846,9 +889,18 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
             <div className="flex justify-center mt-4">
               <button 
                 className="w-1/2 bg-[#C7E6B9] text-gray font-['Do_Hyeon'] py-2 rounded-[20px]"
+                type="button"
+                onClick={handlePhotoButtonClick}
               >
                 사진 첨부
               </button>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handlePhotoChange}
+                style={{ display: 'none' }}
+              />
             </div>
           </div>
         )}
@@ -934,7 +986,7 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
           {/* 확인 창 */}
           <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] bg-white z-[60] shadow-lg rounded-[20px] p-5">
             <div className="text-center mb-5">
-              <div className="text-base text-gray-600">이 일정을 삭제하시겠습니까?</div>
+              <div className="text-base text-gray-600 font-['Do_Hyeon']">이 일정을 삭제하시겠습니까?</div>
             </div>
             
             <div className="flex gap-3">
@@ -985,6 +1037,7 @@ const DatePopup: React.FC<DatePopupProps> = ({ date, isOpen, onClose, initialTab
         initialData={selectedDiary || undefined}
         onEdit={handleEditDiary}
         onDelete={handleDeleteDiary}
+        image={selectedImage}
       />
       
       <style jsx global>{`
