@@ -21,7 +21,7 @@ export function AddressProvider({ children }: { children: ReactNode }) {
       setAddressState(savedAddress);
     } else {
       // 저장된 주소가 없는 경우 기본값 설정
-      setAddressState('경기도 땡땡시 땡땡동');
+      setAddressState('서울 강남구 논현동');
     }
     // 로딩 완료 표시
     setIsLoaded(true);

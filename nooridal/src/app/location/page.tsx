@@ -55,8 +55,8 @@ export default function LocationPage() {
     };
   }, []);
 
-  // 주소 수정 함수
-  const handleAddressEdit = async (e: React.MouseEvent) => {
+  // 주소 수정 함수 (GPS 기반)
+  const handleSetCurrentLocationByGPS = async (e: React.MouseEvent) => {
     e.stopPropagation();
     // 현재 위치 가져오기
     if (navigator.geolocation) {
@@ -88,6 +88,11 @@ export default function LocationPage() {
     } else {
       alert("이 브라우저에서는 위치 정보가 지원되지 않습니다.");
     }
+  };
+
+  // 프로필 주소 사용 함수
+  const handleSetCurrentLocationByProfile = () => {
+    setCurrentAddress(address);
   };
 
   const handleTabClick = (tab: string) => {
@@ -138,12 +143,28 @@ export default function LocationPage() {
                       ? getShortAddress(currentAddress)
                       : getShortAddress(address)}
                   </div>
-                  <button
-                    onClick={handleAddressEdit}
-                    className="text-sm font-['Do_Hyeon'] cursor-pointer hover:text-yellow-400 ml-2"
-                  >
-                    수정
-                  </button>
+                  <div className="flex flex-col space-y-1 sm:space-y-0 sm:flex-row sm:space-x-1 ml-2">
+                    <button
+                      onClick={handleSetCurrentLocationByProfile}
+                      className="text-xs font-['Do_Hyeon'] cursor-pointer hover:text-yellow-500 text-gray-700 px-2 py-1 border border-gray-300 rounded whitespace-nowrap bg-gray-50 hover:bg-gray-100 flex items-center space-x-1"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                      <span>내 주소</span>
+                    </button>
+                    <button
+                      onClick={handleSetCurrentLocationByGPS}
+                      className="text-xs font-['Do_Hyeon'] cursor-pointer hover:text-yellow-500 text-gray-700 px-2 py-1 border border-gray-300 rounded whitespace-nowrap bg-gray-50 hover:bg-gray-100 flex items-center space-x-1"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12a3 3 0 116 0 3 3 0 01-6 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m0 14v1m-7-8h1m14 0h1" />
+                      </svg>
+                      <span>현재 위치</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

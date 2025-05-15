@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useAddress } from "@/app/context/AddressContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HeaderBar from "@/app/components/HeaderBar";
 
 // 카카오맵 타입 정의
@@ -34,6 +34,26 @@ export default function WelfarePage() {
     null
   );
   const [loadingSingleParentData, setLoadingSingleParentData] = useState(false);
+  const [currentAddress, setCurrentAddress] = useState<string>("");
+
+  // 카카오맵 스크립트 로드
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services&autoload=false`;
+    script.async = true;
+    script.onload = () => {
+      window.kakao.maps.load(() => {
+        // 스크립트 로드 완료 콜백
+      });
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
+  }, []);
 
   // 주소를 동까지만 표시하는 함수
   const getShortAddress = (fullAddress: string) => {
@@ -48,37 +68,44 @@ export default function WelfarePage() {
     return fullAddress;
   };
 
-  // 주소 수정 함수
-  const handleAddressEdit = (e: React.MouseEvent) => {
+  // GPS 기반 현재 위치 설정 함수
+  const handleSetCurrentLocationByGPS = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.daum) {
-      new window.daum.Postcode({
-        oncomplete: function (data: any) {
-          let fullAddress = data.jibunAddress;
-          if (!fullAddress) {
-            fullAddress = data.address;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          if (window.kakao && window.kakao.maps) {
+            const geocoder = new window.kakao.maps.services.Geocoder();
+            const coord = new window.kakao.maps.LatLng(latitude, longitude);
+            geocoder.coord2Address(
+              coord.getLng(),
+              coord.getLat(),
+              (result: any, status: any) => {
+                if (status === window.kakao.maps.services.Status.OK) {
+                  const newAddress = result[0].address.address_name;
+                  setCurrentAddress(newAddress);
+                } else {
+                  alert("주소를 가져올 수 없습니다.");
+                }
+              }
+            );
+          } else {
+            alert("카카오맵 API가 로드되지 않았습니다.");
           }
-
-          let extraAddress = "";
-          if (data.addressType === "R") {
-            if (data.bname !== "" && /[동|로|가]$/g.test(data.bname)) {
-              extraAddress += data.bname;
-            }
-            if (data.buildingName !== "") {
-              extraAddress +=
-                extraAddress !== ""
-                  ? ", " + data.buildingName
-                  : data.buildingName;
-            }
-            if (extraAddress !== "") {
-              fullAddress += ` (${extraAddress})`;
-            }
-          }
-
-          setAddress(fullAddress);
         },
-      }).open();
+        (error) => {
+          alert("현재 위치를 가져올 수 없습니다.");
+        }
+      );
+    } else {
+      alert("이 브라우저에서는 위치 정보가 지원되지 않습니다.");
     }
+  };
+
+  // 프로필 주소 사용 함수
+  const handleSetCurrentLocationByProfile = () => {
+    setCurrentAddress(address);
   };
 
   const welfareTypes = [
@@ -140,8 +167,8 @@ export default function WelfarePage() {
         <HeaderBar title="복지" backUrl="/location" />
 
         {/* Current Location Section */}
-        <div className="w-[360px] h-[100px] mx-auto mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
-          <div className="flex items-start p-6">
+        <div className="w-[360px] mx-auto mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+          <div className="flex items-start p-4 sm:p-6">
             <div className="mr-4">
               <svg
                 className="w-14 h-14"
@@ -165,14 +192,32 @@ export default function WelfarePage() {
 
               <div className="flex ml-[-30px] items-center justify-between w-full">
                 <div className="text-xl font-['Do_Hyeon'] text-center flex-1">
-                  {getShortAddress(address)}
+                  {currentAddress
+                    ? getShortAddress(currentAddress)
+                    : getShortAddress(address)}
                 </div>
-                <button
-                  onClick={handleAddressEdit}
-                  className="text-sm font-['Do_Hyeon'] cursor-pointer hover:text-yellow-400 ml-2"
-                >
-                  수정
-                </button>
+                <div className="flex flex-col space-y-1 sm:space-y-0 sm:flex-row sm:space-x-1 ml-2">
+                  <button
+                    onClick={handleSetCurrentLocationByProfile}
+                    className="text-xs font-['Do_Hyeon'] cursor-pointer hover:text-yellow-500 text-gray-700 px-2 py-1 border border-gray-300 rounded whitespace-nowrap bg-gray-50 hover:bg-gray-100 flex items-center space-x-1"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>내 주소</span>
+                  </button>
+                  <button
+                    onClick={handleSetCurrentLocationByGPS}
+                    className="text-xs font-['Do_Hyeon'] cursor-pointer hover:text-yellow-500 text-gray-700 px-2 py-1 border border-gray-300 rounded whitespace-nowrap bg-gray-50 hover:bg-gray-100 flex items-center space-x-1"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12a3 3 0 116 0 3 3 0 01-6 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m0 14v1m-7-8h1m14 0h1" />
+                    </svg>
+                    <span>현재 위치</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
