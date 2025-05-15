@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAddress } from "@/app/context/AddressContext";
-import HeaderBar from "@/app/components/HeaderBar";
+import MapHeaderBar from "@/app/components/MapHeaderBar";
 
 // 카카오맵 타입 정의
 declare global {
@@ -245,7 +245,7 @@ export default function IncubatorPage() {
     <div className="min-h-screen w-full bg-[#FFF4BB]">
       <div className="flex flex-col h-screen relative">
         {/* 헤더 */}
-        <HeaderBar title="신생아 인큐베이터" backUrl="/location/hospital" />
+        <MapHeaderBar title="신생아 인큐베이터" backUrl="/location/hospital" />
 
         {/* 지도 컨테이너 */}
         <div ref={mapContainerRef} className="w-full h-80 z-0" />

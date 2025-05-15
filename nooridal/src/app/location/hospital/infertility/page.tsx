@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import HeaderBar from "@/app/components/HeaderBar";
+import MapHeaderBar from "@/app/components/MapHeaderBar";
 
 // 기존 HospitalPage의 InfertilityClinic 인터페이스와 동일하게 정의
 interface InfertilityClinic {
@@ -122,7 +122,7 @@ export default function InfertilityClinicsPage() {
     <div className="min-h-screen w-full bg-[#FFF4BB]">
       <div className="w-full h-[900px] relative bg-[#FFF4BB] overflow-auto flex flex-col">
         {/* 헤더 */}
-        <HeaderBar title="난임시술 병원" backUrl="/location/hospital" />
+        <MapHeaderBar title="난임시술 병원 정보" backUrl="/location/hospital" />
 
         {/* 검색 및 필터 영역 */}
         <div className="px-4 mt-6 mb-4 flex-shrink-0">

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAddress } from "@/app/context/AddressContext";
+import MapHeaderBar from "@/app/components/HeaderBar";
 
 interface Facility {
   id: string;
@@ -110,40 +111,7 @@ export default function SingleParentFacilitiesPage() {
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-auto">
         {/* 헤더 */}
-        <div className="sticky top-0 left-0 right-0 w-full h-[100px] sm:h-[120px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px] z-10">
-          <button
-            onClick={() => router.back()}
-            className="absolute left-[24px] top-1/2 -translate-y-1/2 flex items-center justify-center text-neutral-700 hover:text-yellow-600 transition-colors z-20"
-            title="뒤로 가기"
-            aria-label="뒤로 가기"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <div className="relative w-full text-center">
-            <span className="text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
-              한부모가족복지시설
-            </span>
-            <button
-              onClick={() => setShowInfoPopup(true)}
-              className="absolute right-[24px] top-[12px] w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-sm"
-            >
-              ?
-            </button>
-          </div>
-        </div>
+        <MapHeaderBar title="한부모가족복지시설" backUrl="/location/welfare" />
 
         {/* 검색 및 필터 영역 */}
         <div className="px-4 mt-6 mb-4">

@@ -1083,7 +1083,7 @@ export default function TransportPage() {
             />
 
             {/* 정보 상자 */}
-            <div className="absolute left-[12px] top-[200px] w-[360px] p-5 bg-white rounded-3xl shadow-sm z-20">
+            <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[360px] p-5 bg-white rounded-3xl shadow-sm z-20">
               <div className="text-center font-['Do_Hyeon'] text-2xl mb-4">
                 {transportTypes.find((t) => t.id === selectedType)?.title} 정보
               </div>
@@ -1173,7 +1173,7 @@ export default function TransportPage() {
             />
 
             {/* 지도 컨테이너 */}
-            <div className="absolute left-[12px] top-[200px] w-[360px] h-[500px] bg-white rounded-3xl shadow-sm z-20 p-4">
+            <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[360px] h-[500px] bg-white rounded-3xl shadow-sm z-20 p-4">
               <div className="flex justify-between items-center mb-4">
                 <div className="text-xl font-['Do_Hyeon']">주변 시설 지도</div>
                 <button

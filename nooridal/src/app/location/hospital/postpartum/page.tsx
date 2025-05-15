@@ -277,7 +277,7 @@ export default function PostpartumCenterPage() {
       <MapHeaderBar title="산후조리원 정보" />
 
       {/* Map container */}
-      <div className="relative h-1/2 w-full z-0 bg-gray-100">
+      <div className="relative w-full z-0 bg-gray-100 h-[400px] min-h-[320px] max-h-[500px] flex-none">
         <div ref={mapContainerRef} className="w-full h-full" />
         {!mapLoaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
