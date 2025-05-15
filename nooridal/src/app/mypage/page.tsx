@@ -270,7 +270,7 @@ export default function MyPage() {
                 </div>
               )}
             </div>
-            <div className="text-stone-500 text-m font-normal font-['Do_Hyeon'] mt-1 ml-[-40px]"> 
+            <div className="text-stone-500 text-m font-normal font-['Do_Hyeon'] mt-1 ml-[20px]"> 
               {email || ""}
             </div>
           </div>

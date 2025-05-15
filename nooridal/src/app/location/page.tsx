@@ -159,7 +159,7 @@ export default function LocationPage() {
           ].map((item, index) => (
             <div
               key={index}
-              className="bg-white w-full p-3 sm:p-6 rounded-[20px] shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors h-[100px] sm:h-[140px]"
+              className="bg-white w-full aspect-square min-h-[100px] min-w-[100px] sm:min-h-[140px] sm:min-w-[140px] p-3 sm:p-6 rounded-[20px] shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
               onClick={() => router.push(item.link)}
             >
               <div className="text-3xl mb-2">{item.icon}</div>

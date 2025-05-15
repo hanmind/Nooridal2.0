@@ -16,6 +16,7 @@ interface DiaryPopupProps {
   initialData?: DiaryEntry;
   onEdit?: (entry: DiaryEntry) => void;
   onDelete?: (id: string) => void;
+  image?: string | null;
 }
 
 const DiaryPopup: React.FC<DiaryPopupProps> = ({ 
@@ -26,7 +27,8 @@ const DiaryPopup: React.FC<DiaryPopupProps> = ({
   mode = 'create',
   initialData,
   onEdit,
-  onDelete
+  onDelete,
+  image
 }) => {
   const [title, setTitle] = useState(initialData?.title || '');
   const [content, setContent] = useState(initialData?.content || '');
@@ -135,6 +137,13 @@ const DiaryPopup: React.FC<DiaryPopupProps> = ({
             <div className="w-full h-[200px] p-4 border border-neutral-200 rounded-lg font-['Do_Hyeon'] text-neutral-600 mb-6 overflow-y-auto whitespace-pre-wrap">
               {initialData?.content}
             </div>
+
+            {/* 첨부 이미지 표시 */}
+            {typeof image === 'string' && image && (
+              <div className="flex justify-center mb-4">
+                <img src={image} alt="첨부 이미지" className="max-h-40 rounded-lg" />
+              </div>
+            )}
 
             {/* 하단 버튼 */}
             <div className="flex gap-4 justify-center">

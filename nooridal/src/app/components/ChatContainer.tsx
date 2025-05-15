@@ -1019,11 +1019,11 @@ export default function ChatContainer() {
       />
 
       <div className="flex-1 flex flex-col relative">
-        <div className="bg-white shadow-sm p-4 flex items-center sticky top-0 z-10 border-b border-yellow-200">
+        <div className="w-full h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl px-2 sm:px-4 relative">
           <button
             aria-label="Toggle sidebar"
             onClick={() => setIsSidebarOpen(true)}
-            className="text-yellow-600 hover:text-yellow-800 mr-4 lg:hidden"
+            className="text-neutral-700 hover:text-yellow-800 lg:hidden absolute left-10 top-1/2 -translate-y-1/2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1040,9 +1040,9 @@ export default function ChatContainer() {
               />
             </svg>
           </button>
-          <h1 className="text-xl font-semibold text-yellow-800">
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl sm:text-2xl text-neutral-700 font-['Do_Hyeon'] text-center">
             누리달 AI챗봇
-          </h1>
+          </span>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-yellow-50 pb-48">

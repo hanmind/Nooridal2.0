@@ -68,6 +68,7 @@ export default function ProfileManagement() {
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const isSocialLogin = true; // This should be set based on your logic
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -100,6 +101,7 @@ export default function ProfileManagement() {
           setTempUserId(user.id || "");
           setTempPhoneNumber(user.user_metadata.phone || "");
           setPasswordLength(8);
+          setUserId(user.id);
 
           // 추가 사용자 정보 가져오기
           const { data: userData, error: userError } = await supabase
@@ -365,14 +367,26 @@ export default function ProfileManagement() {
   };
 
   const handleSaveChanges = async () => {
-    // 저장 로직에서 AddressContext의 address 값을 사용
-    const updates = {
+    // username이 변경된 경우만 updates에 username 포함
+    const updates: any = {
       name: userInfo.name,
       phone_number: tempPhoneNumber.replace(/-/g, ""),
-      username: tempUserId,
-      address: address, // <<--- AddressContext의 값 사용
-      // email은 일반적으로 프로필에서 수정하지 않음
+      address: address,
     };
+    if (tempUserId !== userInfo.username) {
+      // 중복 체크
+      const { data } = await supabase
+        .from("users")
+        .select("id")
+        .eq("username", tempUserId)
+        .neq("id", userId)
+        .maybeSingle();
+      if (data) {
+        alert("이미 사용 중인 아이디입니다.");
+        return;
+      }
+      updates.username = tempUserId;
+    }
 
     console.log("Saving changes:", updates);
 
@@ -380,7 +394,7 @@ export default function ProfileManagement() {
       const { error } = await supabase
         .from("users")
         .update(updates)
-        .eq("username", userInfo.username); // 현재 로그인된 사용자의 username 사용
+        .eq("id", userId); // id로 업데이트
 
       if (error) {
         console.error("Error updating user info:", error);

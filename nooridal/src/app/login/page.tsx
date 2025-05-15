@@ -258,10 +258,9 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full bg-white flex flex-col items-center">
-      <div className="w-screen h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px] px-2 sm:px-4">
-        <div className="flex items-center justify-center w-full">
-          <Image src="/images/logo/Group 226.png" alt="누리달 로고" width={120} height={40} />
-        </div>
+      {/* 상단에 로고 구름 이미지 추가 */}
+      <div className="w-full flex justify-center mt-12 mb-4">
+        <Image src="/images/logo/로고 구름.png" alt="로고 구름" width={180} height={100} priority />
       </div>
 
       {/* 메인 컨텐츠 영역 */}
