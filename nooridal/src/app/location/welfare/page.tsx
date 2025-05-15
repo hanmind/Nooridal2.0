@@ -12,6 +12,16 @@ declare global {
   }
 }
 
+interface FacilityInfo {
+  id: string;
+  type: string;
+  province: string;
+  name: string; // 시설 이름
+  capacity: string;
+  unit: string;
+  phone: string;
+}
+
 export default function WelfarePage() {
   const router = useRouter();
   const { address, setAddress } = useAddress();
@@ -20,7 +30,9 @@ export default function WelfarePage() {
   const [showParentalInfo, setShowParentalInfo] = useState(false);
   const [showCareerInfo, setShowCareerInfo] = useState(false);
   const [showSingleParentInfo, setShowSingleParentInfo] = useState(false);
-  const [singleParentData, setSingleParentData] = useState(null);
+  const [singleParentData, setSingleParentData] = useState<FacilityInfo | null>(
+    null
+  );
   const [loadingSingleParentData, setLoadingSingleParentData] = useState(false);
 
   // 주소를 동까지만 표시하는 함수
@@ -100,19 +112,22 @@ export default function WelfarePage() {
   const fetchSingleParentData = async () => {
     setLoadingSingleParentData(true);
     try {
-      // For now, using the dummy data structure. Replace with actual API call.
-      const response = await fetch("/data/single_parent_support.json"); // Ensure this path is correct
+      const response = await fetch(
+        "/data/single_parent_family_welfare_facilities.json"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch single parent data");
       }
       const data = await response.json();
-      // Assuming the JSON root is an object with a property like 'services' which is an array
-      // And we are interested in a specific service, e.g., the first one or by ID.
-      // This needs to match the actual structure of your single_parent_support.json
-      setSingleParentData(data.services[0]); // Example: taking the first service
+      // facilities 배열에서 첫 번째 항목을 가져오거나, 배열이 비어있으면 null 처리
+      if (data.facilities && data.facilities.length > 0) {
+        setSingleParentData(data.facilities[0]);
+      } else {
+        setSingleParentData(null);
+      }
     } catch (error) {
       console.error("Error fetching single parent data:", error);
-      setSingleParentData(null); // Set to null or some error state
+      setSingleParentData(null);
     } finally {
       setLoadingSingleParentData(false);
     }
@@ -775,17 +790,21 @@ export default function WelfarePage() {
               </div>
             )}
 
-            {/* 한부모 지원 상세 정보 팝업 */}
-            {selectedType === "single-parent" && showSingleParentInfo && (
-              <div className="fixed top-20 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-                <div className="bg-white p-6 rounded-lg shadow-xl max-w-lg w-full max-h-[75vh] overflow-y-auto">
+            {/* 한부모 지원 정보 팝업 */}
+            {showSingleParentInfo && singleParentData && (
+              <div className="fixed inset-0 flex items-center justify-center z-40">
+                <div
+                  className="absolute inset-0 bg-black/50"
+                  onClick={() => setShowSingleParentInfo(false)}
+                />
+                <div className="relative bg-[#FFF4F4] rounded-3xl shadow-lg p-6 w-[370px] max-h-[80vh] overflow-y-auto border-4 border-green-200">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-['Do_Hyeon']">
-                      {singleParentData?.serviceName || "한부모 지원 상세 정보"}
+                      {singleParentData?.name || "한부모 지원 상세 정보"}
                     </h3>
                     <button
                       onClick={() => setShowSingleParentInfo(false)}
-                      className="text-sm font-['Do_Hyeon'] cursor-pointer hover:text-yellow-400"
+                      className="text-gray-500 hover:text-gray-700"
                     >
                       닫기
                     </button>
