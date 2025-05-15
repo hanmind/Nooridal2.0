@@ -104,7 +104,7 @@ export default function LocationPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
+    <div className="min-h-screen w-full bg-[#FFF4BB]">
       <div className="w-screen h-[900px] bg-[#FFF4BB]">
         {/* 헤더 */}
         <HeaderBar title="위치" showBackButton={false} />

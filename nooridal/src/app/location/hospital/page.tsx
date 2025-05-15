@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useAddress } from "@/app/context/AddressContext";
 import { useState, useEffect } from "react";
+import HeaderBar from "@/app/components/HeaderBar";
 
 interface ObstetricsClinic {
   id: string;
@@ -34,49 +35,56 @@ interface InfertilityClinic {
 // 더미 데이터
 const DUMMY_CLINICS: ObstetricsClinic[] = [
   {
-    id: '1',
-    name: '행복한 산부인과',
-    distance: '0.3km',
-    address: '서울시 강남구 역삼동 123-45',
-    phone: '02-123-4567',
-    operatingHours: '평일 09:00-18:00, 토요일 09:00-13:00',
-    specialties: ['산전검사', '초음파', '산모교육', '분만'],
+    id: "1",
+    name: "행복한 산부인과",
+    distance: "0.3km",
+    address: "서울시 강남구 역삼동 123-45",
+    phone: "02-123-4567",
+    operatingHours: "평일 09:00-18:00, 토요일 09:00-13:00",
+    specialties: ["산전검사", "초음파", "산모교육", "분만"],
     rating: 4.8,
-    reviewCount: 128
+    reviewCount: 128,
   },
   {
-    id: '2',
-    name: '맘스터치 산부인과',
-    distance: '0.7km',
-    address: '서울시 강남구 역삼동 234-56',
-    phone: '02-234-5678',
-    operatingHours: '평일 08:00-20:00, 토요일 09:00-17:00',
-    specialties: ['산전검사', '초음파', '산모교육', '분만', '불임치료'],
+    id: "2",
+    name: "맘스터치 산부인과",
+    distance: "0.7km",
+    address: "서울시 강남구 역삼동 234-56",
+    phone: "02-234-5678",
+    operatingHours: "평일 08:00-20:00, 토요일 09:00-17:00",
+    specialties: ["산전검사", "초음파", "산모교육", "분만", "불임치료"],
     rating: 4.6,
-    reviewCount: 95
+    reviewCount: 95,
   },
   {
-    id: '3',
-    name: '24시 응급 산부인과',
-    distance: '1.2km',
-    address: '서울시 강남구 역삼동 345-67',
-    phone: '02-345-6789',
-    operatingHours: '24시간',
-    specialties: ['산전검사', '초음파', '응급분만', '산후관리'],
+    id: "3",
+    name: "24시 응급 산부인과",
+    distance: "1.2km",
+    address: "서울시 강남구 역삼동 345-67",
+    phone: "02-345-6789",
+    operatingHours: "24시간",
+    specialties: ["산전검사", "초음파", "응급분만", "산후관리"],
     rating: 4.5,
-    reviewCount: 76
+    reviewCount: 76,
   },
   {
-    id: '4',
-    name: '미소 산부인과',
-    distance: '1.5km',
-    address: '서울시 강남구 역삼동 456-78',
-    phone: '02-456-7890',
-    operatingHours: '평일 09:00-18:00, 토요일 09:00-13:00',
-    specialties: ['산전검사', '초음파', '산모교육', '분만', '산후관리', '여성건강검진'],
+    id: "4",
+    name: "미소 산부인과",
+    distance: "1.5km",
+    address: "서울시 강남구 역삼동 456-78",
+    phone: "02-456-7890",
+    operatingHours: "평일 09:00-18:00, 토요일 09:00-13:00",
+    specialties: [
+      "산전검사",
+      "초음파",
+      "산모교육",
+      "분만",
+      "산후관리",
+      "여성건강검진",
+    ],
     rating: 4.9,
-    reviewCount: 210
-  }
+    reviewCount: 210,
+  },
 ];
 
 // 카카오맵 타입 정의
@@ -103,43 +111,42 @@ interface InfertilityModalProps {
   handleMap: (address: string) => void; // 지도보기 함수
 }
 
-const InfertilityClinicsModal: React.FC<InfertilityModalProps> = ({ 
-  show, 
-  onClose, 
-  clinics, 
-  isLoading, 
+const InfertilityClinicsModal: React.FC<InfertilityModalProps> = ({
+  show,
+  onClose,
+  clinics,
+  isLoading,
   error,
   address,
   getShortAddress,
   handleCall,
-  handleMap
+  handleMap,
 }) => {
   if (!show) return null;
 
   // 현재 주소(동까지만)와 가장 유사한 병원들을 우선적으로 필터링하고, 그 외 병원들을 뒤에 추가
   // 간단한 문자열 포함 여부로 필터링 (더 정교한 로직이 필요할 수 있음)
-  const shortUserAddress = getShortAddress(address).split(' ')[0]; // 예: "서울시 강남구" -> "서울시"
-  
-  const prioritizedClinics = clinics.filter(clinic => 
+  const shortUserAddress = getShortAddress(address).split(" ")[0]; // 예: "서울시 강남구" -> "서울시"
+
+  const prioritizedClinics = clinics.filter((clinic) =>
     clinic.address.includes(shortUserAddress)
   );
-  const otherClinics = clinics.filter(clinic => 
-    !clinic.address.includes(shortUserAddress)
+  const otherClinics = clinics.filter(
+    (clinic) => !clinic.address.includes(shortUserAddress)
   );
   const sortedClinics = [...prioritizedClinics, ...otherClinics];
 
   return (
     <>
       {/* 반투명 배경 */}
-      <div 
-        className="fixed inset-0 bg-black/50 z-30"
-        onClick={onClose}
-      />
-      
+      <div className="fixed inset-0 bg-black/50 z-30" onClick={onClose} />
+
       {/* 모달 컨테이너 */}
       <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[370px] max-h-[80vh] bg-white rounded-3xl shadow-xl z-40 p-6 overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-['Do_Hyeon'] text-neutral-700">난임시술 병원 정보</h2>
+          <h2 className="text-2xl font-['Do_Hyeon'] text-neutral-700">
+            난임시술 병원 정보
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -170,29 +177,58 @@ const InfertilityClinicsModal: React.FC<InfertilityModalProps> = ({
         {!isLoading && !error && clinics.length > 0 && (
           <div className="space-y-4">
             {sortedClinics.map((clinic) => (
-              <div key={clinic.id} className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-lg font-['Do_Hyeon'] text-blue-600">{clinic.name}</h3>
-                <p className="text-sm text-gray-600 mt-1 font-['Do_Hyeon']">종류: {clinic.type}</p>
-                <p className="text-sm text-gray-700 mt-1 font-['Do_Hyeon']">주소: {clinic.address}</p>
-                {clinic.phone && <p className="text-sm text-gray-700 mt-1 font-['Do_Hyeon']">전화: {clinic.phone}</p>}
-                <p className="text-sm text-gray-600 mt-1 font-['Do_Hyeon']">의사수: {clinic.doctors}</p>
+              <div
+                key={clinic.id}
+                className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+              >
+                <h3 className="text-lg font-['Do_Hyeon'] text-blue-600">
+                  {clinic.name}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1 font-['Do_Hyeon']">
+                  종류: {clinic.type}
+                </p>
+                <p className="text-sm text-gray-700 mt-1 font-['Do_Hyeon']">
+                  주소: {clinic.address}
+                </p>
+                {clinic.phone && (
+                  <p className="text-sm text-gray-700 mt-1 font-['Do_Hyeon']">
+                    전화: {clinic.phone}
+                  </p>
+                )}
+                <p className="text-sm text-gray-600 mt-1 font-['Do_Hyeon']">
+                  의사수: {clinic.doctors}
+                </p>
                 <div className="text-sm text-gray-600 mt-1 font-['Do_Hyeon']">
-                  시술: 
-                  {clinic.servicesArtificial && <span className="ml-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">인공</span>}
-                  {clinic.servicesInVitro && <span className="ml-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs">체외</span>}
-                  {!clinic.servicesArtificial && !clinic.servicesInVitro && <span className="ml-1 text-gray-500">정보없음</span>}
+                  시술:
+                  {clinic.servicesArtificial && (
+                    <span className="ml-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                      인공
+                    </span>
+                  )}
+                  {clinic.servicesInVitro && (
+                    <span className="ml-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs">
+                      체외
+                    </span>
+                  )}
+                  {!clinic.servicesArtificial && !clinic.servicesInVitro && (
+                    <span className="ml-1 text-gray-500">정보없음</span>
+                  )}
                 </div>
-                {clinic.serviceTypesProvided && <p className="text-xs text-gray-500 mt-1 font-['Do_Hyeon']">제공시술 상세: {clinic.serviceTypesProvided}</p>}
+                {clinic.serviceTypesProvided && (
+                  <p className="text-xs text-gray-500 mt-1 font-['Do_Hyeon']">
+                    제공시술 상세: {clinic.serviceTypesProvided}
+                  </p>
+                )}
                 <div className="mt-3 flex space-x-2">
                   {clinic.phone && (
-                    <button 
+                    <button
                       onClick={() => handleCall(clinic.phone)}
                       className="px-3 py-1 bg-blue-500 text-white text-xs rounded-md hover:bg-blue-600 transition-colors font-['Do_Hyeon']"
                     >
                       전화걸기
                     </button>
                   )}
-                  <button 
+                  <button
                     onClick={() => handleMap(clinic.address)}
                     className="px-3 py-1 bg-yellow-400 text-gray-800 text-xs rounded-md hover:bg-yellow-500 transition-colors font-['Do_Hyeon']"
                   >
@@ -212,7 +248,7 @@ export default function HospitalPage() {
   const router = useRouter();
   const { address, setAddress } = useAddress();
   const [clinics, setClinics] = useState<ObstetricsClinic[]>([]);
-  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('전체');
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>("전체");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -221,8 +257,8 @@ export default function HospitalPage() {
 
   // 주소를 동까지만 표시하는 함수
   const getShortAddress = (fullAddress: string) => {
-    if (!fullAddress) return '';
-    
+    if (!fullAddress) return "";
+
     // 주소에서 동/읍/면/리 부분을 찾습니다
     const match = fullAddress.match(/([가-힣]+(동|읍|면|리))/);
     if (match) {
@@ -230,7 +266,7 @@ export default function HospitalPage() {
       const index = fullAddress.indexOf(match[0]) + match[0].length;
       return fullAddress.substring(0, index);
     }
-    
+
     // 매칭되는 부분이 없으면 원래 주소를 반환합니다
     return fullAddress;
   };
@@ -246,35 +282,39 @@ export default function HospitalPage() {
           // 카카오맵 좌표 -> 주소 변환 API 호출
           if (window.kakao && window.kakao.maps) {
             const geocoder = new window.kakao.maps.services.Geocoder();
-            geocoder.coord2Address(lng, lat, function(result: any, status: string) {
-              if (status === window.kakao.maps.services.Status.OK) {
-                const addr = result[0].address.address_name;
-                setAddress(addr);
-                alert(`현재 위치: ${addr}`);
-              } else {
-                alert('주소 변환에 실패했습니다.');
+            geocoder.coord2Address(
+              lng,
+              lat,
+              function (result: any, status: string) {
+                if (status === window.kakao.maps.services.Status.OK) {
+                  const addr = result[0].address.address_name;
+                  setAddress(addr);
+                  alert(`현재 위치: ${addr}`);
+                } else {
+                  alert("주소 변환에 실패했습니다.");
+                }
               }
-            });
+            );
           } else {
-            alert('카카오맵이 준비되지 않았습니다.');
+            alert("카카오맵이 준비되지 않았습니다.");
           }
         },
         (error) => {
-          alert('위치 정보를 가져올 수 없습니다.');
+          alert("위치 정보를 가져올 수 없습니다.");
         }
       );
     } else {
-      alert('이 브라우저에서는 위치 정보가 지원되지 않습니다.');
+      alert("이 브라우저에서는 위치 정보가 지원되지 않습니다.");
     }
   };
 
   // 더미 데이터를 사용하는 함수
   const fetchObstetricsClinics = async () => {
     if (!address) return;
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // API 호출 대신 더미 데이터 사용
       // 실제 API 연동 시 아래 주석을 해제하고 사용
@@ -308,15 +348,15 @@ export default function HospitalPage() {
       
       setClinics(formattedClinics);
       */
-      
+
       // 더미 데이터 사용
       setTimeout(() => {
         setClinics(DUMMY_CLINICS);
         setIsLoading(false);
       }, 1000);
     } catch (err) {
-      setError('데이터를 불러오는 중 오류가 발생했습니다.');
-      console.error('API 호출 오류:', err);
+      setError("데이터를 불러오는 중 오류가 발생했습니다.");
+      console.error("API 호출 오류:", err);
     } finally {
       setIsLoading(false);
     }
@@ -330,10 +370,10 @@ export default function HospitalPage() {
 
   const handleFilter = (specialty: string) => {
     setSelectedSpecialty(specialty);
-    if (specialty === '전체') {
+    if (specialty === "전체") {
       setClinics(DUMMY_CLINICS);
     } else {
-      const filtered = DUMMY_CLINICS.filter(clinic => 
+      const filtered = DUMMY_CLINICS.filter((clinic) =>
         clinic.specialties.includes(specialty)
       );
       setClinics(filtered);
@@ -345,12 +385,12 @@ export default function HospitalPage() {
   };
 
   const handleMap = (address: string) => {
-    window.open(`https://map.kakao.com/link/search/${address}`, '_blank');
+    window.open(`https://map.kakao.com/link/search/${address}`, "_blank");
   };
 
   // 카카오맵 스크립트 로드
   useEffect(() => {
-    const script = document.createElement('script');
+    const script = document.createElement("script");
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services,clusterer&autoload=false&appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_REST_API_KEY}`;
     script.async = true;
     script.onload = () => {
@@ -370,16 +410,16 @@ export default function HospitalPage() {
   // 카카오맵 초기화
   useEffect(() => {
     if (mapLoaded && window.kakao && window.kakao.maps && showMap) {
-      const container = document.getElementById('map');
+      const container = document.getElementById("map");
       if (!container) return;
 
       // 지도 컨테이너 크기 설정
-      container.style.width = '100%';
-      container.style.height = '400px';
+      container.style.width = "100%";
+      container.style.height = "400px";
 
       const options = {
         center: new window.kakao.maps.LatLng(37.566826, 126.9786567),
-        level: 3
+        level: 3,
       };
       const map = new window.kakao.maps.Map(container, options);
 
@@ -389,7 +429,10 @@ export default function HospitalPage() {
 
       // 지도 타입 컨트롤 추가
       const mapTypeControl = new window.kakao.maps.MapTypeControl();
-      map.addControl(mapTypeControl, window.kakao.maps.ControlPosition.TOPRIGHT);
+      map.addControl(
+        mapTypeControl,
+        window.kakao.maps.ControlPosition.TOPRIGHT
+      );
 
       // 마커 클러스터러 생성
       let clusterer: KakaoMarkerClusterer | undefined;
@@ -398,7 +441,7 @@ export default function HospitalPage() {
           map: map,
           averageCenter: true,
           minLevel: 10,
-          gridSize: 60
+          gridSize: 60,
         });
       }
 
@@ -407,15 +450,15 @@ export default function HospitalPage() {
       geocoder.addressSearch(address, (result: any, status: any) => {
         if (status === window.kakao.maps.services.Status.OK) {
           const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-          
+
           // 현재 위치 마커 생성
           const currentMarker = new window.kakao.maps.Marker({
             map: map,
             position: coords,
             image: new window.kakao.maps.MarkerImage(
-              'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
+              "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png",
               new window.kakao.maps.Size(24, 35)
-            )
+            ),
           });
 
           // 주변 병원 검색
@@ -423,61 +466,67 @@ export default function HospitalPage() {
           const searchOptions = {
             location: coords,
             radius: 1000, // 1km 반경
-            sort: window.kakao.maps.services.SortBy.DISTANCE
+            sort: window.kakao.maps.services.SortBy.DISTANCE,
           };
 
           // 선택된 병원 유형에 따라 검색 키워드 설정
-          let keyword = '';
-          if (selectedType === 'obstetrics') {
-            keyword = '산부인과';
-          } else if (selectedType === 'infertility') {
-            keyword = '난임시술';
-          } else if (selectedType === 'postpartum') {
-            keyword = '산후조리원';
+          let keyword = "";
+          if (selectedType === "obstetrics") {
+            keyword = "산부인과";
+          } else if (selectedType === "infertility") {
+            keyword = "난임시술";
+          } else if (selectedType === "postpartum") {
+            keyword = "산후조리원";
           }
 
-          places.keywordSearch(keyword, (data: any, status: any) => {
-            if (status === window.kakao.maps.services.Status.OK) {
-              const markers = data.map((place: any) => {
-                const marker = new window.kakao.maps.Marker({
-                  position: new window.kakao.maps.LatLng(place.y, place.x),
-                  map: map
-                });
-
-                // 마커 클릭 시 정보창 표시
-                window.kakao.maps.event.addListener(marker, 'click', () => {
-                  const infowindow = new window.kakao.maps.InfoWindow({
-                    content: `<div style="padding:5px;font-size:12px;">${place.place_name}<br>${place.road_address_name}</div>`
+          places.keywordSearch(
+            keyword,
+            (data: any, status: any) => {
+              if (status === window.kakao.maps.services.Status.OK) {
+                const markers = data.map((place: any) => {
+                  const marker = new window.kakao.maps.Marker({
+                    position: new window.kakao.maps.LatLng(place.y, place.x),
+                    map: map,
                   });
-                  infowindow.open(map, marker);
+
+                  // 마커 클릭 시 정보창 표시
+                  window.kakao.maps.event.addListener(marker, "click", () => {
+                    const infowindow = new window.kakao.maps.InfoWindow({
+                      content: `<div style="padding:5px;font-size:12px;">${place.place_name}<br>${place.road_address_name}</div>`,
+                    });
+                    infowindow.open(map, marker);
+                  });
+
+                  return marker;
                 });
 
-                return marker;
-              });
+                // 클러스터러에 마커 추가
+                if (clusterer) {
+                  clusterer.addMarkers(markers);
+                } else {
+                  markers.forEach((marker: KakaoMarker) => marker.setMap(map));
+                }
 
-              // 클러스터러에 마커 추가
-              if (clusterer) {
-                clusterer.addMarkers(markers);
-              } else {
-                markers.forEach((marker: KakaoMarker) => marker.setMap(map));
+                // 지도 중심 이동
+                map.setCenter(coords);
+
+                // 현재 위치 정보 표시
+                const infoWindow = new window.kakao.maps.InfoWindow({
+                  content: `<div style="padding:5px;">현재 위치</div>`,
+                  position: coords,
+                });
+                infoWindow.open(map, currentMarker);
+
+                // 지도 줌 컨트롤 설정
+                const bounds = new window.kakao.maps.LatLngBounds();
+                markers.forEach((marker: KakaoMarker) =>
+                  bounds.extend(marker.getPosition())
+                );
+                map.setBounds(bounds);
               }
-
-              // 지도 중심 이동
-              map.setCenter(coords);
-
-              // 현재 위치 정보 표시
-              const infoWindow = new window.kakao.maps.InfoWindow({
-                content: `<div style="padding:5px;">현재 위치</div>`,
-                position: coords
-              });
-              infoWindow.open(map, currentMarker);
-
-              // 지도 줌 컨트롤 설정
-              const bounds = new window.kakao.maps.LatLngBounds();
-              markers.forEach((marker: KakaoMarker) => bounds.extend(marker.getPosition()));
-              map.setBounds(bounds);
-            }
-          }, searchOptions);
+            },
+            searchOptions
+          );
         }
       });
 
@@ -488,26 +537,26 @@ export default function HospitalPage() {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             const locPosition = new window.kakao.maps.LatLng(lat, lng);
-            
+
             // 현재 위치 마커 생성
             const currentLocationMarker = new window.kakao.maps.Marker({
               map: map,
               position: locPosition,
               image: new window.kakao.maps.MarkerImage(
-                'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+                "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
                 new window.kakao.maps.Size(24, 35)
-              )
+              ),
             });
 
             // 현재 위치 정보 표시
             const currentInfoWindow = new window.kakao.maps.InfoWindow({
               content: `<div style="padding:5px;">현재 위치</div>`,
-              position: locPosition
+              position: locPosition,
             });
             currentInfoWindow.open(map, currentLocationMarker);
           },
           (error) => {
-            console.error('현재 위치를 가져올 수 없습니다:', error);
+            console.error("현재 위치를 가져올 수 없습니다:", error);
           }
         );
       }
@@ -516,52 +565,54 @@ export default function HospitalPage() {
 
   const hospitalTypes = [
     {
-      id: 'obstetrics',
-      title: '산부인과',
-      icon: '🤰',
-      description: '산전검사, 초음파, 분만 등'
+      id: "obstetrics",
+      title: "산부인과",
+      icon: "🤰",
+      description: "산전검사, 초음파, 분만 등",
     },
     {
-      id: 'postpartum',
-      title: '산후조리원',
-      icon: '🍼',
-      description: '산모와 신생아 케어'
-    }
+      id: "postpartum",
+      title: "산후조리원",
+      icon: "🍼",
+      description: "산모와 신생아 케어",
+    },
   ];
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-hidden">
+    <div className="min-h-screen w-full bg-[#FFF4BB]">
+      <div className="w-full h-[900px] relative bg-[#FFF4BB] overflow-hidden">
         {/* 헤더 */}
-        <div className="left-[175px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
-          병원
-        </div>
-        <button 
-          onClick={() => router.back()}
-          className="left-[24px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
-        >
-          &lt;
-        </button>
+        <HeaderBar title="병원" backUrl="/location" />
 
         {/* Current Location Section */}
-        <div className="w-[360px] h-[100px] mx-auto mt-40.5 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+        <div className="w-[360px] h-[100px] mx-auto mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           <div className="flex items-start p-6">
             <div className="mr-4">
-              <svg className="w-14 h-14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#000"/>
+              <svg
+                className="w-14 h-14"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                  fill="#000"
+                />
               </svg>
             </div>
-            
+
             <div className="flex-1 flex flex-col items-center">
               <div className="text-center ml-[-60px] mb-2 -mt-2">
-                <span className="text-sm font-['Do_Hyeon'] text-yellow-400">현재 설정 위치</span>
+                <span className="text-sm font-['Do_Hyeon'] text-yellow-400">
+                  현재 설정 위치
+                </span>
               </div>
-              
+
               <div className="flex ml-[-30px] items-center justify-between w-full">
                 <div className="text-xl font-['Do_Hyeon'] text-center flex-1">
                   {getShortAddress(address)}
                 </div>
-                <button 
+                <button
                   onClick={handleAddressEdit}
                   className="text-sm font-['Do_Hyeon'] cursor-pointer hover:text-yellow-400 ml-2"
                 >
@@ -576,18 +627,18 @@ export default function HospitalPage() {
         <div className="mx-auto mt-2 w-[360px] space-y-4">
           {hospitalTypes.map((type) => (
             <div key={type.id}>
-              {type.id === 'obstetrics' && (
+              {type.id === "obstetrics" && (
                 <div className="border-t border-dashed border-gray-300 my-6" />
               )}
               <div
                 className={`p-6 rounded-3xl shadow-sm cursor-pointer transition-all duration-300 ${
                   selectedType === type.id
-                    ? 'bg-red-100 border-2 border-red-200'
-                    : 'bg-white hover:bg-red-50'
+                    ? "bg-red-100 border-2 border-red-200"
+                    : "bg-white hover:bg-red-50"
                 }`}
                 onClick={() => {
-                  if (type.id === 'postpartum') {
-                    router.push('/location/hospital/postpartum'); // Navigate to postpartum page
+                  if (type.id === "postpartum") {
+                    router.push("/location/hospital/postpartum"); // Navigate to postpartum page
                   } else {
                     setSelectedType(type.id);
                   }
@@ -596,8 +647,12 @@ export default function HospitalPage() {
                 <div className="flex items-center">
                   <div className="text-4xl mr-4">{type.icon}</div>
                   <div>
-                    <div className="text-xl font-['Do_Hyeon']">{type.title}</div>
-                    <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">{type.description}</div>
+                    <div className="text-xl font-['Do_Hyeon']">
+                      {type.title}
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">
+                      {type.description}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -609,39 +664,57 @@ export default function HospitalPage() {
         {selectedType && !showMap && (
           <>
             {/* 반투명 배경 */}
-            <div 
+            <div
               className="fixed inset-0 bg-black/50 z-10"
               onClick={() => setSelectedType(null)}
             />
-            
+
             {/* 정보 상자 */}
             <div className="absolute left-[12px] top-[200px] w-[360px] p-8 bg-white rounded-3xl shadow-sm z-20">
               <div className="text-center font-['Do_Hyeon'] text-2xl mb-8">
-                {hospitalTypes.find(t => t.id === selectedType)?.title} 정보
+                {hospitalTypes.find((t) => t.id === selectedType)?.title} 정보
               </div>
               <div className="space-y-4">
-                {selectedType === 'obstetrics' && (
+                {selectedType === "obstetrics" && (
                   <>
-                    <div 
+                    <div
                       className="p-4 bg-blue-50 rounded-xl cursor-pointer hover:bg-blue-100"
-                      onClick={() => router.push('/location/hospital/infertility')}
+                      onClick={() =>
+                        router.push("/location/hospital/infertility")
+                      }
                     >
-                      <div className="font-['Do_Hyeon']">난임시술 정보 알아보기</div>
-                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">관련 정보를 확인하세요</div>
+                      <div className="font-['Do_Hyeon']">
+                        난임시술 정보 알아보기
+                      </div>
+                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">
+                        관련 정보를 확인하세요
+                      </div>
                     </div>
-                    <div 
+                    <div
                       className="p-4 bg-green-50 rounded-xl cursor-pointer hover:bg-green-100"
-                      onClick={() => router.push('/location/hospital/incubator')}
+                      onClick={() =>
+                        router.push("/location/hospital/incubator")
+                      }
                     >
-                      <div className="font-['Do_Hyeon']">인큐베이터 현황 알아보기</div>
-                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">실시간 현황을 확인하세요</div>
+                      <div className="font-['Do_Hyeon']">
+                        인큐베이터 현황 알아보기
+                      </div>
+                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">
+                        실시간 현황을 확인하세요
+                      </div>
                     </div>
-                    <div 
+                    <div
                       className="p-4 bg-yellow-50 rounded-xl cursor-pointer hover:bg-yellow-100"
-                      onClick={() => router.push('/location/hospital/bed-count')}
+                      onClick={() =>
+                        router.push("/location/hospital/bed-count")
+                      }
                     >
-                      <div className="font-['Do_Hyeon']">병상수 정보 알아보기</div>
-                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">입원 가능 병상 정보를 확인하세요</div>
+                      <div className="font-['Do_Hyeon']">
+                        병상수 정보 알아보기
+                      </div>
+                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">
+                        입원 가능 병상 정보를 확인하세요
+                      </div>
                     </div>
                   </>
                 )}
@@ -657,7 +730,7 @@ export default function HospitalPage() {
                   <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문의와 상담하세요</div>
                 </div> */}
               </div>
-              
+
               {/* 닫기 버튼 */}
               <div className="flex justify-center mt-6">
                 <button
@@ -675,17 +748,15 @@ export default function HospitalPage() {
         {showMap && (
           <>
             {/* 반투명 배경 */}
-            <div 
+            <div
               className="fixed inset-0 bg-black/50 z-10"
               onClick={() => setShowMap(false)}
             />
-            
+
             {/* 지도 컨테이너 */}
             <div className="absolute left-[12px] top-[200px] w-[360px] h-[500px] bg-white rounded-3xl shadow-sm z-20 p-4">
               <div className="flex justify-between items-center mb-4">
-                <div className="text-xl font-['Do_Hyeon']">
-                  주변 병원 지도
-                </div>
+                <div className="text-xl font-['Do_Hyeon']">주변 병원 지도</div>
                 <button
                   onClick={() => setShowMap(false)}
                   className="text-gray-500 hover:text-gray-700"
@@ -693,7 +764,10 @@ export default function HospitalPage() {
                   ✕
                 </button>
               </div>
-              <div id="map" className="w-full h-[400px] rounded-xl overflow-hidden">
+              <div
+                id="map"
+                className="w-full h-[400px] rounded-xl overflow-hidden"
+              >
                 {!mapLoaded && (
                   <div className="w-full h-full flex items-center justify-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-400"></div>
