@@ -54,6 +54,10 @@ node_modules/
 tasks.json
 tasks/
 
+# Memory Bank
+memory-bank/
+
+
 # Task Master
 .taskmaster/
 tasks/

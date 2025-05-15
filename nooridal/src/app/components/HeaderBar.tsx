@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 
 interface HeaderBarProps {
-  title: string;
+  title: React.ReactNode;
   showBackButton?: boolean;
   backUrl?: string;
   onBackClick?: () => void;
