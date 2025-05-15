@@ -22,10 +22,10 @@ import HeaderBar from "./HeaderBar";
 const getLocalStorageKey = (roomId: string) => `chatMessages_${roomId}`;
 
 // 날짜 포맷팅 함수 추가
-const formatDate = (dateString?: string | Date): string => {
-  if (!dateString) return "날짜 없음";
+const formatDate = (dateString?: string | Date | null): string => {
+  if (dateString == null) return "날짜 없음";
   try {
-    const date = new Date(dateString);
+    const date = new Date(dateString as string | Date);
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const day = date.getDate().toString().padStart(2, "0");
