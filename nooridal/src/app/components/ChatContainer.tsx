@@ -1085,7 +1085,8 @@ export default function ChatContainer() {
         />
 
         <div className="flex-1 flex flex-col relative">
-          <div className="flex-1 overflow-y-auto p-6 space-y-5 pb-36">
+          {/* 채팅 메시지 영역 - 입력창 위의 공간까지 확보하기 위해 pb-32 적용 */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-5 pb-34">
             {isLoadingRooms && (
               <p className="text-center text-yellow-600 opacity-75">
                 채팅방 목록 로딩 중...
@@ -1149,7 +1150,8 @@ export default function ChatContainer() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="absolute bottom-20 left-0 right-0 p-2 border-t border-yellow-200 bg-white z-20">
+          {/* 채팅 입력창 - 고정 위치 (fixed) 적용, 하단 여백 추가 */}
+          <div className="fixed bottom-20 left-4 right-4 p-2 rounded-lg">
             <ChatInput
               onSendMessage={handleSendMessage}
               disabled={
