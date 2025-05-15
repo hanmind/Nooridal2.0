@@ -1,45 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import HeaderBar from "@/app/components/HeaderBar";
 
 export default function AppInfo() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen w-full flex justify-center items-center px-2 sm:px-4 md:px-8 bg-white">
-      <main className="w-full max-w-md min-h-screen relative bg-white overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
-        {/* 헤더 */}
-        <div className="w-full h-[100px] sm:h-[120px] flex items-center justify-center bg-white shadow-md rounded-b-3xl px-2 sm:px-4 relative">
-          <button
-            onClick={() => router.back()}
-            className="absolute left-10 text-yellow-600 hover:text-yellow-800"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <h1 className="text-xl sm:text-2xl text-neutral-700 font-['Do_Hyeon']">
-            앱 정보
-          </h1>
-        </div>
-
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center pt-20">
+      {/* 헤더 */}
+      <HeaderBar title="앱 정보" />
+      <main className="w-full max-w-md h-[874px] relative bg-[#FFF4BB] overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
         {/* 앱 정보 카드 */}
         <div className="w-full h-[calc(100vh-140px)] sm:h-[calc(100vh-180px)] bg-yellow-50 overflow-y-auto">
           <div className="p-6">
-            {/* 상단 아이콘 */}
-            {/* 상단 아이콘 */}
-
             {/* 앱 정보 목록 */}
             <div className="space-y-4">
               <div className="bg-white rounded-xl overflow-hidden border-2 border-[#FFE999] p-4">
