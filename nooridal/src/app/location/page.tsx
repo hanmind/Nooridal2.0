@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAddress } from "@/app/context/AddressContext";
 import { useState, useEffect } from "react";
 import TabBar from "../components/TabBar";
+import HeaderBar from "../components/HeaderBar";
 
 // Define the Tab type
 export type Tab = "chat" | "calendar" | "location" | "mypage";
@@ -62,26 +63,30 @@ export default function LocationPage() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          
+
           // 카카오맵 API로 주소 가져오기
           const geocoder = new window.kakao.maps.services.Geocoder();
           const coord = new window.kakao.maps.LatLng(latitude, longitude);
-          
-          geocoder.coord2Address(coord.getLng(), coord.getLat(), (result: any, status: any) => {
-            if (status === window.kakao.maps.services.Status.OK) {
-              const address = result[0].address.address_name;
-              setCurrentAddress(address);
-            } else {
-              alert('주소를 가져올 수 없습니다.');
+
+          geocoder.coord2Address(
+            coord.getLng(),
+            coord.getLat(),
+            (result: any, status: any) => {
+              if (status === window.kakao.maps.services.Status.OK) {
+                const address = result[0].address.address_name;
+                setCurrentAddress(address);
+              } else {
+                alert("주소를 가져올 수 없습니다.");
+              }
             }
-          });
+          );
         },
         (error) => {
-          alert('현재 위치를 가져올 수 없습니다.');
+          alert("현재 위치를 가져올 수 없습니다.");
         }
       );
     } else {
-      alert('이 브라우저에서는 위치 정보가 지원되지 않습니다.');
+      alert("이 브라우저에서는 위치 정보가 지원되지 않습니다.");
     }
   };
 
@@ -99,16 +104,10 @@ export default function LocationPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
+    <div className="min-h-screen w-full bg-[#FFF4BB]">
       <div className="w-screen h-[900px] bg-[#FFF4BB]">
         {/* 헤더 */}
-        <div className="w-screen h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px] px-2 sm:px-4">
-          <div className="flex items-center justify-center w-full">
-            <div className="text-xl sm:text-2xl text-neutral-700 font-['Do_Hyeon'] text-center w-full mt-8 sm:mt-15">
-              위치
-            </div>
-          </div>
-        </div>
+        <HeaderBar title="위치" showBackButton={false} />
 
         {/* 현재 위치 섹션 */}
         <div className="w-full max-w-[360px] mx-auto mt-8 px-2 sm:px-0">
@@ -135,7 +134,9 @@ export default function LocationPage() {
                 </div>
                 <div className="flex ml-[-30px] items-center justify-between w-full">
                   <div className="text-xl font-['Do_Hyeon'] text-center flex-1">
-                    {currentAddress ? getShortAddress(currentAddress) : getShortAddress(address)}
+                    {currentAddress
+                      ? getShortAddress(currentAddress)
+                      : getShortAddress(address)}
                   </div>
                   <button
                     onClick={handleAddressEdit}

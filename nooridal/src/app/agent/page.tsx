@@ -32,14 +32,11 @@ export default function AgentPage() {
     //   <ChatContainer />
     // </main>
     <div className="h-screen flex flex-col">
-      {/* ChatContainer가 TabBar를 제외한 나머지 공간을 차지하도록 함 */}
-      <div className="flex-grow overflow-y-auto">
-        {/* ChatContainer는 내부에서 h-full을 사용하여 이 공간을 채움 */}
+      {/* ChatContainer가 TabBar 위에 위치하도록 함 */}
+      <div className="flex-grow relative">
         <ChatContainer />
       </div>
-      {/* TabBar는 하단에 고정된 높이(h-28)를 가짐 */}
-      {/* TabBar자체에 style fixed bottom-0이 있으므로 별도 div로 감쌀 필요 없을 수 있음 */}
-      {/* TabBar.tsx 확인 필요: w-full h-28 fixed bottom-0 ... */}
+      {/* TabBar는 하단에 고정됨 */}
       <TabBar activeTab={activeTab} tabs={tabs} onTabClick={handleTabClick} />
     </div>
   );

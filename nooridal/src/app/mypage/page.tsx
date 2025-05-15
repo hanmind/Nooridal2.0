@@ -6,6 +6,7 @@ import { useProfile } from "@/app/context/ProfileContext";
 import { useState, useEffect } from "react";
 import TabBar from "../components/TabBar";
 import { supabase } from "../../utils/supabase"; // Adjust the import path as needed
+import HeaderBar from "../components/HeaderBar";
 
 type Tab = "chat" | "calendar" | "location" | "mypage";
 
@@ -55,7 +56,7 @@ export default function MyPage() {
   }, []);
 
   useEffect(() => {
-    const sessionPregnancyInfo = sessionStorage.getItem('pregnancy_info');
+    const sessionPregnancyInfo = sessionStorage.getItem("pregnancy_info");
     if (sessionPregnancyInfo) {
       try {
         const parsed = JSON.parse(sessionPregnancyInfo);
@@ -66,7 +67,7 @@ export default function MyPage() {
         setHighRisk(parsed.high_risk || false);
         setBabyGender(parsed.baby_gender || "");
       } catch (e) {
-        console.error('세션스토리지 임신정보 파싱 오류:', e);
+        console.error("세션스토리지 임신정보 파싱 오류:", e);
       }
     } else {
       // Supabase에서 임신정보 로드 (기존 로직)
@@ -109,7 +110,7 @@ export default function MyPage() {
 
   const handleLogout = () => {
     // 로그아웃 시 임신정보 세션스토리지 삭제
-    sessionStorage.removeItem('pregnancy_info');
+    sessionStorage.removeItem("pregnancy_info");
     router.push("/login");
   };
 
@@ -224,11 +225,7 @@ export default function MyPage() {
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center">
       {/* 헤더 */}
-      <div className="w-screen h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px] px-2 sm:px-4">
-        <div className="flex items-center justify-center w-full">
-          <span className="text-xl sm:text-2xl text-neutral-700 font-['Do_Hyeon'] text-center w-full mt-8 sm:mt-15">마이페이지</span>
-        </div>
-      </div>
+      <HeaderBar title="마이페이지" showBackButton={false} />
       <main className="w-full max-w-md h-[874px] relative bg-[#FFF4BB] overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
         {/* 프로필 섹션 */}
         <div className="w-[360px] h-[270px] mx-auto pt-3 mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
@@ -261,7 +258,7 @@ export default function MyPage() {
           {/* 사용자 정보 */}
           <div className="text-center mt-[-74px] ml-9">
             <div className="flex items-center justify-center">
-              <div className="text-neutral-700 text-xl font-normal font-['Do_Hyeon'] ml-6"> 
+              <div className="text-neutral-700 text-xl font-normal font-['Do_Hyeon'] ml-6">
                 {name || ""}
               </div>
               {pregnancyInfo?.high_risk && (
@@ -270,7 +267,7 @@ export default function MyPage() {
                 </div>
               )}
             </div>
-            <div className="text-stone-500 text-m font-normal font-['Do_Hyeon'] mt-1 ml-[20px]"> 
+            <div className="text-stone-500 text-m font-normal font-['Do_Hyeon'] mt-1 ml-[20px]">
               {email || ""}
             </div>
           </div>
@@ -353,71 +350,211 @@ export default function MyPage() {
         {/* 메뉴 섹션 */}
         <div className="w-full max-w-[360px] mx-auto mt-4 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)] p-6">
           <div className="grid grid-cols-2 gap-y-8 gap-x-2">
-            {userType === 'guardian' ? (
+            {userType === "guardian" ? (
               <>
                 {/* 내 정보 관리 - 사람 아이콘 (파랑) */}
-                <div className="flex flex-col items-center cursor-pointer" onClick={handleProfileManagement}>
-                  <svg className="w-8 h-8 text-blue-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" strokeWidth="2"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7" strokeWidth="2"/></svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">내 정보 관리</span>
+                <div
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={handleProfileManagement}
+                >
+                  <svg
+                    className="w-8 h-8 text-blue-400 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="8" r="4" strokeWidth="2" />
+                    <path d="M4 20c0-4 4-7 8-7s8 3 8 7" strokeWidth="2" />
+                  </svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                    내 정보 관리
+                  </span>
                 </div>
                 {/* 자주 찾는 질문 - 동그라미 안에 물음표 아이콘 (노랑) */}
-                <div className="flex flex-col items-center cursor-pointer" onClick={handleFAQ}>
-                  <svg className="w-8 h-8 text-yellow-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                    <text x="12" y="16" textAnchor="middle" fontSize="12" fill="#FACC15" fontFamily="Arial" dominantBaseline="middle">?</text>
+                <div
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={handleFAQ}
+                >
+                  <svg
+                    className="w-8 h-8 text-yellow-400 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                    <text
+                      x="12"
+                      y="16"
+                      textAnchor="middle"
+                      fontSize="12"
+                      fill="#FACC15"
+                      fontFamily="Arial"
+                      dominantBaseline="middle"
+                    >
+                      ?
+                    </text>
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">자주 찾는 질문</span>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                    자주 찾는 질문
+                  </span>
                 </div>
                 {/* 앱 정보 - 환경설정(톱니바퀴) 아이콘 (초록) */}
-                <div className="flex flex-col items-center cursor-pointer" onClick={handleAppInfo}>
-                  <svg className="w-8 h-8 text-green-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" strokeWidth="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" strokeWidth="2"/></svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">앱 정보</span>
+                <div
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={handleAppInfo}
+                >
+                  <svg
+                    className="w-8 h-8 text-green-400 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="3" strokeWidth="2" />
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                    앱 정보
+                  </span>
                 </div>
                 {/* 로그아웃 - 나가는 문 아이콘 */}
-                <div className="flex flex-col items-center cursor-pointer" onClick={handleLogout}>
-                  <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M16 17v1a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" strokeWidth="2"/>
-                    <path d="M21 12H9" strokeWidth="2"/>
-                    <path d="M18 15l3-3-3-3" strokeWidth="2"/>
+                <div
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={handleLogout}
+                >
+                  <svg
+                    className="w-8 h-8 text-gray-400 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M16 17v1a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1"
+                      strokeWidth="2"
+                    />
+                    <path d="M21 12H9" strokeWidth="2" />
+                    <path d="M18 15l3-3-3-3" strokeWidth="2" />
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">로그아웃</span>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                    로그아웃
+                  </span>
                 </div>
               </>
             ) : (
               <>
                 {/* 내 정보 관리 - 사람 아이콘 (파랑) */}
-                <div className="flex flex-col items-center cursor-pointer" onClick={handleProfileManagement}>
-                  <svg className="w-8 h-8 text-blue-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" strokeWidth="2"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7" strokeWidth="2"/></svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">내 정보 관리</span>
+                <div
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={handleProfileManagement}
+                >
+                  <svg
+                    className="w-8 h-8 text-blue-400 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="8" r="4" strokeWidth="2" />
+                    <path d="M4 20c0-4 4-7 8-7s8 3 8 7" strokeWidth="2" />
+                  </svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                    내 정보 관리
+                  </span>
                 </div>
                 {/* 임신 정보 관리 - 동그란 하트 아이콘 (연핑크) */}
-                <div className="flex flex-col items-center cursor-pointer" onClick={handlePregnancyInfoManagement}>
-                  <svg className="w-8 h-8 text-red-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 21s-5.5-4.5-7.5-7.5C2.5 10.5 4.5 7 8 7c1.7 0 3 1.2 4 2.5C13 8.2 14.3 7 16 7c3.5 0 5.5 3.5 3.5 6.5C17.5 16.5 12 21 12 21z" stroke="currentColor" strokeWidth="2" fill="#FCA5A5"/>
+                <div
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={handlePregnancyInfoManagement}
+                >
+                  <svg
+                    className="w-8 h-8 text-red-300 mb-2"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path
+                      d="M12 21s-5.5-4.5-7.5-7.5C2.5 10.5 4.5 7 8 7c1.7 0 3 1.2 4 2.5C13 8.2 14.3 7 16 7c3.5 0 5.5 3.5 3.5 6.5C17.5 16.5 12 21 12 21z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      fill="#FCA5A5"
+                    />
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">임신 정보 관리</span>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                    임신 정보 관리
+                  </span>
                 </div>
                 {/* 자주 찾는 질문 - 동그라미 안에 물음표 아이콘 (노랑) */}
-                <div className="flex flex-col items-center cursor-pointer" onClick={handleFAQ}>
-                  <svg className="w-8 h-8 text-yellow-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                    <text x="12" y="16" textAnchor="middle" fontSize="12" fill="#FACC15" fontFamily="Arial" dominantBaseline="middle">?</text>
+                <div
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={handleFAQ}
+                >
+                  <svg
+                    className="w-8 h-8 text-yellow-400 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                    <text
+                      x="12"
+                      y="16"
+                      textAnchor="middle"
+                      fontSize="12"
+                      fill="#FACC15"
+                      fontFamily="Arial"
+                      dominantBaseline="middle"
+                    >
+                      ?
+                    </text>
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">자주 찾는 질문</span>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                    자주 찾는 질문
+                  </span>
                 </div>
                 {/* 앱 정보 - 환경설정(톱니바퀴) 아이콘 (초록) */}
-                <div className="flex flex-col items-center cursor-pointer" onClick={handleAppInfo}>
-                  <svg className="w-8 h-8 text-green-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" strokeWidth="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" strokeWidth="2"/></svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">앱 정보</span>
+                <div
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={handleAppInfo}
+                >
+                  <svg
+                    className="w-8 h-8 text-green-400 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="3" strokeWidth="2" />
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                    앱 정보
+                  </span>
                 </div>
                 {/* 로그아웃 - 나가는 문 아이콘 */}
-                <div className="flex flex-col items-center cursor-pointer" onClick={handleLogout}>
-                  <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M16 17v1a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" strokeWidth="2"/>
-                    <path d="M21 12H9" strokeWidth="2"/>
-                    <path d="M18 15l3-3-3-3" strokeWidth="2"/>
+                <div
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={handleLogout}
+                >
+                  <svg
+                    className="w-8 h-8 text-gray-400 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M16 17v1a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1"
+                      strokeWidth="2"
+                    />
+                    <path d="M21 12H9" strokeWidth="2" />
+                    <path d="M18 15l3-3-3-3" strokeWidth="2" />
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">로그아웃</span>
+                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                    로그아웃
+                  </span>
                 </div>
               </>
             )}

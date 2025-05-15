@@ -10,7 +10,7 @@ interface TabBarProps {
 const TabBar: React.FC<TabBarProps> = ({ activeTab, tabs, onTabClick }) => {
   return (
     <div
-      className="w-full h-28 fixed bottom-0 flex justify-around items-center bg-white shadow-md rounded-t-lg px-4"
+      className="w-full h-20 fixed bottom-0 flex justify-around items-center bg-white shadow-md rounded-t-lg px-4"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       {tabs.map((tab) => (
