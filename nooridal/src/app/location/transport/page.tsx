@@ -16,17 +16,7 @@ declare global {
 type KakaoMarker = any;
 type KakaoMarkerClusterer = any;
 
-interface TransportCenter {
-  id: string;
-  name: string;
-  distance: string;
-  address: string;
-  phone: string;
-  operatingHours: string;
-  services: string[];
-}
-
-// 아웃팅 위치 인터페이스 추가
+// OutingLocation 인터페이스는 유지 (나들이 기능에서 사용)
 interface OutingLocation {
   id: string;
   name: string;
@@ -45,7 +35,7 @@ interface OutingLocation {
   distance?: number; // 거리 정보 추가
 }
 
-// 무장애 관광지 인터페이스 추가
+// BarrierFreeLocation 인터페이스는 유지 (무장애 관광지 기능에서 사용)
 interface BarrierFreeLocation {
   ESNTL_ID: string;
   LCLAS_NM: string;
@@ -70,137 +60,28 @@ interface BarrierFreeLocation {
   distance?: number; // 거리 정보 추가
 }
 
-// 더미 데이터
-const DUMMY_CENTERS: TransportCenter[] = [
-  {
-    id: "1",
-    name: "행복한 이동센터",
-    distance: "0.5km",
-    address: "서울시 강남구 역삼동 123-45",
-    phone: "02-123-4567",
-    operatingHours: "평일 09:00-18:00",
-    services: ["휠체어 탑승", "산모 이동", "장애인 이동"],
-  },
-  {
-    id: "2",
-    name: "맘스터치 이동센터",
-    distance: "1.2km",
-    address: "서울시 강남구 역삼동 234-56",
-    phone: "02-234-5678",
-    operatingHours: "평일 08:00-20:00, 주말 09:00-17:00",
-    services: ["휠체어 탑승", "산모 이동", "장애인 이동", "노인 이동"],
-  },
-  {
-    id: "3",
-    name: "24시 이동센터",
-    distance: "2.0km",
-    address: "서울시 강남구 역삼동 345-67",
-    phone: "02-345-6789",
-    operatingHours: "24시간",
-    services: ["휠체어 탑승", "산모 이동", "장애인 이동", "응급 이동"],
-  },
-];
-
 export default function TransportPage() {
   const router = useRouter();
-  const { address, setAddress } = useAddress();
-  const [centers, setCenters] = useState<TransportCenter[]>([]);
-  const [selectedService, setSelectedService] = useState<string>("전체");
+  const { address: profileAddress, searchAddress, setSearchAddress, isLoaded } = useAddress();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showMap, setShowMap] = useState(false);
-  // 아웃팅 위치 상태 추가
   const [outingLocations, setOutingLocations] = useState<OutingLocation[]>([]);
   const [nearbyLocations, setNearbyLocations] = useState<OutingLocation[]>([]);
-  // 나들이 선택 시 지도 자동 표시
   const [mapVisible, setMapVisible] = useState(false);
-  // 무장애 관광지 상태 추가
-  const [barrierFreeLocations, setBarrierFreeLocations] = useState<
-    BarrierFreeLocation[]
-  >([]);
-  const [nearbyBarrierFreeLocations, setNearbyBarrierFreeLocations] = useState<
-    BarrierFreeLocation[]
-  >([]);
+  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [barrierFreeLocations, setBarrierFreeLocations] = useState<BarrierFreeLocation[]>([]);
+  const [localCurrentAddress, setLocalCurrentAddress] = useState<string>("");
 
-  // 더미 데이터를 사용하는 함수
-  const fetchTransportCenters = async () => {
-    if (!address) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // API 호출 대신 더미 데이터 사용
-      // 실제 API 연동 시 아래 주석을 해제하고 사용
-      /*
-      const apiKey = '3RMiKFjgxis3f86Xb5o3Ah30iv/dXmAni0V7kQUTbIke9XiTZXgyNGjcySlNyuMIRKtMSSgCH7IgbFWdqGEpQQ==';
-      const response = await fetch(`https://apis.data.go.kr/B551982/tsdo?serviceKey=${encodeURIComponent(apiKey)}&address=${encodeURIComponent(address)}&type=json`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('데이터를 불러오는데 실패했습니다.');
-      }
-      
-      const data = await response.json();
-      
-      // API 응답 데이터를 우리 인터페이스에 맞게 변환
-      const formattedCenters: TransportCenter[] = data.response.body.items.item.map((item: any) => ({
-        id: item.id || String(Math.random()),
-        name: item.name || '이름 없음',
-        distance: item.distance ? `${item.distance}m` : '거리 정보 없음',
-        address: item.address || '주소 정보 없음',
-        phone: item.phone || '전화번호 정보 없음',
-        operatingHours: item.operatingHours || '운영시간 정보 없음',
-        services: item.services ? item.services.split(',') : []
-      }));
-      
-      setCenters(formattedCenters);
-      */
-
-      // 더미 데이터 사용
-      setTimeout(() => {
-        setCenters(DUMMY_CENTERS);
-        setIsLoading(false);
-      }, 1000);
-    } catch (err) {
-      setError("데이터를 불러오는 중 오류가 발생했습니다.");
-      console.error("API 호출 오류:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (address) {
-      fetchTransportCenters();
-    }
-  }, [address]);
-
-  const handleFilter = (service: string) => {
-    setSelectedService(service);
-    if (service === "전체") {
-      setCenters(DUMMY_CENTERS);
-    } else {
-      const filtered = DUMMY_CENTERS.filter((center) =>
-        center.services.includes(service)
-      );
-      setCenters(filtered);
-    }
-  };
-
-  const handleCall = (phone: string) => {
-    window.location.href = `tel:${phone}`;
-  };
-
-  const handleMap = (address: string) => {
-    window.open(`https://map.kakao.com/link/search/${address}`, "_blank");
-  };
+  // --- 무장애 관광지 지역 필터링 상태 ---
+  const [provinces, setProvinces] = useState<string[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState<string>("");
+  const [cities, setCities] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [filteredBarrierFreeLocations, setFilteredBarrierFreeLocations] = useState<BarrierFreeLocation[]>([]);
+  // --- ---
 
   // 주소를 동까지만 표시하는 함수
   const getShortAddress = (fullAddress: string) => {
@@ -215,37 +96,46 @@ export default function TransportPage() {
     return fullAddress;
   };
 
-  // 주소 수정 함수
-  const handleAddressEdit = (e: React.MouseEvent) => {
+  // GPS 기반 현재 위치 설정 함수
+  const handleSetCurrentLocationByGPS = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.daum) {
-      new window.daum.Postcode({
-        oncomplete: function (data: any) {
-          let fullAddress = data.jibunAddress;
-          if (!fullAddress) {
-            fullAddress = data.address;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
+            const geocoder = new window.kakao.maps.services.Geocoder();
+            const coord = new window.kakao.maps.LatLng(latitude, longitude);
+            geocoder.coord2Address(
+              coord.getLng(),
+              coord.getLat(),
+              (result: any, status: any) => {
+                if (status === window.kakao.maps.services.Status.OK) {
+                  const newAddress = result[0].address.address_name;
+                  setLocalCurrentAddress(newAddress);
+                  setSearchAddress(newAddress);
+                } else {
+                  alert("주소를 가져올 수 없습니다.");
+                }
+              }
+            );
+          } else {
+            alert("카카오맵 API 서비스가 준비되지 않았습니다.");
           }
-
-          let extraAddress = "";
-          if (data.addressType === "R") {
-            if (data.bname !== "" && /[동|로|가]$/g.test(data.bname)) {
-              extraAddress += data.bname;
-            }
-            if (data.buildingName !== "") {
-              extraAddress +=
-                extraAddress !== ""
-                  ? ", " + data.buildingName
-                  : data.buildingName;
-            }
-            if (extraAddress !== "") {
-              fullAddress += ` (${extraAddress})`;
-            }
-          }
-
-          setAddress(fullAddress);
         },
-      }).open();
+        (error) => {
+          alert("현재 위치를 가져올 수 없습니다.");
+        }
+      );
+    } else {
+      alert("이 브라우저에서는 위치 정보가 지원되지 않습니다.");
     }
+  };
+
+  // 프로필 주소 사용 함수
+  const handleSetCurrentLocationByProfile = () => {
+    setLocalCurrentAddress(profileAddress);
+    setSearchAddress(profileAddress);
   };
 
   // 아웃팅 위치 로드 함수 추가
@@ -268,7 +158,6 @@ export default function TransportPage() {
   const findNearbyOutingLocations = async (
     lat: number,
     lng: number,
-    radius: number = 5
   ) => {
     if (outingLocations.length === 0) {
       const locations = await loadOutingLocations();
@@ -306,9 +195,8 @@ export default function TransportPage() {
         );
         return { ...location, distance };
       })
-      .filter((location) => location.distance <= radius)
       .sort((a, b) => (a.distance as number) - (b.distance as number))
-      .slice(0, 10); // 가장 가까운 10개만 선택
+      .slice(0, 20); // Take top 20, increased from 10
 
     setNearbyLocations(nearby);
     return nearby;
@@ -323,6 +211,12 @@ export default function TransportPage() {
       }
       const data: BarrierFreeLocation[] = await response.json();
       setBarrierFreeLocations(data);
+
+      // 시/도 목록 추출
+      const uniqueProvinces = Array.from(new Set(data.map(loc => loc.CTPRVN_NM).filter(Boolean))).sort();
+      setProvinces(uniqueProvinces);
+      
+      setFilteredBarrierFreeLocations(data.slice(0,10)); // 초기에는 전체 중 일부만 보여주거나, 선택을 유도
       return data;
     } catch (err) {
       console.error("무장애 관광지 데이터 로드 오류:", err);
@@ -330,33 +224,7 @@ export default function TransportPage() {
     }
   };
 
-  // 가까운 무장애 관광지 찾기 함수
-  const findNearbyBarrierFreeLocations = async (
-    lat: number,
-    lng: number,
-    radius: number = 50
-  ) => {
-    if (barrierFreeLocations.length === 0) {
-      const locations = await loadBarrierFreeLocations();
-      if (locations.length === 0) return;
-    }
-
-    // 위치 데이터가 있는 장소만 필터링
-    const locationsWithCoords = barrierFreeLocations.filter((location) => {
-      // 여기서는 좌표 정보가 없으므로 임의로 도시(CTPRVN_NM)를 기준으로 필터링
-      return location.CTPRVN_NM && location.CTPRVN_NM.trim() !== "";
-    });
-
-    // 도시 이름 기준으로 정렬 (실제로는 거리 계산이 필요하지만 좌표 데이터가 없으므로 대체)
-    const nearby = locationsWithCoords
-      .sort((a, b) => a.CTPRVN_NM.localeCompare(b.CTPRVN_NM))
-      .slice(0, 10); // 최대 10개만 표시
-
-    setNearbyBarrierFreeLocations(nearby);
-    return nearby;
-  };
-
-  // 컴포넌트 마운트 시 나들이 데이터 로드
+  // 컴포넌트 마운트 시 나들이 및 무장애 데이터 로드
   useEffect(() => {
     loadOutingLocations();
     loadBarrierFreeLocations();
@@ -365,7 +233,7 @@ export default function TransportPage() {
   // 카카오맵 스크립트 로드
   useEffect(() => {
     const script = document.createElement("script");
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services,clusterer&autoload=false&appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_REST_API_KEY}`;
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services,clusterer&autoload=false`;
     script.async = true;
     script.onload = () => {
       window.kakao.maps.load(() => {
@@ -387,7 +255,8 @@ export default function TransportPage() {
       mapLoaded &&
       window.kakao &&
       window.kakao.maps &&
-      (showMap || mapVisible)
+      (showMap || (mapVisible && selectedType !== "support")) && // "support" 유형일 때는 지도 초기화 안 함
+      searchAddress
     ) {
       const container = document.getElementById("map");
       if (!container) return;
@@ -426,9 +295,12 @@ export default function TransportPage() {
 
       // 주소로 좌표 검색
       const geocoder = new window.kakao.maps.services.Geocoder();
-      geocoder.addressSearch(address, async (result: any, status: any) => {
+      geocoder.addressSearch(searchAddress, async (result: any, status: any) => {
         if (status === window.kakao.maps.services.Status.OK) {
-          const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+          const lat = parseFloat(result[0].y);
+          const lng = parseFloat(result[0].x);
+          const coords = new window.kakao.maps.LatLng(lat, lng);
+          setUserCoords({ lat, lng }); // Store geocoded coordinates
 
           // 현재 위치 마커 생성
           const currentMarker = new window.kakao.maps.Marker({
@@ -442,11 +314,7 @@ export default function TransportPage() {
 
           // 나들이 선택된 경우 근처 아웃팅 위치 검색
           if (selectedType === "outing") {
-            const nearby = await findNearbyOutingLocations(
-              parseFloat(result[0].y),
-              parseFloat(result[0].x),
-              5
-            );
+            const nearby = await findNearbyOutingLocations(lat, lng);
 
             if (nearby && nearby.length > 0) {
               const markers = nearby.map((location) => {
@@ -514,90 +382,20 @@ export default function TransportPage() {
               map.setCenter(coords);
             }
           } else if (selectedType === "support") {
-            // 무장애 관광지 정보 표시
-            const nearby = nearbyBarrierFreeLocations;
-
-            if (nearby && nearby.length > 0) {
-              const markers = nearby.map((location) => {
-                // 좌표 정보가 없으므로 임의의 위치를 계산 (실제로는 정확한 좌표가 필요)
-                // 예시로 현재 위치에서 약간씩 떨어진 위치로 설정
-                const randomLat =
-                  parseFloat(result[0].y) + (Math.random() * 0.05 - 0.025);
-                const randomLng =
-                  parseFloat(result[0].x) + (Math.random() * 0.05 - 0.025);
-                const markerPosition = new window.kakao.maps.LatLng(
-                  randomLat,
-                  randomLng
-                );
-
-                const marker = new window.kakao.maps.Marker({
-                  position: markerPosition,
-                  map: map,
-                });
-
-                // 마커 클릭 시 정보창 표시
-                window.kakao.maps.event.addListener(marker, "click", () => {
-                  const address =
-                    location.FCLTY_ROAD_NM_ADDR ||
-                    location.LNM_ADDR ||
-                    "주소 정보 없음";
-                  const content = `<div style="padding:10px;width:200px;">
-                    <div style="font-weight:bold;font-size:14px;margin-bottom:5px;">${
-                      location.FCLTY_NM
-                    }</div>
-                    <div style="font-size:12px;margin-bottom:5px;">${address}</div>
-                    <div style="font-size:12px;margin-bottom:5px;">지역: ${
-                      location.CTPRVN_NM
-                    } ${location.SIGNGU_NM}</div>
-                    ${
-                      location.TEL_NO
-                        ? `<div style="font-size:12px;margin-bottom:5px;">연락처: ${location.TEL_NO}</div>`
-                        : ""
-                    }
-                    <div style="font-size:12px;margin-bottom:5px;">
-                      ${
-                        location.FACILITIES.장애인화장실
-                          ? "♿ 장애인화장실 "
-                          : ""
-                      }
-                      ${location.FACILITIES.휠체어대여 ? "🦽 휠체어대여 " : ""}
-                      ${location.FACILITIES.경사로 ? "📐 경사로 " : ""}
-                    </div>
-                  </div>`;
-
-                  const infowindow = new window.kakao.maps.InfoWindow({
-                    content: content,
-                    removable: true,
-                  });
-                  infowindow.open(map, marker);
-                });
-
-                return marker;
-              });
-
-              // 클러스터러에 마커 추가
-              if (clusterer) {
-                clusterer.addMarkers(markers);
-              } else {
-                // 클러스터러가 없는 경우 일반 마커로 추가
-                markers.forEach((marker: KakaoMarker) => marker.setMap(map));
-              }
-
-              // 모든 마커를 포함하는 영역으로 지도 범위 설정
-              if (markers.length > 0) {
-                const bounds = new window.kakao.maps.LatLngBounds();
-                bounds.extend(coords); // 현재 위치도 포함
-                markers.forEach((marker: KakaoMarker) =>
-                  bounds.extend(marker.getPosition())
-                );
-                map.setBounds(bounds);
-              }
-            } else {
-              // 주변 위치 정보가 없는 경우 현재 위치만 표시
-              map.setCenter(coords);
-            }
+            // 무장애 관광지 정보 표시 - 이 부분은 지역 필터링 UI로 대체됨
+            // 따라서, 지도에 마커를 표시하는 로직은 여기서는 필요 없음
+            // 아래 nearbyBarrierFreeLocations 관련 코드는 제거하거나 주석처리
+            // const nearby = nearbyBarrierFreeLocations; // filteredBarrierFreeLocations 사용
+            
+            // if (filteredBarrierFreeLocations && filteredBarrierFreeLocations.length > 0) {
+            //   // ... 기존 마커 생성 로직 ... (좌표가 없으므로 실제로는 어려움)
+            // } else {
+            //   map.setCenter(coords); // 기본 위치로 설정
+            // }
+            map.setCenter(coords); // 사용자의 searchAddress 중심으로 지도를 보여줄 수는 있음 (선택 사항)
+            
           } else {
-            // 주변 이동 지원 시설 검색 로직 유지
+            // 주변 이동 지원 시설 검색 로직 유지 (outing 등 다른 타입)
             const places = new window.kakao.maps.services.Places();
             const searchOptions = {
               location: coords,
@@ -658,6 +456,11 @@ export default function TransportPage() {
             position: coords,
           });
           infoWindow.open(map, currentMarker);
+        } else {
+          // Fallback for geocoding failure
+          const options = { center: new window.kakao.maps.LatLng(37.566826, 126.9786567), level: 3 };
+          new window.kakao.maps.Map(container, options);
+          alert("선택된 주소의 좌표를 찾을 수 없어 기본 위치로 지도를 표시합니다.");
         }
       });
 
@@ -694,62 +497,123 @@ export default function TransportPage() {
     }
   }, [
     mapLoaded,
-    address,
+    searchAddress,
     showMap,
     mapVisible,
     selectedType,
     outingLocations,
-    nearbyBarrierFreeLocations,
+    filteredBarrierFreeLocations,
   ]);
 
   // selectedType이 변경될 때 지도와 주변 위치 정보 처리
   useEffect(() => {
+    if (!isLoaded || !mapLoaded) return; // Exit if context or map not loaded
+
     if (selectedType === "outing") {
-      // 현재 좌표 구하기
-      if (navigator.geolocation) {
-        setIsLoading(true);
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            await findNearbyOutingLocations(lat, lng, 5);
-            setIsLoading(false);
-            setMapVisible(true);
-          },
-          (error) => {
-            console.error("현재 위치를 가져올 수 없습니다:", error);
-            setIsLoading(false);
-            setMapVisible(true);
+      setIsLoading(true);
+      setMapVisible(true); // Show map section immediately
+      if (searchAddress) {
+        const geocoder = new window.kakao.maps.services.Geocoder();
+        geocoder.addressSearch(searchAddress, async (result: any, status: any) => {
+          if (status === window.kakao.maps.services.Status.OK) {
+            const lat = parseFloat(result[0].y);
+            const lng = parseFloat(result[0].x);
+            setUserCoords({ lat, lng }); // Set userCoords for map useEffect
+            await findNearbyOutingLocations(lat, lng); // Removed radius argument
+          } else {
+            console.error("나들이: 주소 지오코딩 실패", searchAddress);
+            alert("선택된 주소의 좌표를 찾을 수 없어 나들이 정보를 가져올 수 없습니다.");
+            setNearbyLocations([]); // Clear locations if geocoding fails
           }
-        );
+          setIsLoading(false);
+        });
       } else {
-        setMapVisible(true);
+        // searchAddress가 없는 경우 (예: 초기 로드)
+        alert("나들이 정보를 보려면 먼저 기준 주소를 설정해주세요.");
+        setNearbyLocations([]);
+        setIsLoading(false);
+        // setMapVisible(false); // Optionally hide map if no address
       }
     } else if (selectedType === "support") {
-      // 무장애 관광지 정보 로드
-      if (navigator.geolocation) {
-        setIsLoading(true);
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            await findNearbyBarrierFreeLocations(lat, lng, 50);
-            setIsLoading(false);
-            setMapVisible(true);
-          },
-          (error) => {
-            console.error("현재 위치를 가져올 수 없습니다:", error);
-            setIsLoading(false);
-            setMapVisible(true);
+      // 무장애 관광지 정보 로드 및 필터링 UI 준비
+      setIsLoading(true);
+      setMapVisible(false); // "support" 유형에서는 지도를 직접 표시하지 않음
+      if (barrierFreeLocations.length === 0) {
+        loadBarrierFreeLocations().then(locations => {
+          // 초기 필터링 (예: 첫 번째 시/도 또는 전체)
+          if (locations && locations.length > 0) {
+             const uniqueProvincesList = Array.from(new Set(locations.map(loc => loc.CTPRVN_NM).filter(Boolean))).sort();
+             setProvinces(uniqueProvincesList);
+             if (uniqueProvincesList.length > 0) {
+                // setSelectedProvince(uniqueProvincesList[0]); // Optionally select the first province
+             }
+             setFilteredBarrierFreeLocations(locations.slice(0, 10)); // Initially show some or all
           }
-        );
+          setIsLoading(false);
+        });
       } else {
-        setMapVisible(true);
+         // 이미 데이터가 로드된 경우, 초기 필터링 상태를 유지하거나 업데이트
+         const uniqueProvincesList = Array.from(new Set(barrierFreeLocations.map(loc => loc.CTPRVN_NM).filter(Boolean))).sort();
+         setProvinces(uniqueProvincesList);
+         // Filter based on current selectedProvince and selectedCity if they exist
+         let filtered = barrierFreeLocations;
+         if (selectedProvince) {
+            filtered = filtered.filter(loc => loc.CTPRVN_NM === selectedProvince);
+            if (selectedCity && selectedCity !== "전체") {
+                 filtered = filtered.filter(loc => loc.SIGNGU_NM === selectedCity);
+            }
+         }
+         setFilteredBarrierFreeLocations(filtered.slice(0,20)); // Show a limited number initially or based on selection
+         setIsLoading(false);
       }
     } else {
       setMapVisible(false);
+      // 다른 타입 선택 시 필터 상태 초기화
+      setSelectedProvince("");
+      setSelectedCity("");
+      setCities([]);
+      // setFilteredBarrierFreeLocations([]); // 필요에 따라 주석 해제
     }
-  }, [selectedType]);
+  }, [selectedType, searchAddress, isLoaded, mapLoaded, barrierFreeLocations]); // searchAddress, barrierFreeLocations 추가
+
+  // --- 지역 필터링 로직 ---
+  useEffect(() => {
+    if (selectedProvince && barrierFreeLocations.length > 0) {
+      const uniqueCities = Array.from(
+        new Set(
+          barrierFreeLocations
+            .filter(loc => loc.CTPRVN_NM === selectedProvince && loc.SIGNGU_NM)
+            .map(loc => loc.SIGNGU_NM!)
+        )
+      ).sort();
+      setCities(uniqueCities);
+      setSelectedCity(""); // 시/도 변경 시 시/군/구 선택 초기화
+
+      // 시/도만 선택된 경우 해당 시/도의 모든 관광지 필터링
+      const filtered = barrierFreeLocations.filter(loc => loc.CTPRVN_NM === selectedProvince);
+      setFilteredBarrierFreeLocations(filtered.slice(0,20)); // 최대 20개
+    } else if (!selectedProvince) {
+      setCities([]);
+      setSelectedCity("");
+      // 시/도 선택이 해제되면 전체 목록 (또는 초기 상태)
+      setFilteredBarrierFreeLocations(barrierFreeLocations.slice(0,10));
+    }
+  }, [selectedProvince, barrierFreeLocations]);
+
+  useEffect(() => {
+    if (barrierFreeLocations.length === 0) return;
+
+    let filtered = barrierFreeLocations;
+    if (selectedProvince) {
+      filtered = filtered.filter(loc => loc.CTPRVN_NM === selectedProvince);
+      if (selectedCity && selectedCity !== "전체") { // "전체" 시/군/구 선택 처리
+        filtered = filtered.filter(loc => loc.SIGNGU_NM === selectedCity);
+      }
+    }
+    // 검색어나 다른 필터가 있다면 여기에 추가
+    setFilteredBarrierFreeLocations(filtered.slice(0,20)); // 결과 개수 제한
+  }, [selectedProvince, selectedCity, barrierFreeLocations]);
+  // --- ---
 
   const transportTypes = [
     {
@@ -879,22 +743,40 @@ export default function TransportPage() {
 
   // 무장애 관광지 상세 정보 컴포넌트
   const BarrierFreeLocationInfo = () => {
-    if (nearbyBarrierFreeLocations.length === 0) {
+    if (isLoading) {
+       return (
+        <div className="flex justify-center items-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+        </div>
+       );
+    }
+
+    if (filteredBarrierFreeLocations.length === 0 && (selectedProvince || selectedCity)) {
       return (
         <div className="p-4 bg-yellow-50 rounded-xl mb-4">
           <div className="font-['Do_Hyeon'] text-center">
-            근처에 무장애 관광지 정보가 없습니다.
+            선택하신 지역에 무장애 관광지 정보가 없습니다.
           </div>
           <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon'] text-center">
-            다른 위치를 선택해 보세요
+            다른 지역을 선택해 보세요.
+          </div>
+        </div>
+      );
+    }
+     if (filteredBarrierFreeLocations.length === 0 && !selectedProvince && !selectedCity) {
+      return (
+        <div className="p-4 bg-yellow-50 rounded-xl mb-4">
+          <div className="font-['Do_Hyeon'] text-center">
+            지역을 선택하여 무장애 관광지를 검색해보세요.
           </div>
         </div>
       );
     }
 
+
     return (
       <div className="max-h-60 overflow-y-auto pr-2">
-        {nearbyBarrierFreeLocations.map((location) => (
+        {filteredBarrierFreeLocations.map((location) => (
           <div
             key={location.ESNTL_ID}
             className="p-4 bg-blue-50 rounded-xl mb-4"
@@ -1004,8 +886,8 @@ export default function TransportPage() {
         <HeaderBar title="이동 지원" backUrl="/location" />
 
         {/* Current Location Section */}
-        <div className="w-[360px] h-[100px] mx-auto mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
-          <div className="flex items-start p-6">
+        <div className="w-[360px] mx-auto mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+          <div className="flex items-start p-4 sm:p-6">
             <div className="mr-4">
               <svg
                 className="w-14 h-14"
@@ -1029,14 +911,30 @@ export default function TransportPage() {
 
               <div className="flex ml-[-30px] items-center justify-between w-full">
                 <div className="text-xl font-['Do_Hyeon'] text-center flex-1">
-                  {getShortAddress(address)}
+                  {getShortAddress(searchAddress)}
                 </div>
-                <button
-                  onClick={handleAddressEdit}
-                  className="text-sm font-['Do_Hyeon'] cursor-pointer hover:text-yellow-400 ml-2"
-                >
-                  수정
-                </button>
+                <div className="flex flex-col space-y-1 sm:space-y-0 sm:flex-row sm:space-x-1 ml-2">
+                  <button
+                    onClick={handleSetCurrentLocationByProfile}
+                    className="text-xs font-['Do_Hyeon'] cursor-pointer hover:text-yellow-500 text-gray-700 px-2 py-1 border border-gray-300 rounded whitespace-nowrap bg-gray-50 hover:bg-gray-100 flex items-center space-x-1"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>내 주소</span>
+                  </button>
+                  <button
+                    onClick={handleSetCurrentLocationByGPS}
+                    className="text-xs font-['Do_Hyeon'] cursor-pointer hover:text-yellow-500 text-gray-700 px-2 py-1 border border-gray-300 rounded whitespace-nowrap bg-gray-50 hover:bg-gray-100 flex items-center space-x-1"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12a3 3 0 116 0 3 3 0 01-6 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m0 14v1m-7-8h1m14 0h1" />
+                    </svg>
+                    <span>현재 위치</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1096,7 +994,7 @@ export default function TransportPage() {
               )}
 
               {/* 선택된 타입에 따라 지도 표시 */}
-              {(selectedType === "outing" || selectedType === "support") &&
+              {(selectedType === "outing" /*|| selectedType === "support"*/) && // support 타입에서 지도 제거
                 mapVisible && (
                   <div className="mb-4">
                     <div
@@ -1121,6 +1019,39 @@ export default function TransportPage() {
 
               {selectedType === "support" && !isLoading && (
                 <div className="mb-4 mt-4">
+                  {/* 지역 선택 UI */}
+                  <div className="space-y-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <label htmlFor="province-select" className="block text-sm font-medium text-gray-700 font-['Do_Hyeon'] mb-1">시/도 선택:</label>
+                      <select
+                        id="province-select"
+                        value={selectedProvince}
+                        onChange={(e) => setSelectedProvince(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 font-['Do_Hyeon']"
+                      >
+                        <option value="">전체</option>
+                        {provinces.map(province => (
+                          <option key={province} value={province}>{province}</option>
+                        ))}
+                      </select>
+                    </div>
+                    {selectedProvince && cities.length > 0 && (
+                      <div>
+                        <label htmlFor="city-select" className="block text-sm font-medium text-gray-700 font-['Do_Hyeon'] mb-1">시/군/구 선택:</label>
+                        <select
+                          id="city-select"
+                          value={selectedCity}
+                          onChange={(e) => setSelectedCity(e.target.value)}
+                          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 font-['Do_Hyeon']"
+                        >
+                          <option value="">전체</option>
+                          {cities.map(city => (
+                            <option key={city} value={city}>{city}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
                   <BarrierFreeLocationInfo />
                 </div>
               )}

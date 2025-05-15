@@ -48,80 +48,48 @@ export default function FAQ() {
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center pt-20">
       {/* 헤더 */}
-      <HeaderBar title="자주 찾는 질문" />
-      <main className="w-full max-w-md h-[874px] relative bg-[#FFF4BB] overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
-        {/* FAQ 카드 */}
-        <div className="w-full h-[calc(100vh-140px)] sm:h-[calc(100vh-180px)] bg-yellow-50 overflow-y-auto">
-          <div className="p-6">
-            {/* 상단 아이콘 */}
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-[#FFF4BB] rounded-full flex items-center justify-center">
-                <svg
-                  className="w-8 h-8 text-[#FFD600]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            {/* FAQ 목록 */}
-            <div className="space-y-4">
-              {faqData.map((faq, index) => (
+      <HeaderBar title="자주 묻는 질문" />
+      <main className="w-full max-w-md relative bg-[#FFF4BB] overflow-hidden mx-auto px-4">
+        {/* FAQ 목록 */}
+        <div className="w-full max-h-[calc(100vh-140px)] overflow-y-auto mt-6">
+          <div className="space-y-4 pb-6">
+            {faqData.map((item, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl shadow-sm overflow-hidden"
+              >
                 <div
-                  key={index}
-                  className="bg-white rounded-xl overflow-hidden border-2 border-[#FFE999]"
+                  className="flex justify-between items-center p-4 cursor-pointer bg-[#FFF8DD] text-black"
+                  onClick={() => toggleQuestion(index)}
                 >
-                  <button
-                    onClick={() => toggleQuestion(index)}
-                    className="w-full flex items-center justify-between p-4 hover:bg-[#FFF4BB] transition-colors"
+                  <h3 className="text-lg font-['Do_Hyeon']">{item.question}</h3>
+                  <svg
+                    className={`w-6 h-6 transition-transform duration-300 ${
+                      openQuestion === index ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <div className="flex items-center">
-                      <span className="text-[#FFD600] font-['Do_Hyeon'] text-lg mr-3">
-                        Q.
-                      </span>
-                      <span className="text-base font-['Do_Hyeon'] text-left">
-                        {faq.question}
-                      </span>
-                    </div>
-                    <svg
-                      className={`w-5 h-5 text-gray-400 transform transition-transform ${
-                        openQuestion === index ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-                  {openQuestion === index && (
-                    <div className="p-4 bg-[#FFF4BB] border-t-2 border-[#FFE999]">
-                      <div className="flex">
-                        <span className="text-[#FFD600] font-['Do_Hyeon'] text-lg mr-3">
-                          A.
-                        </span>
-                        <span className="text-gray-700 text-base font-['Do_Hyeon']">
-                          {faq.answer}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
                 </div>
-              ))}
-            </div>
+                <div
+                  className={`overflow-hidden transition-max-height duration-500 ease-in-out text-black ${
+                    openQuestion === index ? "max-h-96" : "max-h-0"
+                  }`}
+                >
+                  <div className="p-4 bg-white">
+                    <p className="text-base font-['Do_Hyeon']">{item.answer}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </main>

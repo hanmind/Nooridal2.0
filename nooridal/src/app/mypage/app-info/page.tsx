@@ -10,9 +10,9 @@ export default function AppInfo() {
     <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center pt-20">
       {/* 헤더 */}
       <HeaderBar title="앱 정보" />
-      <main className="w-full max-w-md h-[874px] relative bg-[#FFF4BB] overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
+      <main className="w-full max-w-md relative bg-[#FFF4BB] overflow-hidden mx-auto px-4">
         {/* 앱 정보 카드 */}
-        <div className="w-full h-[calc(100vh-140px)] sm:h-[calc(100vh-180px)] bg-yellow-50 overflow-y-auto">
+        <div className="w-full max-h-[calc(100vh-140px)] bg-yellow-50 overflow-y-auto rounded-xl mt-6">
           <div className="p-6">
             {/* 앱 정보 목록 */}
             <div className="space-y-4">
@@ -21,7 +21,7 @@ export default function AppInfo() {
                   <div className="text-[#A67C52] font-['Do_Hyeon'] text-lg mb-2">
                     앱 버전
                   </div>
-                  <div className="text-gray-700 text-base font-['Do_Hyeon']">
+                  <div className="text-black text-base font-['Do_Hyeon']">
                     2.0.0
                   </div>
                 </div>
@@ -30,7 +30,7 @@ export default function AppInfo() {
                   <div className="text-[#A67C52] font-['Do_Hyeon'] text-lg mb-2">
                     개발자 정보
                   </div>
-                  <div className="text-gray-700 text-base font-['Do_Hyeon']">
+                  <div className="text-black text-base font-['Do_Hyeon']">
                     윤무열 한세희 최정은 장지윤
                   </div>
                 </div>
@@ -39,7 +39,7 @@ export default function AppInfo() {
                   <div className="text-[#A67C52] font-['Do_Hyeon'] text-lg mb-2">
                     문의하기
                   </div>
-                  <div className="text-gray-700 text-base font-['Do_Hyeon']">
+                  <div className="text-black text-base font-['Do_Hyeon']">
                     noorimoon2025@gmail.com
                   </div>
                 </div>

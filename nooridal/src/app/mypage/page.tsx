@@ -226,9 +226,9 @@ export default function MyPage() {
     <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center pt-20">
       {/* 헤더 */}
       <HeaderBar title="마이페이지" showBackButton={false} />
-      <main className="w-full max-w-md h-[874px] relative bg-[#FFF4BB] overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
+      <main className="w-full max-w-md relative bg-[#FFF4BB] overflow-hidden mx-auto px-4">
         {/* 프로필 섹션 */}
-        <div className="w-[360px] h-[270px] mx-auto pt-3 mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+        <div className="w-full max-w-[360px] mx-auto h-[270px] pt-3 mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
           {/* 프로필 원 */}
           <div className="w-24 h-24 bg-gray-200 rounded-full overflow-hidden ml-5">
             {profileImage ? (
@@ -563,7 +563,7 @@ export default function MyPage() {
       </main>
       <TabBar
         activeTab={activeTab as Tab}
-        tabs={["chat", "calendar", "location", "mypage"] as Tab[]}
+        tabs={["chat", "calendar", "location", "mypage"]}
         onTabClick={handleTabClick}
       />
 
