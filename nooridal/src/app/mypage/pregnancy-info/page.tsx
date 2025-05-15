@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "../../lib/supabase";
+import HeaderBar from "@/app/components/HeaderBar";
 
 interface FormData {
   babyName: string;
@@ -278,225 +279,209 @@ export default function PregnancyInfo() {
   };
 
   return (
-    <div className="min-h-screen w-full flex justify-center items-center px-2 sm:px-4 md:px-8 bg-white">
-      <main className="w-full max-w-md min-h-screen relative bg-white overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
-        {/* 헤더 */}
-        <div className="w-full h-[100px] sm:h-[120px] flex items-center justify-center bg-white shadow-md rounded-b-3xl px-2 sm:px-4 relative">
-          <button
-            onClick={() => router.back()}
-            className="absolute left-10 text-yellow-600 hover:text-yellow-800"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center pt-20">
+      {/* 헤더 */}
+      <HeaderBar
+        title={
+          formData.babyName
+            ? `${formData.babyName} 엄마의 임신 정보`
+            : "엄마의 임신 정보"
+        }
+      />
+      <main className="w-full max-w-md relative bg-[#FFF4BB] overflow-y-auto flex flex-col items-center px-4 pt-6 sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
+        <div className="w-full max-w-[360px] bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)] p-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* 태명 */}
+            <div className="flex flex-col space-y-2">
+              <label className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                태명
+              </label>
+              <input
+                type="text"
+                value={tempBabyName}
+                onChange={(e) => setTempBabyName(e.target.value)}
+                className="w-full h-11 px-4 text-neutral-700 text-sm font-normal font-['Do_Hyeon'] bg-white border-2 rounded-[10px] border-zinc-300 focus:outline-none focus:border-sky-400"
+                placeholder="태명을 입력하세요"
               />
-            </svg>
-          </button>
-          <h1 className="text-xl sm:text-2xl text-neutral-700 font-['Do_Hyeon']">
-            {formData.babyName
-              ? `${formData.babyName} 엄마의 임신 정보`
-              : "엄마의 임신 정보"}
-          </h1>
-        </div>
+            </div>
 
-        {/* 임신 정보 카드 */}
-        <div className="w-full h-[calc(100vh-140px)] sm:h-[calc(100vh-180px)] bg-yellow-50 overflow-y-auto">
-          <div className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="flex items-center justify-between">
-                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
-                  태명
-                </label>
-                <input
-                  type="text"
-                  value={tempBabyName}
-                  onChange={(e) => setTempBabyName(e.target.value)}
-                  className={`w-40 px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white focus:outline-none transition-colors duration-300 border-[#E5E7EB]`}
-                  placeholder="태명을 입력하세요"
-                />
+            {/* 성별 */}
+            <div className="flex flex-col space-y-2">
+              <label className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                성별
+              </label>
+              <div className="flex space-x-2 justify-center">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, gender: "남자" })}
+                  className={`flex-1 py-2 rounded-full font-['Do_Hyeon'] transition-all duration-300 text-sm
+                    ${
+                      formData.gender === "남자"
+                        ? "bg-sky-200 text-gray-700 border-2 border-sky-200"
+                        : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
+                    }`}
+                >
+                  남아
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, gender: "여자" })}
+                  className={`flex-1 py-2 rounded-full font-['Do_Hyeon'] transition-all duration-300 text-sm
+                    ${
+                      formData.gender === "여자"
+                        ? "bg-red-200 text-gray-700 border-2 border-red-200"
+                        : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
+                    }`}
+                >
+                  여아
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, gender: "모름" })}
+                  className={`flex-1 py-2 rounded-full font-['Do_Hyeon'] transition-all duration-300 text-sm
+                    ${
+                      formData.gender === "모름"
+                        ? "bg-gray-200 text-gray-700 border-2 border-gray-200"
+                        : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
+                    }`}
+                >
+                  모름
+                </button>
               </div>
-              <div className="flex items-center justify-between">
-                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
-                  성별
-                </label>
-                <div className="flex space-x-1">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, gender: "남자" })}
-                    className={`px-3 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 ease-in-out outline-none
-                      ${
-                        formData.gender === "남자"
-                          ? "bg-sky-200 text-gray-700 border-2 border-sky-200"
-                          : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
-                      }`}
+            </div>
+
+            {/* 현재 임신 주차 */}
+            <div className="flex flex-col space-y-2">
+              <label className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                현재 임신 주차
+              </label>
+              <div className="relative w-full">
+                <button
+                  type="button"
+                  onClick={() => setIsWeekSelectorOpen(!isWeekSelectorOpen)}
+                  className="w-full h-11 px-4 border-2 rounded-[10px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center border-zinc-300 text-sm text-neutral-700"
+                >
+                  <span>
+                    {formData.pregnancyWeek !== "*"
+                      ? `${formData.pregnancyWeek}주차`
+                      : "선택"}
+                  </span>
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    남아
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, gender: "여자" })}
-                    className={`px-3 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 ease-in-out outline-none
-                      ${
-                        formData.gender === "여자"
-                          ? "bg-red-200 text-gray-700 border-2 border-red-200"
-                          : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
-                      }`}
-                  >
-                    여아
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, gender: "모름" })}
-                    className={`px-3 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 ease-in-out outline-none
-                      ${
-                        formData.gender === "모름"
-                          ? "bg-gray-200 text-gray-700 border-2 border-gray-200"
-                          : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
-                      }`}
-                  >
-                    모름
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
-                  현재 임신 주차
-                </label>
-                <div className="relative w-40">
-                  <button
-                    type="button"
-                    onClick={() => setIsWeekSelectorOpen(!isWeekSelectorOpen)}
-                    className={`w-full px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center transition-colors duration-300 border-[#E5E7EB]`}
-                  >
-                    <span>
-                      {formData.pregnancyWeek !== "*"
-                        ? `${formData.pregnancyWeek}주차`
-                        : "선택"}
-                    </span>
-                    <svg
-                      className="w-4 h-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-                  {isWeekSelectorOpen && (
-                    <div className="absolute top-12 left-0 w-full bg-white border-2 border-sky-200 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto">
-                      <div className="py-1">
-                        {weeks.map((week) => (
-                          <button
-                            key={week}
-                            type="button"
-                            onClick={() => {
-                              const e = { target: { value: week.toString() } };
-                              handleWeekChange(
-                                e as ChangeEvent<HTMLSelectElement>
-                              );
-                            }}
-                            className={`w-full px-4 py-2 text-left font-['Do_Hyeon'] hover:bg-sky-100 transition-colors
-                              ${
-                                formData.pregnancyWeek === week.toString()
-                                  ? "bg-sky-200 text-black"
-                                  : "text-gray-700"
-                              }
-                            `}
-                          >
-                            {week}주차
-                          </button>
-                        ))}
-                      </div>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                {isWeekSelectorOpen && (
+                  <div className="absolute top-12 left-0 w-full bg-white border-2 border-sky-200 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto">
+                    <div className="py-1">
+                      {weeks.map((week) => (
+                        <button
+                          key={week}
+                          type="button"
+                          onClick={() => {
+                            const e = { target: { value: week.toString() } };
+                            handleWeekChange(
+                              e as ChangeEvent<HTMLSelectElement>
+                            );
+                          }}
+                          className={`w-full px-4 py-2 text-left font-['Do_Hyeon'] hover:bg-sky-100 transition-colors text-sm
+                            ${
+                              formData.pregnancyWeek === week.toString()
+                                ? "bg-sky-200 text-black"
+                                : "text-gray-700"
+                            }
+                          `}
+                        >
+                          {week}주차
+                        </button>
+                      ))}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center justify-between">
-                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
-                  출산 예정일
-                </label>
-                <div className="relative w-40">
-                  <button
-                    type="button"
-                    onClick={() => setShowCalendar(true)}
-                    className={`w-full px-4 py-2 border-2 rounded-[20px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center transition-colors duration-300 border-[#E5E7EB]`}
-                  >
-                    <span>{formData.dueDate || "선택"}</span>
-                    <svg
-                      className="w-4 h-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </button>
-                </div>
+            </div>
+
+            {/* 출산 예정일 */}
+            <div className="flex flex-col space-y-2">
+              <label className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                출산 예정일
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowCalendar(true)}
+                className="w-full h-11 px-4 border-2 rounded-[10px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center border-zinc-300 text-sm text-neutral-700"
+              >
+                <span>{formData.dueDate || "선택"}</span>
+                <svg
+                  className="w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* 고위험 임신 */}
+            <div className="flex flex-col space-y-2">
+              <label className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                고위험 임신
+              </label>
+              <div className="flex space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, isHighRisk: true })}
+                  className={`flex-1 py-2 rounded-full font-['Do_Hyeon'] transition-all duration-300 text-sm
+                    ${
+                      formData.isHighRisk
+                        ? "bg-[#F87171] text-white"
+                        : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-red-50"
+                    }`}
+                >
+                  예
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData({ ...formData, isHighRisk: false })
+                  }
+                  className={`flex-1 py-2 rounded-full font-['Do_Hyeon'] transition-all duration-300 text-sm
+                    ${
+                      !formData.isHighRisk
+                        ? "bg-[#E5E7EB] text-white"
+                        : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                >
+                  아니오
+                </button>
               </div>
-              <div className="flex items-center justify-between">
-                <label className="text-gray-600 font-['Do_Hyeon'] text-lg">
-                  고위험 임신
-                </label>
-                <div className="flex space-x-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({ ...formData, isHighRisk: true })
-                    }
-                    className={`px-4 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 outline-none
-                      ${
-                        formData.isHighRisk
-                          ? "bg-[#F87171] text-white"
-                          : "bg-white text-gray-600 hover:bg-[#FECACA]/40"
-                      }
-                      border-none`}
-                  >
-                    예
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({ ...formData, isHighRisk: false })
-                    }
-                    className={`px-4 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 outline-none
-                      ${
-                        !formData.isHighRisk
-                          ? "bg-[#E5E7EB] text-white"
-                          : "bg-white text-gray-600 hover:bg-[#E5E7EB]/60"
-                      }
-                      border-none`}
-                  >
-                    아니오
-                  </button>
-                </div>
-              </div>
+            </div>
+
+            {/* 수정 버튼 */}
+            <div className="pt-4">
               <button
                 type="submit"
-                className="w-full h-12 bg-blue-300 rounded-full flex items-center justify-center text-white text-lg font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10 mt-4"
+                className="w-full h-11 bg-blue-300 rounded-full flex items-center justify-center text-white text-base font-normal font-['Do_Hyeon'] cursor-pointer"
               >
                 수정
               </button>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
 
         {/* 커스텀 달력 모달 */}
@@ -585,7 +570,7 @@ export default function PregnancyInfo() {
                     key={index}
                     onClick={() => handleDateSelect(day.date)}
                     disabled={!day.isCurrentMonth}
-                    className={`                      w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
+                    className={`w-10 h-10 flex items-center justify-center text-sm font-['Do_Hyeon'] rounded-full
                       ${
                         day.isCurrentMonth
                           ? day.date.toISOString().split("T")[0] ===

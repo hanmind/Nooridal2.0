@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useProfile } from "@/app/context/ProfileContext";
 import { useAddress } from "@/app/context/AddressContext";
 import { supabase } from "@/app/lib/supabase";
+import HeaderBar from "@/app/components/HeaderBar";
 
 declare global {
   interface Window {
@@ -317,22 +318,25 @@ export default function ProfileManagement() {
 
   const handleDeleteProfile = async () => {
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
       if (userError) throw userError;
-      if (!user) throw new Error('사용자 정보를 찾을 수 없습니다.');
+      if (!user) throw new Error("사용자 정보를 찾을 수 없습니다.");
 
       const { error: updateError } = await supabase
-        .from('users')
+        .from("users")
         .update({ profile_image: null })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (updateError) throw updateError;
 
       setProfileImage(null);
       setShowEditOptions(false);
     } catch (error) {
-      console.error('프로필 이미지 삭제 중 오류 발생:', error);
-      alert('프로필 이미지 삭제에 실패했습니다.');
+      console.error("프로필 이미지 삭제 중 오류 발생:", error);
+      alert("프로필 이미지 삭제에 실패했습니다.");
     }
   };
 
@@ -347,19 +351,22 @@ export default function ProfileManagement() {
 
         // Supabase에 프로필 이미지 저장
         try {
-          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
           if (userError) throw userError;
-          if (!user) throw new Error('사용자 정보를 찾을 수 없습니다.');
+          if (!user) throw new Error("사용자 정보를 찾을 수 없습니다.");
 
           const { error: updateError } = await supabase
-            .from('users')
+            .from("users")
             .update({ profile_image: imageData })
-            .eq('id', user.id);
+            .eq("id", user.id);
 
           if (updateError) throw updateError;
         } catch (error) {
-          console.error('프로필 이미지 저장 중 오류 발생:', error);
-          alert('프로필 이미지 저장에 실패했습니다.');
+          console.error("프로필 이미지 저장 중 오류 발생:", error);
+          alert("프로필 이미지 저장에 실패했습니다.");
         }
       };
       reader.readAsDataURL(file);
@@ -500,25 +507,26 @@ export default function ProfileManagement() {
           .from("users")
           .update({ profile_image: null })
           .eq("id", user.id);
-        if (profileError) console.error("프로필 이미지 삭제 실패:", profileError);
+        if (profileError)
+          console.error("프로필 이미지 삭제 실패:", profileError);
         else console.log("프로필 이미지 삭제 완료");
 
         // 7. 사용자 계정 삭제
         console.log("users 테이블에서 사용자 삭제 시도...");
         console.log("삭제할 사용자 ID:", user.id);
-        
+
         // 먼저 사용자 정보 확인
         const { data: userData, error: userCheckError } = await supabase
           .from("users")
           .select("*")
           .eq("id", user.id)
           .single();
-          
+
         if (userCheckError) {
           console.error("사용자 정보 확인 실패:", userCheckError);
           throw userCheckError;
         }
-        
+
         console.log("삭제할 사용자 정보:", userData);
 
         // 사용자 삭제 시도 (RLS 정책을 고려하여 수정)
@@ -537,11 +545,11 @@ export default function ProfileManagement() {
         const { error: signOutError } = await supabase.auth.signOut();
         if (signOutError) console.error("로그아웃 실패:", signOutError);
         else console.log("로그아웃 완료");
-        
+
         // 9. 세션 스토리지의 임신 정보 삭제
-        sessionStorage.removeItem('pregnancy_info');
+        sessionStorage.removeItem("pregnancy_info");
         console.log("세션 스토리지 임신 정보 삭제 완료");
-        
+
         alert("계정이 완전히 삭제되었습니다.");
         router.push("/login");
       }
@@ -559,86 +567,307 @@ export default function ProfileManagement() {
     "*".repeat(totalLength - maxVisibleLength);
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      <div className="w-96 h-[874px] relative bg-[#FFF4BB] overflow-hidden">
-        <div className="w-[360px] h-[610px] left-[12px] top-[130px] absolute bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]" />
-        <div className="left-[155px] top-[65px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
-          내 정보 관리
-        </div>
-        <button
-          onClick={() => router.back()}
-          className="left-[24px] top-[63px] absolute text-center justify-start text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
-        >
-          &lt;
-        </button>
-
-        {/* 프로필 사진 영역 */}
-        <div
-          className="w-25 h-25 left-[32px] top-[163px] absolute bg-gray-200 rounded-full relative cursor-pointer overflow-hidden z-10"
-          onClick={handleProfileClick}
-        >
-          {profileImage ? (
-            <img
-              src={profileImage}
-              alt="프로필 이미지"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center pt-20">
+      {/* 헤더 */}
+      <HeaderBar title="내 정보 관리" />
+      <main className="w-full max-w-md relative bg-[#FFF4BB] overflow-y-auto flex flex-col items-center px-4 pt-6 sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
+        <div className="w-full max-w-[360px] bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)] p-6">
+          {/* 프로필 사진 영역 */}
+          <div className="flex flex-col items-center mb-6 relative">
+            <div
+              className="w-24 h-24 bg-gray-200 rounded-full relative cursor-pointer overflow-hidden"
+              onClick={handleProfileClick}
+            >
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="프로필 이미지"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <svg
+                    width="48"
+                    height="48"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
+                      fill="#9CA3AF"
+                    />
+                  </svg>
+                </div>
+              )}
+            </div>
+            {/* 카메라 버튼 */}
+            <button
+              className="absolute bottom-0 right-1/3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md"
+              onClick={() => setShowProfileOptions(true)}
+            >
+              {/* 카메라 아이콘 */}
               <svg
-                width="48"
-                height="48"
+                width="28"
+                height="28"
                 viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path
-                  d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
-                  fill="#9CA3AF"
+                <rect
+                  x="4"
+                  y="8"
+                  width="16"
+                  height="10"
+                  rx="2"
+                  stroke="#9CA3AF"
+                  strokeWidth="1.5"
+                  fill="white"
                 />
+                <circle
+                  cx="12"
+                  cy="13"
+                  r="3"
+                  stroke="#9CA3AF"
+                  strokeWidth="1.5"
+                  fill="white"
+                />
+                <rect x="9" y="6" width="6" height="2" rx="1" fill="#9CA3AF" />
+                <circle cx="17" cy="10" r="0.7" fill="#9CA3AF" />
               </svg>
+            </button>
+          </div>
+
+          {/* 프로필 정보 */}
+          <div className="space-y-4 w-full">
+            {/* 이름 입력란 */}
+            <div className="flex items-center justify-between">
+              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                이름
+              </div>
+              <input
+                placeholder="이름"
+                aria-label="이름"
+                type="text"
+                value={userInfo.name}
+                onChange={(e) =>
+                  setUserInfo((prev) => ({ ...prev, name: e.target.value }))
+                }
+                className="w-40 h-9 bg-white rounded-lg border border-zinc-300 px-3 text-black text-base font-['Do_Hyeon'] focus:outline-none"
+              />
             </div>
-          )}
+
+            {/* 초대 코드 */}
+            <div className="flex items-center justify-between">
+              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                초대코드
+              </div>
+              <div className="w-40 h-9 bg-gray-200 rounded-lg border border-zinc-300 flex items-center justify-between px-3">
+                <span className="text-black text-base font-['Do_Hyeon']">
+                  {userInfo.invitation_code}
+                </span>
+                <button
+                  onClick={copyInviteCode}
+                  className="w-6 h-6 cursor-pointer"
+                >
+                  {copySuccess ? (
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M19 21H8V7H19V21ZM16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5Z"
+                        fill="green"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M19 21H8V7H19V21ZM16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5Z"
+                        fill="#6366F1"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* 아이디 */}
+            <div className="flex flex-col space-y-2">
+              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                아이디
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="flex-1">
+                  <input
+                    placeholder="아이디"
+                    aria-label="아이디"
+                    type="text"
+                    value={isEditingId ? tempUserId : userInfo.username}
+                    onChange={handleIdChange}
+                    onClick={handleIdClick}
+                    onBlur={handleIdBlur}
+                    className="w-full h-11 px-4 text-left text-neutral-700 text-sm font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
+                  />
+                </div>
+                <button
+                  onClick={checkIdDuplicate}
+                  className="h-9 px-2 bg-[#FFE999] hover:bg-[#FFD966] rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
+                >
+                  <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">
+                    중복확인
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* 비밀번호 */}
+            <div className="flex flex-col space-y-2">
+              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                비밀번호
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="flex-1">
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="********"
+                    className="w-full h-11 px-4 text-left text-neutral-700 text-sm font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
+                    readOnly
+                  />
+                </div>
+                <button
+                  onClick={() => setShowPasswordModal(true)}
+                  className="h-9 px-2 bg-[#FFE999] hover:bg-[#FFD966] rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
+                >
+                  <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">
+                    변경하기
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* 이메일 */}
+            <div className="flex flex-col space-y-2">
+              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                이메일
+              </div>
+              <input
+                type="text"
+                value={userInfo.email}
+                readOnly
+                className="w-full h-11 px-4 bg-gray-200 text-stone-500 text-sm font-normal font-['Do_Hyeon'] rounded-[10px] border border-zinc-300"
+              />
+            </div>
+
+            {/* 전화번호 */}
+            <div className="flex flex-col space-y-2">
+              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                전화번호
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="flex-1">
+                  {isEditingPhone ? (
+                    <input
+                      type="text"
+                      value={tempPhoneNumber}
+                      onChange={handlePhoneChange}
+                      onBlur={handlePhoneBlur}
+                      className={`w-full h-11 px-4 text-left text-neutral-700 text-sm font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 rounded-[10px] ${
+                        phoneDuplicate === true
+                          ? "bg-red-100 border-red-300"
+                          : phoneDuplicate === false
+                          ? "bg-green-100 border-green-300"
+                          : "bg-white border-zinc-300"
+                      }`}
+                      autoFocus
+                      maxLength={13}
+                      placeholder="010-0000-0000"
+                    />
+                  ) : (
+                    <div
+                      className={`w-full h-11 px-4 flex items-center text-left text-black text-sm font-normal font-['Do_Hyeon'] border-2 rounded-[10px] cursor-pointer ${
+                        phoneDuplicate === true
+                          ? "bg-red-100 border-red-300"
+                          : phoneDuplicate === false
+                          ? "bg-green-100 border-green-300"
+                          : "bg-white border-zinc-300"
+                      }`}
+                      onClick={handlePhoneClick}
+                    >
+                      {userInfo.phoneNumber.replace(
+                        /(\d{3})(\d{4})(\d{4})/,
+                        "$1-$2-$3"
+                      )}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={checkPhoneDuplicate}
+                  className="h-9 px-2 bg-[#FFE999] hover:bg-[#FFD966] rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
+                >
+                  <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">
+                    중복확인
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* 주소 */}
+            <div className="flex flex-col space-y-2">
+              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+                주소
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="flex-1">
+                  <div className="w-full h-11 px-4 flex items-center bg-white text-neutral-900 text-sm font-normal font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 overflow-hidden">
+                    {address}
+                  </div>
+                </div>
+                <button
+                  onClick={handleAddressSearch}
+                  className="h-9 px-2 bg-[#FFE999] hover:bg-[#FFD966] rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
+                >
+                  <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">
+                    검색
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* 수정 버튼 */}
+            <div className="flex flex-col items-center pt-4">
+              <button
+                onClick={handleSaveChanges}
+                className="w-full h-11 bg-blue-300 rounded-full flex items-center justify-center text-white text-base font-normal font-['Do_Hyeon'] cursor-pointer"
+              >
+                수정
+              </button>
+
+              {/* 탈퇴하기 */}
+              <div
+                className="mt-4 text-center text-neutral-400/60 text-sm font-normal font-['Do_Hyeon'] cursor-pointer"
+                onClick={() => setShowDeleteModal(true)}
+              >
+                탈퇴하기
+              </div>
+            </div>
+          </div>
         </div>
-        {/* 카메라 버튼 */}
-        <button
-          className="absolute left-[100px] top-[230px] w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md z-50"
-          onClick={() => setShowProfileOptions(true)}
-        >
-          {/* 카메라 아이콘 */}
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect
-              x="4"
-              y="8"
-              width="16"
-              height="10"
-              rx="2"
-              stroke="#9CA3AF"
-              strokeWidth="1.5"
-              fill="white"
-            />
-            <circle
-              cx="12"
-              cy="13"
-              r="3"
-              stroke="#9CA3AF"
-              strokeWidth="1.5"
-              fill="white"
-            />
-            <rect x="9" y="6" width="6" height="2" rx="1" fill="#9CA3AF" />
-            <circle cx="17" cy="10" r="0.7" fill="#9CA3AF" />
-          </svg>
-        </button>
 
         {/* 프로필 옵션 팝업 */}
         {showProfileOptions && (
-          <div className="absolute left-[20px] top-20 w-32 bg-white rounded-lg shadow-lg z-10">
+          <div className="absolute top-32 left-1/2 transform -translate-x-1/2 w-32 bg-white rounded-lg shadow-lg z-10">
             {profileImage ? (
               <>
                 <div
@@ -675,9 +904,9 @@ export default function ProfileManagement() {
           </div>
         )}
 
-        {/* 편집 옵션 팝업 */}
+        {/* 수정 옵션 팝업 */}
         {showEditOptions && (
-          <div className="absolute left-[20px] top-20 w-32 bg-white rounded-lg shadow-lg z-10">
+          <div className="absolute top-32 left-1/2 transform -translate-x-1/2 w-32 bg-white rounded-lg shadow-lg z-10">
             <div
               className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-blue-50 cursor-pointer text-sky-400"
               onClick={handleEditProfile}
@@ -698,120 +927,6 @@ export default function ProfileManagement() {
             </div>
           </div>
         )}
-
-        {/* 숨겨진 파일 입력 */}
-        <input
-          aria-label="프로필 이미지 선택"
-          type="file"
-          ref={fileInputRef}
-          className="hidden"
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-
-        {/* 이름 입력란 */}
-        <input
-          placeholder="이름"
-          aria-label="이름"
-          type="text"
-          value={userInfo.name}
-          onChange={(e) =>
-            setUserInfo((prev) => ({ ...prev, name: e.target.value }))
-          }
-          className="w-36 h-9 left-[209px] top-[184px] absolute bg-white rounded-lg border border-zinc-300 px-3 text-black text-base font-['Do_Hyeon'] focus:outline-none"
-        />
-
-        {/* 초대 코드 */}
-        <div className="w-36 h-9 left-[209px] top-[235px] absolute bg-gray-200 rounded-lg border border-zinc-300 flex items-center justify-between px-2">
-          <button
-            onClick={copyInviteCode}
-            className="w-6 h-6 cursor-pointer ml-auto"
-          >
-            {copySuccess ? (
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M19 21H8V7H19V21ZM16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5Z"
-                  fill="green"
-                />
-              </svg>
-            ) : (
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M19 21H8V7H19V21ZM16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5Z"
-                  fill="#6366F1"
-                />
-              </svg>
-            )}
-          </button>
-        </div>
-        <div className="left-[158px] top-[178px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">
-          이 름
-        </div>
-        <div className="left-[157px] top-[227px] absolute text-center justify-start text-black text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
-          초대코드
-        </div>
-        <div className="w-20 h-4 left-[221px] top-[227px] absolute text-center justify-start text-black text-base font-normal font-['Do_Hyeon'] leading-[50px]">
-          {userInfo.invitation_code}
-        </div>
-
-        {/* 아이디 */}
-        <div className="w-[250px] h-11 left-[30px] top-[308px] absolute flex items-center">
-          <input
-            placeholder="아이디"
-            aria-label="아이디"
-            type="text"
-            value={isEditingId ? tempUserId : userInfo.username}
-            onChange={handleIdChange}
-            onClick={handleIdClick}
-            onBlur={handleIdBlur}
-            className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
-          />
-        </div>
-        <div className="w-24 h-5 left-[35px] top-[272px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
-          아이디
-        </div>
-        <button
-          onClick={checkIdDuplicate}
-          className="w-16 h-9 left-[290px] top-[305px] absolute bg-[#FFE999] hover:bg-[#FFD966] rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
-        >
-          <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">
-            중복확인
-          </span>
-        </button>
-
-        {/* 비밀번호 */}
-        <div className="w-[250px] h-11 left-[30px] top-[380px] absolute flex items-center">
-          <input
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            placeholder="********"
-            className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
-          />
-        </div>
-        <div className="w-24 h-5 left-[35px] top-[344px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
-          비밀번호
-        </div>
-        <button
-          onClick={() => setShowPasswordModal(true)}
-          className="w-16 h-9 left-[290px] top-[384px] absolute bg-[#FFE999] hover:bg-[#FFD966] rounded-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center"
-        >
-          <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">
-            변경하기
-          </span>
-        </button>
 
         {/* 비밀번호 변경 모달 */}
         {showPasswordModal && (
@@ -903,100 +1018,7 @@ export default function ProfileManagement() {
           </div>
         )}
 
-        {/* 이메일 */}
-        <div className="w-[250px] h-11 left-[30px] top-[452px] absolute bg-gray-200 rounded-[10px] border border-zinc-300" />
-        <div className="w-28 h-5 left-[35px] top-[417px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
-          이메일
-        </div>
-        <div className="w-52 h-2 left-[45px] top-[450px] absolute text-left justify-start text-stone-500 text-s font-normal font-['Do_Hyeon'] leading-[50px]">
-          {userInfo.email}
-        </div>
-
-        {/* 전화번호 */}
-        <div
-          className={`w-[250px] h-11 left-[30px] top-[524px] absolute rounded-[10px] border ${
-            phoneDuplicate === true
-              ? "bg-red-100 border-red-300"
-              : phoneDuplicate === false
-              ? "bg-green-100 border-green-300"
-              : "bg-white border-zinc-300"
-          }`}
-        />
-        <div className="w-24 h-5 left-[35px] top-[489px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
-          전화번호
-        </div>
-        {isEditingPhone ? (
-          <div className="w-[250px] h-11 left-[30px] top-[524px] absolute flex items-center">
-            <input
-              type="text"
-              value={tempPhoneNumber}
-              onChange={handlePhoneChange}
-              onBlur={handlePhoneBlur}
-              className="w-full h-full pl-4 text-left text-neutral-700 text-s font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
-              autoFocus
-              maxLength={13}
-              placeholder="010-0000-0000"
-            />
-          </div>
-        ) : (
-          <div
-            className="w-52 h-11 left-[42px] top-[521px] absolute text-left justify-start text-black text-s font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer"
-            onClick={handlePhoneClick}
-          >
-            {userInfo.phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")}
-          </div>
-        )}
-        <div
-          data-property-1="Default"
-          className="w-16 h-9 left-[300px] top-[505px] absolute"
-          onClick={checkPhoneDuplicate}
-        >
-          <div className="w-16 h-9 left-[-10px] top-6 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
-            <span className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon']">
-              중복확인
-            </span>
-          </div>
-        </div>
-
-        {/* 주소 */}
-        <div className="w-24 h-9 left-[35px] top-[560px] absolute text-left justify-start text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[50px]">
-          주소
-        </div>
-        <div className="w-[250px] h-11 left-[30px] top-[596px] absolute bg-white rounded-[10px] border border-zinc-300 overflow-hidden">
-          <div className="w-full h-full text-left justify-start text-neutral-900 text-m font-normal font-['Do_Hyeon'] leading-[48px] pl-3">
-            {address}
-          </div>
-        </div>
-        <div
-          data-property-1="Default"
-          className="w-16 h-9 left-[295px] top-[577px] absolute"
-        >
-          <div className="w-16 h-9 left-[-5px] top-6 absolute bg-[#FFE999] rounded-2xl hover:bg-[#FFD966] transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center">
-            <span
-              className="text-center text-[#333333] text-sm font-normal font-['Do_Hyeon'] cursor-pointer"
-              onClick={handleAddressSearch}
-            >
-              검색
-            </span>
-          </div>
-        </div>
-
-        {/* Center the text inside the edit button and navigate back to @page.tsx on click */}
-        <button
-          onClick={handleSaveChanges}
-          className="w-35 h-10 left-[50%] transform -translate-x-1/2 top-[670px] absolute bg-blue-300 rounded-full flex items-center justify-center text-white text-m font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
-        >
-          수정
-        </button>
-
-        {/* 탈퇴하기 */}
-        <div
-          className="w-36 h-6 left-[120px] top-[740px] absolute text-center justify-start text-neutral-400/60 text-base font-normal font-['Do_Hyeon'] leading-[50px] cursor-pointer z-10"
-          onClick={() => setShowDeleteModal(true)}
-        >
-          탈퇴하기
-        </div>
-
+        {/* 계정 삭제 모달 */}
         {showDeleteModal && (
           <div className="fixed inset-0 bg-neutral-400/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-3xl p-6 w-80 relative">
@@ -1024,102 +1046,16 @@ export default function ProfileManagement() {
           </div>
         )}
 
-        {/* 하단 네비게이션 바 */}
-        <div className="absolute bottom-0 w-full">
-          <div className="w-[462px] h-52 relative">
-            {/* 채팅 아이콘 */}
-            <svg
-              className="w-8 h-8 left-[52.71px] top-[786px] absolute"
-              fill="none"
-              stroke="#979595"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-            </svg>
-
-            {/* 캘린더 아이콘 */}
-            <svg
-              className="w-8 h-8 left-[140.75px] top-[787.34px] absolute"
-              fill="none"
-              stroke="#979595"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-
-            {/* 위치 아이콘 */}
-            <svg
-              className="w-8 h-8 left-[222px] top-[784px] absolute"
-              fill="none"
-              stroke="#979595"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-
-            {/* 마이페이지 아이콘 */}
-            <svg
-              className="w-8 h-8 left-[323.75px] top-[787px] absolute"
-              fill="none"
-              stroke="#FDB813"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
-
-            {/* 네비게이션 텍스트 */}
-            <div className="w-20 h-16 left-[25px] top-[803px] absolute text-center justify-start text-[#979595] text-xs font-normal font-['Do_Hyeon'] leading-[50px]">
-              채팅
-            </div>
-            <div className="w-9 h-8 left-[138px] top-[803px] absolute text-center justify-start text-[#979595] text-xs font-normal font-['Do_Hyeon'] leading-[50px]">
-              캘린더
-            </div>
-            <div className="w-20 h-10 left-[201px] top-[802.60px] absolute text-center justify-start text-[#979595] text-xs font-normal font-['Do_Hyeon'] leading-[50px]">
-              위치
-            </div>
-            <div className="w-20 h-10 left-[293px] top-[802.60px] absolute text-center justify-start text-yellow-400 text-xs font-normal font-['Do_Hyeon'] leading-[50px]">
-              마이페이지
-            </div>
-          </div>
-        </div>
-
-        <div className="left-[20px] top-[180px] absolute w-[90%]">
-          {/* Profile image and address content adjusted downwards */}
-          <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon'] leading-[30px]">
-            {/* Content goes here */}
-          </div>
-        </div>
-      </div>
+        {/* 숨겨진 파일 입력 */}
+        <input
+          aria-label="프로필 이미지 선택"
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          accept="image/*"
+          onChange={handleFileChange}
+        />
+      </main>
     </div>
   );
 }
