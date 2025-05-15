@@ -101,7 +101,8 @@ export default function PregnancyInfo() {
             setTempBabyName(babyName);
             setFormData({
               babyName: babyName,
-              gender: (pregnancyData.baby_gender as "남자" | "여자" | "모름") || "",
+              gender:
+                (pregnancyData.baby_gender as "남자" | "여자" | "모름") || "",
               pregnancyWeek: (pregnancyData.current_week || 1).toString(),
               dueDate:
                 pregnancyData.due_date ||
@@ -120,20 +121,23 @@ export default function PregnancyInfo() {
   useEffect(() => {
     const fetchProfileImage = async () => {
       try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
         if (userError) throw userError;
-        if (!user) throw new Error('사용자 정보를 찾을 수 없습니다.');
+        if (!user) throw new Error("사용자 정보를 찾을 수 없습니다.");
 
         const { data: userData, error: fetchError } = await supabase
-          .from('users')
-          .select('profile_image')
-          .eq('id', user.id)
+          .from("users")
+          .select("profile_image")
+          .eq("id", user.id)
           .single();
 
         if (fetchError) throw fetchError;
         setProfileImage(userData?.profile_image || null);
       } catch (error) {
-        console.error('프로필 이미지를 가져오는 중 오류 발생:', error);
+        console.error("프로필 이미지를 가져오는 중 오류 발생:", error);
       }
     };
 
@@ -277,8 +281,8 @@ export default function PregnancyInfo() {
     <div className="min-h-screen w-full flex justify-center items-center px-2 sm:px-4 md:px-8 bg-white">
       <main className="w-full max-w-md min-h-screen relative bg-white overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
         {/* 헤더 */}
-        <div className="w-full h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl px-2 sm:px-4 relative">
-          <button 
+        <div className="w-full h-[100px] sm:h-[120px] flex items-center justify-center bg-white shadow-md rounded-b-3xl px-2 sm:px-4 relative">
+          <button
             onClick={() => router.back()}
             className="absolute left-10 text-yellow-600 hover:text-yellow-800"
           >
@@ -455,18 +459,30 @@ export default function PregnancyInfo() {
                 <div className="flex space-x-2">
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, isHighRisk: true })}
+                    onClick={() =>
+                      setFormData({ ...formData, isHighRisk: true })
+                    }
                     className={`px-4 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 outline-none
-                      ${formData.isHighRisk ? 'bg-[#F87171] text-white' : 'bg-white text-gray-600 hover:bg-[#FECACA]/40'}
+                      ${
+                        formData.isHighRisk
+                          ? "bg-[#F87171] text-white"
+                          : "bg-white text-gray-600 hover:bg-[#FECACA]/40"
+                      }
                       border-none`}
                   >
                     예
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, isHighRisk: false })}
+                    onClick={() =>
+                      setFormData({ ...formData, isHighRisk: false })
+                    }
                     className={`px-4 py-1.5 rounded-full font-['Do_Hyeon'] transition-all duration-300 outline-none
-                      ${!formData.isHighRisk ? 'bg-[#E5E7EB] text-white' : 'bg-white text-gray-600 hover:bg-[#E5E7EB]/60'}
+                      ${
+                        !formData.isHighRisk
+                          ? "bg-[#E5E7EB] text-white"
+                          : "bg-white text-gray-600 hover:bg-[#E5E7EB]/60"
+                      }
                       border-none`}
                   >
                     아니오
@@ -604,4 +620,3 @@ export default function PregnancyInfo() {
     </div>
   );
 }
-
