@@ -20,8 +20,10 @@ declare global {
 export default function LocationPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("location");
-  const { address, setAddress } = useAddress();
-  const [currentAddress, setCurrentAddress] = useState<string>("");
+  // Use searchAddress for display and updates, keep original address for profile context
+  const { address: profileAddress, searchAddress, setSearchAddress, isLoaded } = useAddress();
+  // localCurrentAddress is used to temporarily hold GPS fetched address before setting it to context
+  const [localCurrentAddress, setLocalCurrentAddress] = useState<string>("");
 
   // 주소를 동까지만 표시하는 함수
   const getShortAddress = (fullAddress: string) => {
@@ -55,31 +57,34 @@ export default function LocationPage() {
     };
   }, []);
 
-  // 주소 수정 함수 (GPS 기반)
+  // GPS 기반 현재 위치 설정 함수
   const handleSetCurrentLocationByGPS = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    // 현재 위치 가져오기
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
 
-          // 카카오맵 API로 주소 가져오기
-          const geocoder = new window.kakao.maps.services.Geocoder();
-          const coord = new window.kakao.maps.LatLng(latitude, longitude);
+          if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
+            const geocoder = new window.kakao.maps.services.Geocoder();
+            const coord = new window.kakao.maps.LatLng(latitude, longitude);
 
-          geocoder.coord2Address(
-            coord.getLng(),
-            coord.getLat(),
-            (result: any, status: any) => {
-              if (status === window.kakao.maps.services.Status.OK) {
-                const address = result[0].address.address_name;
-                setCurrentAddress(address);
-              } else {
-                alert("주소를 가져올 수 없습니다.");
+            geocoder.coord2Address(
+              coord.getLng(),
+              coord.getLat(),
+              (result: any, status: any) => {
+                if (status === window.kakao.maps.services.Status.OK) {
+                  const newAddress = result[0].address.address_name;
+                  setLocalCurrentAddress(newAddress); // Set local state first
+                  setSearchAddress(newAddress); // Update context searchAddress
+                } else {
+                  alert("주소를 가져올 수 없습니다.");
+                }
               }
-            }
-          );
+            );
+          } else {
+            alert("카카오맵 API 서비스가 준비되지 않았습니다.");
+          }
         },
         (error) => {
           alert("현재 위치를 가져올 수 없습니다.");
@@ -92,7 +97,8 @@ export default function LocationPage() {
 
   // 프로필 주소 사용 함수
   const handleSetCurrentLocationByProfile = () => {
-    setCurrentAddress(address);
+    setLocalCurrentAddress(profileAddress); // Set local state (optional, for consistency if needed)
+    setSearchAddress(profileAddress); // Update context searchAddress with profileAddress
   };
 
   const handleTabClick = (tab: string) => {
@@ -107,6 +113,15 @@ export default function LocationPage() {
       router.push("/mypage");
     }
   };
+
+  // Display loading or default if address context is not ready yet
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen w-full bg-[#FFF4BB] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-700"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB]">
@@ -139,9 +154,8 @@ export default function LocationPage() {
                 </div>
                 <div className="flex ml-[-30px] items-center justify-between w-full">
                   <div className="text-xl font-['Do_Hyeon'] text-center flex-1">
-                    {currentAddress
-                      ? getShortAddress(currentAddress)
-                      : getShortAddress(address)}
+                    {/* Display searchAddress from context */}
+                    {getShortAddress(searchAddress)}
                   </div>
                   <div className="flex flex-col space-y-1 sm:space-y-0 sm:flex-row sm:space-x-1 ml-2">
                     <button

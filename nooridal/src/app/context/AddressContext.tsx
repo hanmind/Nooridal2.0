@@ -3,38 +3,59 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 interface AddressContextType {
-  address: string;
+  address: string; // Profile address
   setAddress: (address: string) => void;
+  searchAddress: string; // Address to be used for searching
+  setSearchAddress: (address: string) => void;
   isLoaded: boolean;
 }
 
 const AddressContext = createContext<AddressContextType | undefined>(undefined);
 
 export function AddressProvider({ children }: { children: ReactNode }) {
-  const [address, setAddressState] = useState<string>('');
+  const [address, setAddressState] = useState<string>(''); // Profile address
+  const [searchAddress, setSearchAddressState] = useState<string>(''); // Active search address
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    // 초기 로드 시 localStorage에서 저장된 주소를 가져옵니다
     const savedAddress = localStorage.getItem('userAddress');
+    const savedSearchAddress = localStorage.getItem('searchAddress');
+
+    let initialProfileAddress = '서울 강남구 논현동'; // Default profile address
     if (savedAddress) {
-      setAddressState(savedAddress);
-    } else {
-      // 저장된 주소가 없는 경우 기본값 설정
-      setAddressState('서울 강남구 논현동');
+      initialProfileAddress = savedAddress;
     }
-    // 로딩 완료 표시
+    setAddressState(initialProfileAddress);
+
+    if (savedSearchAddress) {
+      setSearchAddressState(savedSearchAddress);
+    } else {
+      setSearchAddressState(initialProfileAddress); // Default searchAddress to profile address
+    }
     setIsLoaded(true);
   }, []);
 
   const setAddress = (newAddress: string) => {
     setAddressState(newAddress);
-    // 주소가 변경될 때마다 localStorage에 저장합니다
     localStorage.setItem('userAddress', newAddress);
+    // If profile address changes, also update search address if it was same as old profile address
+    // or if search address hasn't been set differently by GPS yet.
+    // For simplicity now, let's consider if we should always update searchAddress here
+    // or only if it hasn't been "detached" by a GPS set.
+    // Current decision: when profile address changes, if searchAddress was reflecting the *old* profile address,
+    // update it to the new one. Or, if this is the first load, align them.
+    // Simplest: if user updates profile, the search address should probably realign too.
+    setSearchAddressState(newAddress); // Update search address when profile address changes
+    localStorage.setItem('searchAddress', newAddress);
+  };
+
+  const setSearchAddress = (newSearchAddress: string) => {
+    setSearchAddressState(newSearchAddress);
+    localStorage.setItem('searchAddress', newSearchAddress);
   };
 
   return (
-    <AddressContext.Provider value={{ address, setAddress, isLoaded }}>
+    <AddressContext.Provider value={{ address, setAddress, searchAddress, setSearchAddress, isLoaded }}>
       {children}
     </AddressContext.Provider>
   );

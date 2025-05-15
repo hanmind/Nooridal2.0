@@ -24,7 +24,7 @@ interface FacilityInfo {
 
 export default function WelfarePage() {
   const router = useRouter();
-  const { address, setAddress } = useAddress();
+  const { address: profileAddress, searchAddress, setSearchAddress, isLoaded } = useAddress();
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [showContactPopup, setShowContactPopup] = useState(false);
   const [showParentalInfo, setShowParentalInfo] = useState(false);
@@ -34,7 +34,9 @@ export default function WelfarePage() {
     null
   );
   const [loadingSingleParentData, setLoadingSingleParentData] = useState(false);
-  const [currentAddress, setCurrentAddress] = useState<string>("");
+  const [localCurrentAddress, setLocalCurrentAddress] = useState<string>("");
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   // 카카오맵 스크립트 로드
   useEffect(() => {
@@ -43,7 +45,7 @@ export default function WelfarePage() {
     script.async = true;
     script.onload = () => {
       window.kakao.maps.load(() => {
-        // 스크립트 로드 완료 콜백
+        setMapLoaded(true);
       });
     };
     document.head.appendChild(script);
@@ -75,7 +77,7 @@ export default function WelfarePage() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          if (window.kakao && window.kakao.maps) {
+          if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
             const geocoder = new window.kakao.maps.services.Geocoder();
             const coord = new window.kakao.maps.LatLng(latitude, longitude);
             geocoder.coord2Address(
@@ -84,7 +86,8 @@ export default function WelfarePage() {
               (result: any, status: any) => {
                 if (status === window.kakao.maps.services.Status.OK) {
                   const newAddress = result[0].address.address_name;
-                  setCurrentAddress(newAddress);
+                  setLocalCurrentAddress(newAddress);
+                  setSearchAddress(newAddress);
                 } else {
                   alert("주소를 가져올 수 없습니다.");
                 }
@@ -105,7 +108,8 @@ export default function WelfarePage() {
 
   // 프로필 주소 사용 함수
   const handleSetCurrentLocationByProfile = () => {
-    setCurrentAddress(address);
+    setLocalCurrentAddress(profileAddress);
+    setSearchAddress(profileAddress);
   };
 
   const welfareTypes = [
@@ -160,6 +164,53 @@ export default function WelfarePage() {
     }
   };
 
+  useEffect(() => {
+    if (selectedType === "singleParentSupport" && searchAddress) {
+      // fetchSingleParentFacilityData(searchAddress); // Pass searchAddress if needed by the fetch function
+    }
+  }, [selectedType, searchAddress]);
+
+  useEffect(() => {
+    if (mapLoaded && window.kakao && window.kakao.maps && showMap) {
+      const container = document.getElementById("map-welfare"); // Assuming a unique ID for this map
+      if (!container) return;
+      container.style.width = "100%";
+      container.style.height = "300px"; // Adjust height as needed
+
+      const geocoder = new window.kakao.maps.services.Geocoder();
+      geocoder.addressSearch(searchAddress, (result: any, status: any) => {
+        if (status === window.kakao.maps.services.Status.OK) {
+          const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+          const mapOptions = {
+            center: coords,
+            level: 5, // Adjust zoom level as needed
+          };
+          const map = new window.kakao.maps.Map(container, mapOptions);
+          
+          // Add a marker for the current searchAddress location
+          new window.kakao.maps.Marker({
+            position: coords,
+            map: map,
+          });
+          // Potentially load other welfare facility markers here based on coords and selectedType
+        } else {
+          // Fallback for geocoding failure
+          const options = { center: new window.kakao.maps.LatLng(37.566826, 126.9786567), level: 5 };
+          new window.kakao.maps.Map(container, options);
+          alert("선택된 주소의 좌표를 찾을 수 없어 기본 위치로 지도를 표시합니다.");
+        }
+      });
+    }
+  }, [mapLoaded, searchAddress, showMap, selectedType]);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen w-full bg-[#FFF4BB] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-700"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] pt-20">
       <div className="w-full h-[900px] relative bg-[#FFF4BB] overflow-hidden">
@@ -192,9 +243,7 @@ export default function WelfarePage() {
 
               <div className="flex ml-[-30px] items-center justify-between w-full">
                 <div className="text-xl font-['Do_Hyeon'] text-center flex-1">
-                  {currentAddress
-                    ? getShortAddress(currentAddress)
-                    : getShortAddress(address)}
+                  {getShortAddress(searchAddress)}
                 </div>
                 <div className="flex flex-col space-y-1 sm:space-y-0 sm:flex-row sm:space-x-1 ml-2">
                   <button
