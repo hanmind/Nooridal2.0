@@ -41,19 +41,19 @@ export default function CentersPage() {
   useEffect(() => {
     const fetchCentersData = async () => {
       try {
-        const response = await fetch('/data/women_reemployment_centers.json');
+        const response = await fetch("/data/women_reemployment_centers.json");
         const data = await response.json();
         setCentersData(data);
-        
+
         // 시도 목록 생성
         const provinceList = Object.keys(data.centersByProvince);
         setProvinces(provinceList);
-        
+
         // 처음에는 모든 센터 표시
         setFilteredCenters(data.centers);
         setLoading(false);
       } catch (error) {
-        console.error('Failed to fetch centers data:', error);
+        console.error("Failed to fetch centers data:", error);
         setLoading(false);
       }
     };
@@ -66,24 +66,25 @@ export default function CentersPage() {
     if (!centersData) return;
 
     let filtered: Center[];
-    
+
     // 지역으로 먼저 필터링
     if (selectedProvince === "all") {
       filtered = centersData.centers;
     } else {
       filtered = centersData.centersByProvince[selectedProvince] || [];
     }
-    
+
     // 검색어로 추가 필터링
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(center => 
-        center.name.toLowerCase().includes(term) || 
-        center.address.toLowerCase().includes(term) ||
-        center.city.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (center) =>
+          center.name.toLowerCase().includes(term) ||
+          center.address.toLowerCase().includes(term) ||
+          center.city.toLowerCase().includes(term)
       );
     }
-    
+
     setFilteredCenters(filtered);
   }, [searchTerm, selectedProvince, centersData]);
 
@@ -91,18 +92,33 @@ export default function CentersPage() {
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
       <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-auto">
         {/* 헤더 */}
-        <div className="sticky top-0 left-0 right-0 w-full h-[140px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px] z-10">
-          <button 
+        <div className="sticky top-0 left-0 right-0 w-full h-[100px] sm:h-[120px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px] z-10">
+          <button
             onClick={() => router.back()}
-            className="absolute left-[24px] top-[63px] text-center justify-start text-neutral-700 text-2xl font-normal font-['Inter'] leading-[50px]"
+            className="absolute left-[24px] top-1/2 -translate-y-1/2 flex items-center justify-center text-neutral-700 hover:text-yellow-600 transition-colors z-20"
+            title="뒤로 가기"
+            aria-label="뒤로 가기"
           >
-            &lt;
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
           </button>
           <div className="relative w-full text-center">
             <span className="text-neutral-700 text-2xl font-normal font-['Do_Hyeon'] leading-[50px]">
               여성새로일하기센터
             </span>
-            <button 
+            <button
               onClick={() => setShowInfoPopup(true)}
               className="absolute right-[24px] top-[12px] w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-sm"
             >
@@ -121,26 +137,26 @@ export default function CentersPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full p-3 mb-2 rounded-lg border border-gray-300 font-['Do_Hyeon']"
             />
-            
+
             <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
               <button
                 onClick={() => setSelectedProvince("all")}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-['Do_Hyeon'] ${
-                  selectedProvince === "all" 
-                    ? "bg-yellow-400 text-white" 
+                  selectedProvince === "all"
+                    ? "bg-yellow-400 text-white"
                     : "bg-gray-200 text-gray-700"
                 }`}
               >
                 전체
               </button>
-              
-              {provinces.map(province => (
+
+              {provinces.map((province) => (
                 <button
                   key={province}
                   onClick={() => setSelectedProvince(province)}
                   className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-['Do_Hyeon'] ${
-                    selectedProvince === province 
-                      ? "bg-yellow-400 text-white" 
+                    selectedProvince === province
+                      ? "bg-yellow-400 text-white"
                       : "bg-gray-200 text-gray-700"
                   }`}
                 >
@@ -163,14 +179,19 @@ export default function CentersPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredCenters.map(center => (
-                <div key={center.id} className="bg-white p-4 rounded-2xl shadow-sm">
+              {filteredCenters.map((center) => (
+                <div
+                  key={center.id}
+                  className="bg-white p-4 rounded-2xl shadow-sm"
+                >
                   <div className="flex items-start">
                     <div className="flex-shrink-0 mr-3 mt-1 bg-yellow-100 rounded-full p-2">
                       <span className="text-xl">🏢</span>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-['Do_Hyeon']">{center.name}</h3>
+                      <h3 className="text-lg font-['Do_Hyeon']">
+                        {center.name}
+                      </h3>
                       <p className="text-sm text-gray-600 mt-1 font-['Do_Hyeon']">
                         {center.province} {center.city}
                       </p>
@@ -186,7 +207,9 @@ export default function CentersPage() {
                           {center.phone}
                         </a>
                         <a
-                          href={`https://map.kakao.com/link/search/${encodeURIComponent(center.address)}`}
+                          href={`https://map.kakao.com/link/search/${encodeURIComponent(
+                            center.address
+                          )}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center text-sm text-green-600 bg-green-50 px-3 py-1 rounded-lg font-['Do_Hyeon']"
@@ -202,11 +225,14 @@ export default function CentersPage() {
             </div>
           )}
         </div>
-        
+
         {/* 센터 정보 팝업 */}
         {showInfoPopup && (
           <div className="fixed inset-0 flex items-center justify-center z-40">
-            <div className="absolute inset-0 bg-black/50" onClick={() => setShowInfoPopup(false)} />
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setShowInfoPopup(false)}
+            />
             <div className="relative bg-[#FFF4F4] rounded-3xl shadow-lg p-6 w-[370px] max-h-[80vh] overflow-y-auto border-4 border-yellow-200">
               <div className="flex flex-col items-center mb-2">
                 <div className="text-xl font-['Do_Hyeon'] text-yellow-600 mb-2 flex items-center">
@@ -215,8 +241,13 @@ export default function CentersPage() {
               </div>
               <div className="text-left text-sm font-['Do_Hyeon'] text-gray-700 space-y-3">
                 <div>
-                  <span className="font-bold text-yellow-600">여성새로일하기센터</span><br/>
-                  육아, 가사 등으로 경력이 단절된 여성의 취업지원을 위해 취업상담, 직업교육훈련, 인턴십, 취업 후 사후관리 등 종합적인 취업지원 서비스를 제공하는 기관입니다.
+                  <span className="font-bold text-yellow-600">
+                    여성새로일하기센터
+                  </span>
+                  <br />
+                  육아, 가사 등으로 경력이 단절된 여성의 취업지원을 위해
+                  취업상담, 직업교육훈련, 인턴십, 취업 후 사후관리 등 종합적인
+                  취업지원 서비스를 제공하는 기관입니다.
                 </div>
                 <div>
                   <span className="font-bold text-yellow-600">주요 서비스</span>
@@ -229,8 +260,10 @@ export default function CentersPage() {
                   </ul>
                 </div>
                 <div>
-                  <span className="font-bold text-yellow-600">이용 방법</span><br/>
-                  전국 새일센터에 직접 방문하거나 전화로 상담 예약<br/>
+                  <span className="font-bold text-yellow-600">이용 방법</span>
+                  <br />
+                  전국 새일센터에 직접 방문하거나 전화로 상담 예약
+                  <br />
                   <span className="text-red-500">대표전화: ☎ 1544-1199</span>
                 </div>
               </div>
@@ -246,4 +279,4 @@ export default function CentersPage() {
       </div>
     </div>
   );
-} 
+}

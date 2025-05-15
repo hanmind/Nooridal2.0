@@ -9,8 +9,8 @@ export default function AppInfo() {
     <div className="min-h-screen w-full flex justify-center items-center px-2 sm:px-4 md:px-8 bg-white">
       <main className="w-full max-w-md min-h-screen relative bg-white overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
         {/* 헤더 */}
-        <div className="w-full h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl px-2 sm:px-4 relative">
-          <button 
+        <div className="w-full h-[100px] sm:h-[120px] flex items-center justify-center bg-white shadow-md rounded-b-3xl px-2 sm:px-4 relative">
+          <button
             onClick={() => router.back()}
             className="absolute left-10 text-yellow-600 hover:text-yellow-800"
           >
@@ -44,18 +44,30 @@ export default function AppInfo() {
             <div className="space-y-4">
               <div className="bg-white rounded-xl overflow-hidden border-2 border-[#FFE999] p-4">
                 <div className="mb-4">
-                  <div className="text-[#A67C52] font-['Do_Hyeon'] text-lg mb-2">앱 버전</div>
-                  <div className="text-gray-700 text-base font-['Do_Hyeon']">2.0.0</div>
+                  <div className="text-[#A67C52] font-['Do_Hyeon'] text-lg mb-2">
+                    앱 버전
+                  </div>
+                  <div className="text-gray-700 text-base font-['Do_Hyeon']">
+                    2.0.0
+                  </div>
                 </div>
-                
+
                 <div className="mb-4">
-                  <div className="text-[#A67C52] font-['Do_Hyeon'] text-lg mb-2">개발자 정보</div>
-                  <div className="text-gray-700 text-base font-['Do_Hyeon']">윤무열 한세희 최정은 장지윤</div>
+                  <div className="text-[#A67C52] font-['Do_Hyeon'] text-lg mb-2">
+                    개발자 정보
+                  </div>
+                  <div className="text-gray-700 text-base font-['Do_Hyeon']">
+                    윤무열 한세희 최정은 장지윤
+                  </div>
                 </div>
 
                 <div>
-                  <div className="text-[#A67C52] font-['Do_Hyeon'] text-lg mb-2">문의하기</div>
-                  <div className="text-gray-700 text-base font-['Do_Hyeon']">noorimoon2025@gmail.com</div>
+                  <div className="text-[#A67C52] font-['Do_Hyeon'] text-lg mb-2">
+                    문의하기
+                  </div>
+                  <div className="text-gray-700 text-base font-['Do_Hyeon']">
+                    noorimoon2025@gmail.com
+                  </div>
                 </div>
               </div>
             </div>
@@ -64,4 +76,4 @@ export default function AppInfo() {
       </main>
     </div>
   );
-} 
+}

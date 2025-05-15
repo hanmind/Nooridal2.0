@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Calendar from "./Calendar";
 import TabBar from "../components/TabBar";
 import { supabase } from "../../utils/supabase"; // Import Supabase client
+import HeaderBar from "../components/HeaderBar";
 
 // Generate random invitation code (copied from register/pregnant/page.tsx)
 const generateInvitationCode = () => {
@@ -26,7 +27,18 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isMonthSelectorOpen, setIsMonthSelectorOpen] = useState(false);
   const months = [
-    "1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"
+    "1월",
+    "2월",
+    "3월",
+    "4월",
+    "5월",
+    "6월",
+    "7월",
+    "8월",
+    "9월",
+    "10월",
+    "11월",
+    "12월",
   ];
   const handleMonthSelect = (monthIndex: number) => {
     const newDate = new Date(currentDate);
@@ -223,11 +235,11 @@ export default function CalendarPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center relative">
-      <div className="w-screen h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl mt-[-10px] px-2 sm:px-4">
-        <div className="flex items-center justify-center w-full relative">
-          {/* Month display and selector */}
-          <span className="text-xl sm:text-2xl text-neutral-700 font-['Do_Hyeon'] text-center w-full mt-8 sm:mt-15 select-none">
-            {currentDate.getFullYear()}.{String(currentDate.getMonth() + 1).padStart(2, "0")}
+      <HeaderBar
+        title={
+          <div className="select-none">
+            {currentDate.getFullYear()}.
+            {String(currentDate.getMonth() + 1).padStart(2, "0")}
             <svg
               width="25"
               height="30"
@@ -245,25 +257,32 @@ export default function CalendarPage() {
                 strokeLinejoin="round"
               />
             </svg>
-            {/* Month selector dropdown */}
-            {isMonthSelectorOpen && (
-              <div className="absolute left-1/2 -translate-x-1/2 top-[120px] w-[220px] bg-gray-50 rounded-3xl shadow-2xl p-5 grid grid-cols-3 gap-3 z-50 border-2 border-gray-200">
-                {months.map((month, index) => (
-                  <div
-                    key={month}
-                    onClick={() => handleMonthSelect(index)}
-                    className={`p-2 text-base cursor-pointer rounded-xl transition-colors duration-150 text-center select-none
-                      ${currentDate.getMonth() === index ? "bg-gray-300 text-gray-800 font-bold border-2 border-gray-400" : "text-gray-700 border-2 border-transparent"}
-                      hover:bg-gray-200 hover:text-gray-900`}
-                  >
-                    {month}
-                  </div>
-                ))}
-              </div>
-            )}
-          </span>
+          </div>
+        }
+        showBackButton={false}
+      />
+
+      {/* Month selector dropdown */}
+      {isMonthSelectorOpen && (
+        <div className="absolute left-1/2 -translate-x-1/2 top-[90px] w-[220px] bg-gray-50 rounded-3xl shadow-2xl p-5 grid grid-cols-3 gap-3 z-50 border-2 border-gray-200">
+          {months.map((month, index) => (
+            <div
+              key={month}
+              onClick={() => handleMonthSelect(index)}
+              className={`p-2 text-base cursor-pointer rounded-xl transition-colors duration-150 text-center select-none
+                ${
+                  currentDate.getMonth() === index
+                    ? "bg-gray-300 text-gray-800 font-bold border-2 border-gray-400"
+                    : "text-gray-700 border-2 border-transparent"
+                }
+                hover:bg-gray-200 hover:text-gray-900`}
+            >
+              {month}
+            </div>
+          ))}
         </div>
-      </div>
+      )}
+
       <div className="flex flex-1 items-center justify-center w-full px-2 sm:px-4">
         <div className="w-full max-w-md">
           <Calendar currentDate={currentDate} setCurrentDate={setCurrentDate} />

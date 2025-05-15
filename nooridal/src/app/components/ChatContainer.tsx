@@ -16,6 +16,7 @@ import { addConversation } from "../../lib/chatRoomService";
 import { Message } from "@/types/chat";
 import { ChatRoom, LLMConversation } from "@/types/db";
 import { supabase } from "../lib/supabase";
+import HeaderBar from "./HeaderBar";
 
 // 로컬 스토리지 키 생성 함수
 const getLocalStorageKey = (roomId: string) => `chatMessages_${roomId}`;
@@ -1007,23 +1008,16 @@ export default function ChatContainer() {
 
   // --- Render ---
   return (
-    <div className="flex h-full bg-yellow-50 overflow-hidden">
-      <ChatSidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-        chatRooms={chatRooms}
-        onSelectRoom={handleSelectRoom}
-        currentRoomId={currentRoomId}
-        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-        onCreateNewChat={handleCreateNewChat}
-      />
-
-      <div className="flex-1 flex flex-col relative">
-        <div className="w-full h-[140px] sm:h-[180px] flex items-center justify-center bg-white shadow-md rounded-b-3xl px-2 sm:px-4 relative">
+    <div className="flex flex-col h-screen w-full overflow-hidden">
+      {/* 헤더 */}
+      <HeaderBar
+        title="누리달 AI챗봇"
+        showBackButton={false}
+        leftButton={
           <button
             aria-label="Toggle sidebar"
             onClick={() => setIsSidebarOpen(true)}
-            className="text-neutral-700 hover:text-yellow-800 lg:hidden absolute left-10 top-1/2 -translate-y-1/2"
+            className="text-neutral-700 hover:text-yellow-800"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1040,84 +1034,97 @@ export default function ChatContainer() {
               />
             </svg>
           </button>
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl sm:text-2xl text-neutral-700 font-['Do_Hyeon'] text-center">
-            누리달 AI챗봇
-          </span>
-        </div>
+        }
+      />
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-yellow-50 pb-48">
-          {isLoadingRooms && (
-            <p className="text-center text-yellow-600 opacity-75">
-              채팅방 목록 로딩 중...
-            </p>
-          )}
-          {isLoadingMessages && (
-            <p className="text-center text-yellow-600 opacity-75">
-              대화 내용을 불러오는 중...
-            </p>
-          )}
-          {!isLoadingRooms && !isLoadingMessages && chatRooms.length === 0 && (
-            <p className="text-center text-yellow-600 opacity-75">
-              채팅 기록이 없습니다.
-            </p>
-          )}
-          {!isLoadingRooms &&
-            currentRoomId &&
-            !isLoadingMessages &&
-            messages.length === 0 &&
-            !error && (
+      <div className="flex flex-1 bg-yellow-50 overflow-hidden">
+        <ChatSidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          chatRooms={chatRooms}
+          onSelectRoom={handleSelectRoom}
+          currentRoomId={currentRoomId}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          onCreateNewChat={handleCreateNewChat}
+        />
+
+        <div className="flex-1 flex flex-col relative">
+          <div className="flex-1 overflow-y-auto p-6 space-y-5 pb-36">
+            {isLoadingRooms && (
               <p className="text-center text-yellow-600 opacity-75">
-                대화를 시작해보세요.
+                채팅방 목록 로딩 중...
               </p>
             )}
-          {error && (
-            <ErrorMessage
-              message={error}
-              onRetry={
-                currentRoomId
-                  ? () => loadMessagesFromDB(currentRoomId)
-                  : fetchChatRooms
+            {isLoadingMessages && (
+              <p className="text-center text-yellow-600 opacity-75">
+                대화 내용을 불러오는 중...
+              </p>
+            )}
+            {!isLoadingRooms &&
+              !isLoadingMessages &&
+              chatRooms.length === 0 && (
+                <p className="text-center text-yellow-600 opacity-75">
+                  채팅 기록이 없습니다.
+                </p>
+              )}
+            {!isLoadingRooms &&
+              currentRoomId &&
+              !isLoadingMessages &&
+              messages.length === 0 &&
+              !error && (
+                <p className="text-center text-yellow-600 opacity-75">
+                  대화를 시작해보세요.
+                </p>
+              )}
+            {error && (
+              <ErrorMessage
+                message={error}
+                onRetry={
+                  currentRoomId
+                    ? () => loadMessagesFromDB(currentRoomId)
+                    : fetchChatRooms
+                }
+              />
+            )}
+
+            {!isLoadingMessages &&
+              messages.map((message) =>
+                message.role === "user" ? (
+                  <UserMessage
+                    key={message.id}
+                    message={message.content}
+                    timestamp={message.timestamp}
+                  />
+                ) : message.error ? (
+                  <ErrorMessage
+                    key={message.id}
+                    message={message.errorMessage || "응답 생성 중 오류 발생"}
+                    onRetry={() => handleRetry(message.id)}
+                  />
+                ) : (
+                  <AIMessage
+                    key={message.id}
+                    message={message.content}
+                    isStreaming={message.isStreaming}
+                    timestamp={message.timestamp}
+                  />
+                )
+              )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="absolute bottom-20 left-0 right-0 p-2 border-t border-yellow-200 bg-white z-20">
+            <ChatInput
+              onSendMessage={handleSendMessage}
+              disabled={
+                !userId ||
+                !currentRoomId ||
+                isProcessing ||
+                isLoadingMessages ||
+                isLoadingRooms
               }
             />
-          )}
-
-          {!isLoadingMessages &&
-            messages.map((message) =>
-              message.role === "user" ? (
-                <UserMessage
-                  key={message.id}
-                  message={message.content}
-                  timestamp={message.timestamp}
-                />
-              ) : message.error ? (
-                <ErrorMessage
-                  key={message.id}
-                  message={message.errorMessage || "응답 생성 중 오류 발생"}
-                  onRetry={() => handleRetry(message.id)}
-                />
-              ) : (
-                <AIMessage
-                  key={message.id}
-                  message={message.content}
-                  isStreaming={message.isStreaming}
-                  timestamp={message.timestamp}
-                />
-              )
-            )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className="absolute bottom-[7rem] left-0 right-0 p-4 border-t border-yellow-200 bg-white z-20">
-          <ChatInput
-            onSendMessage={handleSendMessage}
-            disabled={
-              !userId ||
-              !currentRoomId ||
-              isProcessing ||
-              isLoadingMessages ||
-              isLoadingRooms
-            }
-          />
+          </div>
         </div>
       </div>
     </div>
