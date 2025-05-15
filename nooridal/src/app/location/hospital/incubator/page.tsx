@@ -128,14 +128,13 @@ export default function IncubatorPage() {
           const lng = parseFloat(result[0].x);
           setUserCoords({ lat, lng });
 
-          const radius = 50; // 50km radius
           const nearby = allClinics
             .map(clinic => ({
               ...clinic,
               distance: calculateDistance(lat, lng, clinic.lat, clinic.lng)
             }))
-            .filter(clinic => clinic.distance != null && clinic.distance <= radius)
-            .sort((a, b) => (a.distance || 0) - (b.distance || 0));
+            .sort((a, b) => (a.distance || 0) - (b.distance || 0))
+            .slice(0, 20);
           setNearbyClinics(nearby);
         } else {
           console.error("Failed to geocode searchAddress:", searchAddress);
@@ -294,7 +293,7 @@ export default function IncubatorPage() {
           {!loading && nearbyClinics.length > 0 && (
             <>
               <div className="mb-2 text-sm font-['Do_Hyeon'] text-gray-600">
-                {searchAddress ? `${searchAddress} 기준` : "전체"} 50km 내 {nearbyClinics.length}개 병원 검색 결과:
+                {searchAddress ? `${searchAddress} 기준` : "전체"} 가까운 병원 {nearbyClinics.length}개 검색 결과:
               </div>
               {nearbyClinics.map((clinic) => (
                 <div

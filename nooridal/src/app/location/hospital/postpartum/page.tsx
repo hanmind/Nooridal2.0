@@ -131,15 +131,14 @@ export default function PostpartumCenterPage() {
           const lng = parseFloat(result[0].x);
           setUserCoords({ lat, lng });
 
-          const radius = 10; // 10km radius
           const nearby = allCenters
             .filter(center => center.lat !== null && center.lng !== null)
             .map(center => ({
               ...center,
               distance: calculateDistance(lat, lng, center.lat!, center.lng!)
             }))
-            .filter(center => center.distance != null && center.distance <= radius)
-            .sort((a,b) => (a.distance || 0) - (b.distance || 0));
+            .sort((a,b) => (a.distance || 0) - (b.distance || 0))
+            .slice(0, 20);
           setNearbyCenters(nearby);
         } else {
           console.error("Failed to geocode searchAddress for postpartum centers:", searchAddress);
@@ -260,7 +259,7 @@ export default function PostpartumCenterPage() {
 
       {searchAddress && (
         <div className="p-3 bg-yellow-50 text-center text-sm font-['Do_Hyeon'] text-yellow-700">
-          검색 기준: {searchAddress} (주변 10km)
+          검색 기준: {searchAddress} (가까운 순)
         </div>
       )}
 

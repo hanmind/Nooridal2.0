@@ -158,7 +158,6 @@ export default function TransportPage() {
   const findNearbyOutingLocations = async (
     lat: number,
     lng: number,
-    radius: number = 5
   ) => {
     if (outingLocations.length === 0) {
       const locations = await loadOutingLocations();
@@ -196,9 +195,8 @@ export default function TransportPage() {
         );
         return { ...location, distance };
       })
-      .filter((location) => location.distance <= radius)
       .sort((a, b) => (a.distance as number) - (b.distance as number))
-      .slice(0, 10); // 가장 가까운 10개만 선택
+      .slice(0, 20); // Take top 20, increased from 10
 
     setNearbyLocations(nearby);
     return nearby;
@@ -316,7 +314,7 @@ export default function TransportPage() {
 
           // 나들이 선택된 경우 근처 아웃팅 위치 검색
           if (selectedType === "outing") {
-            const nearby = await findNearbyOutingLocations(lat, lng, 5);
+            const nearby = await findNearbyOutingLocations(lat, lng);
 
             if (nearby && nearby.length > 0) {
               const markers = nearby.map((location) => {
@@ -521,7 +519,7 @@ export default function TransportPage() {
             const lat = parseFloat(result[0].y);
             const lng = parseFloat(result[0].x);
             setUserCoords({ lat, lng }); // Set userCoords for map useEffect
-            await findNearbyOutingLocations(lat, lng, 5); // Search with geocoded address
+            await findNearbyOutingLocations(lat, lng); // Removed radius argument
           } else {
             console.error("나들이: 주소 지오코딩 실패", searchAddress);
             alert("선택된 주소의 좌표를 찾을 수 없어 나들이 정보를 가져올 수 없습니다.");
