@@ -297,7 +297,7 @@ export default function FacilitiesPage() {
   }, [mapLoaded, address, showMap, selectedType]);
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB]">
+    <div className="min-h-screen w-full bg-[#FFF4BB] pt-20">
       <div className="w-full h-[900px] relative bg-[#FFF4BB] overflow-hidden">
         {/* 헤더 */}
         <HeaderBar title="편의 시설" backUrl="/location" />

@@ -19,6 +19,9 @@ export default function WelfarePage() {
   const [showContactPopup, setShowContactPopup] = useState(false);
   const [showParentalInfo, setShowParentalInfo] = useState(false);
   const [showCareerInfo, setShowCareerInfo] = useState(false);
+  const [showSingleParentInfo, setShowSingleParentInfo] = useState(false);
+  const [singleParentData, setSingleParentData] = useState(null);
+  const [loadingSingleParentData, setLoadingSingleParentData] = useState(false);
 
   // 주소를 동까지만 표시하는 함수
   const getShortAddress = (fullAddress: string) => {
@@ -94,8 +97,29 @@ export default function WelfarePage() {
     },
   ];
 
+  const fetchSingleParentData = async () => {
+    setLoadingSingleParentData(true);
+    try {
+      // For now, using the dummy data structure. Replace with actual API call.
+      const response = await fetch("/data/single_parent_support.json"); // Ensure this path is correct
+      if (!response.ok) {
+        throw new Error("Failed to fetch single parent data");
+      }
+      const data = await response.json();
+      // Assuming the JSON root is an object with a property like 'services' which is an array
+      // And we are interested in a specific service, e.g., the first one or by ID.
+      // This needs to match the actual structure of your single_parent_support.json
+      setSingleParentData(data.services[0]); // Example: taking the first service
+    } catch (error) {
+      console.error("Error fetching single parent data:", error);
+      setSingleParentData(null); // Set to null or some error state
+    } finally {
+      setLoadingSingleParentData(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB]">
+    <div className="min-h-screen w-full bg-[#FFF4BB] pt-20">
       <div className="w-full h-[900px] relative bg-[#FFF4BB] overflow-hidden">
         {/* 헤더 */}
         <HeaderBar title="복지" backUrl="/location" />
@@ -189,6 +213,7 @@ export default function WelfarePage() {
                 setShowContactPopup(false);
                 setShowParentalInfo(false);
                 setShowCareerInfo(false);
+                setShowSingleParentInfo(false);
               }}
             />
             {/* 정보 상자 */}
@@ -274,7 +299,8 @@ export default function WelfarePage() {
                       ①임신 중인 여성 근로자가 모성을 보호하거나 <br />
                       ②근로자가 만 8세 이하 또는 초등학교 2학년 이하의
                       자녀(입양한 자녀 포함)를 양육하기 위해 휴직(이하
-                      '육아휴직'이라 함)을 신청하는 경우에 이를 허용해야 합니다.
+                      &lsquo;육아휴직&rsquo;이라 함)을 신청하는 경우에 이를
+                      허용해야 합니다.
                       <br />
                       <span className="text-[10px] text-gray-500">
                         (남녀고용평등과 일·가정 양립 지원에 관한 법률
@@ -450,9 +476,10 @@ export default function WelfarePage() {
                         여성가족부장관과 고용노동부장관은 여성의 경력단절 예방과
                         경제활동 촉진에 관한 정책 및 지원센터의 사업을
                         효율적이고 체계적으로 지원하기 위하여 다음의 업무를
-                        수행하는 중앙여성경제활동지원센터(이하 "중앙지원센터"라
-                        한다)를 지정·운영할 수 있습니다(「여성의 경제활동 촉진과
-                        경력단절 예방법」 제16조제1항 및 제2항).
+                        수행하는 중앙여성경제활동지원센터(이하
+                        &ldquo;중앙지원센터&rdquo;라 한다)를 지정·운영할 수
+                        있습니다(「여성의 경제활동 촉진과 경력단절 예방법」
+                        제16조제1항 및 제2항).
                       </span>
 
                       <ul className="list-disc ml-4 mt-1">
@@ -743,6 +770,29 @@ export default function WelfarePage() {
                     >
                       닫기
                     </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 한부모 지원 상세 정보 팝업 */}
+            {selectedType === "single-parent" && showSingleParentInfo && (
+              <div className="fixed top-20 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+                <div className="bg-white p-6 rounded-lg shadow-xl max-w-lg w-full max-h-[75vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-['Do_Hyeon']">
+                      {singleParentData?.serviceName || "한부모 지원 상세 정보"}
+                    </h3>
+                    <button
+                      onClick={() => setShowSingleParentInfo(false)}
+                      className="text-sm font-['Do_Hyeon'] cursor-pointer hover:text-yellow-400"
+                    >
+                      닫기
+                    </button>
+                  </div>
+                  <div className="text-left text-sm font-['Do_Hyeon'] text-gray-700 space-y-3">
+                    {/* 한부모 지원 상세 정보 표시 */}
+                    {/* 실제 데이터를 기반으로 표시해야 합니다. */}
                   </div>
                 </div>
               </div>

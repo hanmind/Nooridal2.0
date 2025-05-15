@@ -83,7 +83,7 @@ export default function DiscountShopsPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-auto flex flex-col">
+      <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-auto flex flex-col pt-20">
         {/* 헤더 */}
         <HeaderBar
           title="임신부/가족 배려 할인업소"
@@ -91,7 +91,7 @@ export default function DiscountShopsPage() {
         />
 
         {/* 검색 및 필터 영역 */}
-        <div className="px-4 mt-6 mb-4 flex-shrink-0">
+        <div className="px-4 mb-4 flex-shrink-0">
           <div className="p-4 bg-white rounded-xl shadow-sm">
             <input
               type="text"

@@ -1006,18 +1006,32 @@ export default function ChatContainer() {
     }
   };
 
+  // --- Rendering Logic (Task 10.3) ---
+  if (error) {
+    return <ErrorMessage message={error} onRetry={fetchChatRooms} />;
+  }
+
+  // 채팅방 ID가 아직 설정되지 않았거나 로딩 중일 때
+  if (isLoadingRooms || !currentRoomId) {
+    return (
+      <div className="h-full flex flex-col justify-center items-center bg-gray-50">
+        <p className="text-gray-500">채팅방을 불러오는 중입니다...</p>
+      </div>
+    );
+  }
+
   // --- Render ---
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden">
-      {/* 헤더 */}
+    <div className="h-full flex flex-col bg-gray-50 relative pt-20">
+      {/* 헤더 바 */}
       <HeaderBar
-        title="누리달 AI챗봇"
+        title="누리달 AI 챗봇"
         showBackButton={false}
-        leftButton={
+        rightButton={
           <button
-            aria-label="Toggle sidebar"
             onClick={() => setIsSidebarOpen(true)}
-            className="text-neutral-700 hover:text-yellow-800"
+            className="flex items-center justify-center text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="대화 목록 열기"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

@@ -254,6 +254,7 @@ export default function HospitalPage() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  const [currentAddress, setCurrentAddress] = useState<string>(address);
 
   // 주소를 동까지만 표시하는 함수
   const getShortAddress = (fullAddress: string) => {
@@ -579,205 +580,197 @@ export default function HospitalPage() {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB]">
-      <div className="w-full h-[900px] relative bg-[#FFF4BB] overflow-hidden">
-        {/* 헤더 */}
-        <HeaderBar title="병원" backUrl="/location" />
+    <div className="min-h-screen w-full bg-[#FFF4BB] pt-20">
+      {/* HeaderBar */}
+      <HeaderBar title="병원" backUrl="/location" />
 
-        {/* Current Location Section */}
-        <div className="w-[360px] h-[100px] mx-auto mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
-          <div className="flex items-start p-6">
-            <div className="mr-4">
-              <svg
-                className="w-14 h-14"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                  fill="#000"
-                />
-              </svg>
+      {/* Current Location Section */}
+      <div className="w-[360px] h-[100px] mx-auto mt-8 bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
+        <div className="flex items-start p-6">
+          <div className="mr-4">
+            <svg
+              className="w-14 h-14"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                fill="#000"
+              />
+            </svg>
+          </div>
+
+          <div className="flex-1 flex flex-col items-center">
+            <div className="text-center ml-[-60px] mb-2 -mt-2">
+              <span className="text-sm font-['Do_Hyeon'] text-yellow-400">
+                현재 설정 위치
+              </span>
             </div>
 
-            <div className="flex-1 flex flex-col items-center">
-              <div className="text-center ml-[-60px] mb-2 -mt-2">
-                <span className="text-sm font-['Do_Hyeon'] text-yellow-400">
-                  현재 설정 위치
-                </span>
+            <div className="flex ml-[-30px] items-center justify-between w-full">
+              <div className="text-xl font-['Do_Hyeon'] text-center flex-1">
+                {getShortAddress(address)}
               </div>
-
-              <div className="flex ml-[-30px] items-center justify-between w-full">
-                <div className="text-xl font-['Do_Hyeon'] text-center flex-1">
-                  {getShortAddress(address)}
-                </div>
-                <button
-                  onClick={handleAddressEdit}
-                  className="text-sm font-['Do_Hyeon'] cursor-pointer hover:text-yellow-400 ml-2"
-                >
-                  수정
-                </button>
-              </div>
+              <button
+                onClick={handleAddressEdit}
+                className="text-sm font-['Do_Hyeon'] cursor-pointer hover:text-yellow-400 ml-2"
+              >
+                수정
+              </button>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* 병원 유형 선택 */}
-        <div className="mx-auto mt-2 w-[360px] space-y-4">
-          {hospitalTypes.map((type) => (
-            <div key={type.id}>
-              {type.id === "obstetrics" && (
-                <div className="border-t border-dashed border-gray-300 my-6" />
-              )}
-              <div
-                className={`p-6 rounded-3xl shadow-sm cursor-pointer transition-all duration-300 ${
-                  selectedType === type.id
-                    ? "bg-red-100 border-2 border-red-200"
-                    : "bg-white hover:bg-red-50"
-                }`}
-                onClick={() => {
-                  if (type.id === "postpartum") {
-                    router.push("/location/hospital/postpartum"); // Navigate to postpartum page
-                  } else {
-                    setSelectedType(type.id);
-                  }
-                }}
-              >
-                <div className="flex items-center">
-                  <div className="text-4xl mr-4">{type.icon}</div>
-                  <div>
-                    <div className="text-xl font-['Do_Hyeon']">
-                      {type.title}
+      {/* 병원 유형 선택 */}
+      <div className="mx-auto mt-2 w-[360px] space-y-4">
+        {hospitalTypes.map((type) => (
+          <div key={type.id}>
+            {type.id === "obstetrics" && (
+              <div className="border-t border-dashed border-gray-300 my-6" />
+            )}
+            <div
+              className={`p-6 rounded-3xl shadow-sm cursor-pointer transition-all duration-300 ${
+                selectedType === type.id
+                  ? "bg-red-100 border-2 border-red-200"
+                  : "bg-white hover:bg-red-50"
+              }`}
+              onClick={() => {
+                if (type.id === "postpartum") {
+                  router.push("/location/hospital/postpartum"); // Navigate to postpartum page
+                } else {
+                  setSelectedType(type.id);
+                }
+              }}
+            >
+              <div className="flex items-center">
+                <div className="text-4xl mr-4">{type.icon}</div>
+                <div>
+                  <div className="text-xl font-['Do_Hyeon']">{type.title}</div>
+                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">
+                    {type.description}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 선택된 병원 유형에 따른 추가 정보 표시 */}
+      {selectedType && !showMap && (
+        <>
+          {/* 반투명 배경 */}
+          <div
+            className="fixed inset-0 bg-black/50 z-10"
+            onClick={() => setSelectedType(null)}
+          />
+
+          {/* 정보 상자 */}
+          <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[360px] p-8 bg-white rounded-3xl shadow-sm z-20">
+            <div className="text-center font-['Do_Hyeon'] text-2xl mb-8">
+              {hospitalTypes.find((t) => t.id === selectedType)?.title} 정보
+            </div>
+            <div className="space-y-4">
+              {selectedType === "obstetrics" && (
+                <>
+                  <div
+                    className="p-4 bg-blue-50 rounded-xl cursor-pointer hover:bg-blue-100"
+                    onClick={() =>
+                      router.push("/location/hospital/infertility")
+                    }
+                  >
+                    <div className="font-['Do_Hyeon']">
+                      난임시술 정보 알아보기
                     </div>
                     <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">
-                      {type.description}
+                      관련 정보를 확인하세요
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* 선택된 병원 유형에 따른 추가 정보 표시 */}
-        {selectedType && !showMap && (
-          <>
-            {/* 반투명 배경 */}
-            <div
-              className="fixed inset-0 bg-black/50 z-10"
-              onClick={() => setSelectedType(null)}
-            />
-
-            {/* 정보 상자 */}
-            <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[360px] p-8 bg-white rounded-3xl shadow-sm z-20">
-              <div className="text-center font-['Do_Hyeon'] text-2xl mb-8">
-                {hospitalTypes.find((t) => t.id === selectedType)?.title} 정보
-              </div>
-              <div className="space-y-4">
-                {selectedType === "obstetrics" && (
-                  <>
-                    <div
-                      className="p-4 bg-blue-50 rounded-xl cursor-pointer hover:bg-blue-100"
-                      onClick={() =>
-                        router.push("/location/hospital/infertility")
-                      }
-                    >
-                      <div className="font-['Do_Hyeon']">
-                        난임시술 정보 알아보기
-                      </div>
-                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">
-                        관련 정보를 확인하세요
-                      </div>
+                  <div
+                    className="p-4 bg-green-50 rounded-xl cursor-pointer hover:bg-green-100"
+                    onClick={() => router.push("/location/hospital/incubator")}
+                  >
+                    <div className="font-['Do_Hyeon']">
+                      인큐베이터 현황 알아보기
                     </div>
-                    <div
-                      className="p-4 bg-green-50 rounded-xl cursor-pointer hover:bg-green-100"
-                      onClick={() =>
-                        router.push("/location/hospital/incubator")
-                      }
-                    >
-                      <div className="font-['Do_Hyeon']">
-                        인큐베이터 현황 알아보기
-                      </div>
-                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">
-                        실시간 현황을 확인하세요
-                      </div>
+                    <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">
+                      실시간 현황을 확인하세요
                     </div>
-                    <div
-                      className="p-4 bg-yellow-50 rounded-xl cursor-pointer hover:bg-yellow-100"
-                      onClick={() =>
-                        router.push("/location/hospital/bed-count")
-                      }
-                    >
-                      <div className="font-['Do_Hyeon']">
-                        병상수 정보 알아보기
-                      </div>
-                      <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">
-                        입원 가능 병상 정보를 확인하세요
-                      </div>
+                  </div>
+                  <div
+                    className="p-4 bg-yellow-50 rounded-xl cursor-pointer hover:bg-yellow-100"
+                    onClick={() => router.push("/location/hospital/bed-count")}
+                  >
+                    <div className="font-['Do_Hyeon']">
+                      병상수 정보 알아보기
                     </div>
-                  </>
-                )}
-                {/* <div 
-                  className="p-4 bg-red-50 rounded-xl cursor-pointer"
-                  onClick={() => setShowMap(true)}
-                >
-                  <div className="font-['Do_Hyeon']">📍 주변 병원 찾기</div>
-                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">가까운 병원을 찾아보세요</div>
-                </div>
-                <div className="p-4 bg-red-50 rounded-xl">
-                  <div className="font-['Do_Hyeon']">💬 상담하기</div>
-                  <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문의와 상담하세요</div>
-                </div> */}
-              </div>
-
-              {/* 닫기 버튼 */}
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => setSelectedType(null)}
-                  className="px-6 py-2 bg-red-200 text-gray-900 rounded-full font-['Do_Hyeon'] hover:bg-red-300 transition-colors"
-                >
-                  닫기
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* 카카오맵 표시 */}
-        {showMap && (
-          <>
-            {/* 반투명 배경 */}
-            <div
-              className="fixed inset-0 bg-black/50 z-10"
-              onClick={() => setShowMap(false)}
-            />
-
-            {/* 지도 컨테이너 */}
-            <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[360px] h-[500px] bg-white rounded-3xl shadow-sm z-20 p-4">
-              <div className="flex justify-between items-center mb-4">
-                <div className="text-xl font-['Do_Hyeon']">주변 병원 지도</div>
-                <button
-                  onClick={() => setShowMap(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✕
-                </button>
-              </div>
-              <div
-                id="map"
-                className="w-full h-[400px] rounded-xl overflow-hidden"
+                    <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">
+                      입원 가능 병상 정보를 확인하세요
+                    </div>
+                  </div>
+                </>
+              )}
+              {/* <div 
+                className="p-4 bg-red-50 rounded-xl cursor-pointer"
+                onClick={() => setShowMap(true)}
               >
-                {!mapLoaded && (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-400"></div>
-                  </div>
-                )}
+                <div className="font-['Do_Hyeon']">📍 주변 병원 찾기</div>
+                <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">가까운 병원을 찾아보세요</div>
               </div>
+              <div className="p-4 bg-red-50 rounded-xl">
+                <div className="font-['Do_Hyeon']">💬 상담하기</div>
+                <div className="text-sm text-gray-500 mt-1 font-['Do_Hyeon']">전문의와 상담하세요</div>
+              </div> */}
             </div>
-          </>
-        )}
-      </div>
+
+            {/* 닫기 버튼 */}
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={() => setSelectedType(null)}
+                className="px-6 py-2 bg-red-200 text-gray-900 rounded-full font-['Do_Hyeon'] hover:bg-red-300 transition-colors"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* 카카오맵 표시 */}
+      {showMap && (
+        <>
+          {/* 반투명 배경 */}
+          <div
+            className="fixed inset-0 bg-black/50 z-10"
+            onClick={() => setShowMap(false)}
+          />
+
+          {/* 지도 컨테이너 */}
+          <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[360px] h-[500px] bg-white rounded-3xl shadow-sm z-20 p-4">
+            <div className="flex justify-between items-center mb-4">
+              <div className="text-xl font-['Do_Hyeon']">주변 병원 지도</div>
+              <button
+                onClick={() => setShowMap(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <div
+              id="map"
+              className="w-full h-[400px] rounded-xl overflow-hidden"
+            >
+              {!mapLoaded && (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-400"></div>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

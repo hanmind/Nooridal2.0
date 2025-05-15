@@ -109,12 +109,12 @@ export default function SingleParentFacilitiesPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB] flex justify-center items-center">
-      <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-auto">
+      <div className="w-96 h-[900px] relative bg-[#FFF4BB] overflow-auto pt-20">
         {/* 헤더 */}
         <MapHeaderBar title="한부모가족복지시설" backUrl="/location/welfare" />
 
         {/* 검색 및 필터 영역 */}
-        <div className="px-4 mt-6 mb-4">
+        <div className="px-4 mb-4">
           <div className="p-4 bg-white rounded-xl shadow-sm">
             <input
               type="text"

@@ -234,7 +234,7 @@ export default function CalendarPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center relative">
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center relative pt-20">
       <HeaderBar
         title={
           <div className="select-none">

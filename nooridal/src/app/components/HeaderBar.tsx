@@ -31,7 +31,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
   };
 
   return (
-    <div className="w-full h-20 sticky top-0 flex justify-center items-center bg-white shadow-md rounded-b-2xl px-4 z-10">
+    <div className="w-full h-20 fixed top-0 left-0 flex justify-center items-center bg-white shadow-md rounded-b-2xl px-4 z-10">
       {leftButton ? (
         <div className="absolute left-4">{leftButton}</div>
       ) : (

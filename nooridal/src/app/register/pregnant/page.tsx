@@ -377,209 +377,228 @@ export default function PregnantSignup() {
   */
 
   return (
-    <div className="min-h-screen w-full flex justify-center items-center px-2 sm:px-4 md:px-8 bg-white">
-      <main className="w-full max-w-md min-h-[600px] relative bg-white overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
+    <div className="min-h-screen w-full flex justify-center items-center px-2 py-10 sm:px-4 md:px-8 bg-white">
+      <main className="w-full max-w-md relative bg-white overflow-visible pb-20 mb-10 sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
         {/* Load Daum Postcode API script */}
         <Script
           src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
           strategy="beforeInteractive"
         />
 
-        <div className="w-82 h-[725px] left-[28px] top-[67px] absolute bg-white rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />
-
-        {/* 누리달 로고 */}
-        <img
-          className="w-32 h-14 left-[135px] top-[105px] absolute"
-          src="/images/logo/누리달.png"
-          alt="누리달 로고"
-        />
-
-        {/* 아이디 입력 필드 */}
-        <div className="w-20 h-9 left-[32px] top-[167px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">
-          아이디
-        </div>
-        <div className="w-70 h-8 left-[52px] top-[202px] absolute">
-          <input
-            type="text"
-            value={userId}
-            onChange={(e) =>
-              handleInputChange(
-                "id",
-                e.target.value,
-                setUserId,
-                setUserIdStatus
-              )
-            }
-            placeholder="아이디를 입력하세요"
-            className={`w-full h-full px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border ${getBorderColor(
-              userIdStatus
-            )} focus:outline-none`}
+        <div className="w-82 h-auto min-h-[725px] mx-auto rounded-3xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] p-8 pt-16 relative">
+          {/* 누리달 로고 */}
+          <img
+            className="w-32 h-14 absolute left-0 right-0 mx-auto -top-10"
+            src="/images/logo/누리달.png"
+            alt="누리달 로고"
           />
-        </div>
-        <button
-          onClick={() => checkDuplication("id", userId)}
-          className={`w-16 h-6 left-[263px] top-[206px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] ${
-            userIdStatus === "valid"
-              ? "opacity-50 cursor-not-allowed"
-              : "hover:bg-yellow-300 transition-colors"
-          }`}
-          disabled={userIdStatus === "valid"}
-        >
-          중복확인
-        </button>
 
-        {/* 이름 입력 필드 */}
-        <div className="w-20 h-9 left-[27px] top-[236px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">
-          이름
-        </div>
-        <div className="w-70 h-8 left-[52px] top-[271px] absolute">
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="이름을 입력하세요"
-            className="w-full h-full px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
-          />
-        </div>
+          {/* 아이디 입력 필드 */}
+          <div className="mb-2 text-black/70 text-sm font-['Do_Hyeon']">
+            아이디
+          </div>
+          <div className="mb-6 relative">
+            <input
+              type="text"
+              value={userId}
+              onChange={(e) =>
+                handleInputChange(
+                  "id",
+                  e.target.value,
+                  setUserId,
+                  setUserIdStatus
+                )
+              }
+              placeholder="아이디를 입력하세요"
+              className={`w-full h-10 px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border ${getBorderColor(
+                userIdStatus
+              )} focus:outline-none`}
+            />
+            <button
+              onClick={() => checkDuplication("id", userId)}
+              className={`absolute right-2 top-2 w-16 h-6 bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] ${
+                userIdStatus === "valid"
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-yellow-300 transition-colors"
+              }`}
+              disabled={userIdStatus === "valid"}
+            >
+              중복확인
+            </button>
+          </div>
 
-        {/* 이메일 입력 필드 */}
-        <div className="w-20 h-9 left-[32px] top-[305px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">
-          이메일
-        </div>
-        <div className="w-70 h-8 left-[52px] top-[340px] absolute">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setEmailStatus("default");
-              setIsEmailVerified(false); // 이메일 변경 시 인증 상태 초기화
-            }}
-            placeholder="이메일을 입력하세요"
-            className={`w-full h-full px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border ${getBorderColor(
-              emailStatus
-            )} focus:outline-none`}
-          />
-        </div>
-        <button
-          onClick={handleVerificationRequest}
-          className={`w-16 h-6 left-[263px] top-[344px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] ${
-            isEmailVerified
-              ? "opacity-50 cursor-not-allowed"
-              : "hover:bg-yellow-300 transition-colors"
-          }`}
-          disabled={isEmailVerified}
-        >
-          {isEmailVerified ? "인증완료" : "인증요청"}
-        </button>
+          {/* 이름 입력 필드 */}
+          <div className="mb-2 text-black/70 text-sm font-['Do_Hyeon']">
+            이름
+          </div>
+          <div className="mb-6">
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="이름을 입력하세요"
+              className="w-full h-10 px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
+            />
+          </div>
 
-        {/* 전화번호 입력 필드 */}
-        <div className="w-20 h-9 left-[36px] top-[374px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">
-          전화번호
-        </div>
-        <div className="w-70 h-8 left-[52px] top-[410px] absolute">
-          <input
-            type="tel"
-            value={phoneNumber}
-            onChange={handlePhoneNumberChange}
-            placeholder="숫자만 입력하세요"
-            className={`w-full h-full px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border ${getBorderColor(
-              phoneNumberStatus
-            )} focus:outline-none`}
-          />
-        </div>
-        <button
-          onClick={() => checkDuplication("phone", phoneNumber)}
-          className={`w-16 h-6 left-[263px] top-[414px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] ${
-            phoneNumberStatus === "valid"
-              ? "opacity-50 cursor-not-allowed"
-              : "hover:bg-yellow-300 transition-colors"
-          }`}
-          disabled={phoneNumberStatus === "valid"}
-        >
-          중복확인
-        </button>
+          {/* 이메일 입력 필드 */}
+          <div className="mb-2 text-black/70 text-sm font-['Do_Hyeon']">
+            이메일
+          </div>
+          <div className="mb-6 relative">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailStatus("default");
+                setIsEmailVerified(false); // 이메일 변경 시 인증 상태 초기화
+              }}
+              placeholder="이메일을 입력하세요"
+              className={`w-full h-10 px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border ${getBorderColor(
+                emailStatus
+              )} focus:outline-none`}
+            />
+            <button
+              onClick={handleVerificationRequest}
+              className={`absolute right-2 top-2 w-16 h-6 bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] ${
+                isEmailVerified
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-yellow-300 transition-colors"
+              }`}
+              disabled={isEmailVerified}
+            >
+              {isEmailVerified ? "인증완료" : "인증요청"}
+            </button>
+          </div>
 
-        {/* 비밀번호 입력 필드 */}
-        <div className="w-20 h-9 left-[36px] top-[444px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">
-          비밀번호
-        </div>
-        <div className="w-70 h-8 left-[52px] top-[480px] absolute">
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호를 입력하세요"
-            className="w-full h-full px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
-          />
-        </div>
+          {/* 전화번호 입력 필드 */}
+          <div className="mb-2 text-black/70 text-sm font-['Do_Hyeon']">
+            전화번호
+          </div>
+          <div className="mb-6 relative">
+            <input
+              type="tel"
+              value={phoneNumber}
+              onChange={handlePhoneNumberChange}
+              placeholder="숫자만 입력하세요"
+              className={`w-full h-10 px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border ${getBorderColor(
+                phoneNumberStatus
+              )} focus:outline-none`}
+            />
+            <button
+              onClick={() => checkDuplication("phone", phoneNumber)}
+              className={`absolute right-2 top-2 w-16 h-6 bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] ${
+                phoneNumberStatus === "valid"
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-yellow-300 transition-colors"
+              }`}
+              disabled={phoneNumberStatus === "valid"}
+            >
+              중복확인
+            </button>
+          </div>
 
-        {/* 비밀번호 확인 입력 필드 */}
-        <div className="w-20 h-9 left-[48px] top-[517px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">
-          비밀번호 확인
-        </div>
-        <div className="w-70 h-8 left-[51px] top-[554px] absolute">
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="비밀번호를 다시 입력하세요"
-            className="w-full h-full px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
-          />
-        </div>
+          {/* 비밀번호 입력 필드 */}
+          <div className="mb-2 text-black/70 text-sm font-['Do_Hyeon']">
+            비밀번호
+          </div>
+          <div className="mb-6">
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="비밀번호를 입력하세요"
+              className="w-full h-10 px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
+            />
+          </div>
 
-        {/* 주소 입력 필드 */}
-        <div className="w-20 h-9 left-[27px] top-[590px] absolute text-center text-black/70 text-sm font-['Do_Hyeon'] leading-[50px]">
-          주소
+          {/* 비밀번호 확인 입력 필드 */}
+          <div className="mb-2 text-black/70 text-sm font-['Do_Hyeon']">
+            비밀번호 확인
+          </div>
+          <div className="mb-6">
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="비밀번호를 다시 입력하세요"
+              className="w-full h-10 px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
+            />
+          </div>
+
+          {/* 주소 입력 필드 */}
+          <div className="mb-2 text-black/70 text-sm font-['Do_Hyeon']">
+            주소
+          </div>
+          <div className="mb-8 relative">
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="검색 버튼을 눌러 주소를 입력해주세요"
+              className="w-full h-10 px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
+              readOnly
+            />
+            <button
+              onClick={handlePostcodeSearch}
+              className="absolute right-2 top-2 w-16 h-6 bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
+            >
+              검색
+            </button>
+          </div>
+
+          {/* 회원가입 버튼 */}
+          <button
+            onClick={handleSignup}
+            className="w-full h-12 bg-yellow-200 rounded-[20px] hover:bg-yellow-300 transition-colors"
+          >
+            <div className="text-black text-base font-['Do_Hyeon']">
+              회원가입
+            </div>
+          </button>
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => router.push("/login")}
+              className="text-yellow-400 text-sm font-['Do_Hyeon']"
+            >
+              이미 계정이 있으신가요? 로그인하기
+            </button>
+          </div>
         </div>
-        <div className="w-70 h-8 left-[52px] top-[627px] absolute">
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="검색 버튼을 눌러 주소를 입력해주세요"
-            className="w-full h-full px-3 text-neutral-400 text-sm font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
-            readOnly
-          />
-        </div>
-        <button
-          onClick={handlePostcodeSearch}
-          className="w-16 h-6 left-[263px] top-[631px] absolute bg-yellow-200 rounded-[10px] text-black text-xs font-['Do_Hyeon'] hover:bg-yellow-300 transition-colors"
-        >
-          검색
-        </button>
 
         {/* 이메일 인증 모달 */}
         {showEmailVerificationModal && (
           <>
-            <div className="w-96 h-[874px] left-0 top-0 absolute bg-neutral-400/50 z-20" />
-            <div className="w-80 h-52 left-[29px] top-[303px] absolute bg-white rounded-[20px] z-30">
-              <div className="w-80 h-20 left-0 top-[28px] absolute text-center text-black text-lg font-['Do_Hyeon'] leading-[50px] z-10">
+            <div className="fixed inset-0 bg-neutral-400/50 z-20" />
+            <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-52 bg-white rounded-[20px] z-30 p-4">
+              <div className="text-center text-black text-lg font-['Do_Hyeon'] mb-4">
                 이메일로 받은 인증번호를 입력하세요
               </div>
-              <div className="w-64 h-10 left-[33px] top-[85px] absolute z-10">
+              <div className="mb-4">
                 <input
                   type="text"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
                   placeholder="인증번호 입력"
-                  className="w-full h-full px-3 text-neutral-400 text-s font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
+                  className="w-full h-10 px-3 text-neutral-400 text-s font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 focus:outline-none"
                 />
               </div>
-              <div className="flex justify-between w-full px-8 absolute bottom-6 z-10">
+              <div className="flex justify-between">
                 <button
                   onClick={handleVerificationSubmit}
-                  className="w-30 h-9 bg-[#FFED90] rounded-[10px] hover:bg-[#FFE080] transition-colors"
+                  className="w-[45%] h-9 bg-[#FFED90] rounded-[10px] hover:bg-[#FFE080] transition-colors"
                 >
-                  <div className="w-full text-center text-black text-sm font-['Do_Hyeon'] leading-[36px]">
+                  <div className="text-center text-black text-sm font-['Do_Hyeon']">
                     확인
                   </div>
                 </button>
                 <button
                   onClick={() => setShowEmailVerificationModal(false)}
-                  className="w-30 h-9 bg-[#FFED90] rounded-[10px] hover:bg-[#FFE080] transition-colors"
+                  className="w-[45%] h-9 bg-[#FFED90] rounded-[10px] hover:bg-[#FFE080] transition-colors"
                 >
-                  <div className="w-full text-center text-black text-sm font-['Do_Hyeon'] leading-[36px]">
+                  <div className="text-center text-black text-sm font-['Do_Hyeon']">
                     취소
                   </div>
                 </button>
@@ -587,29 +606,6 @@ export default function PregnantSignup() {
             </div>
           </>
         )}
-
-        {/* 회원가입 버튼 */}
-        <button
-          onClick={handleSignup}
-          className="w-70 h-10 left-[52px] top-[690px] absolute bg-yellow-200 rounded-[20px] z-10 hover:bg-yellow-300 transition-colors"
-        >
-          <div className="w-50 h-7 left-[43px] top-[-5px] absolute text-black text-base font-['Do_Hyeon'] leading-[50px]">
-            회원가입
-          </div>
-        </button>
-
-        {/* 로그인으로 돌아가기 */}
-        <div className="w-60 h-9 left-[74px] top-[743px] absolute text-center z-10">
-          <span className="text-black text-sm font-['Do_Hyeon'] leading-[50px]">
-            이미 계정이 있으신가요?{" "}
-          </span>
-          <button
-            onClick={() => router.push("/login")}
-            className="text-yellow-400 text-sm font-['Do_Hyeon'] leading-[50px]"
-          >
-            로그인하기
-          </button>
-        </div>
       </main>
     </div>
   );

@@ -105,12 +105,12 @@ export default function LocationPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#FFF4BB]">
-      <div className="w-screen h-[900px] bg-[#FFF4BB]">
+      <div className="w-screen h-[900px] bg-[#FFF4BB] pt-25">
         {/* 헤더 */}
         <HeaderBar title="위치" showBackButton={false} />
 
         {/* 현재 위치 섹션 */}
-        <div className="w-full max-w-[360px] mx-auto mt-8 px-2 sm:px-0">
+        <div className="w-full max-w-[360px] mx-auto px-2 sm:px-0">
           <div className="bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)]">
             <div className="flex items-start p-4 sm:p-6">
               <div className="mr-4">

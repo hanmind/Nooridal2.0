@@ -223,7 +223,7 @@ export default function MyPage() {
   if (userType === null) return null;
 
   return (
-    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center">
+    <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center pt-20">
       {/* 헤더 */}
       <HeaderBar title="마이페이지" showBackButton={false} />
       <main className="w-full max-w-md h-[874px] relative bg-[#FFF4BB] overflow-hidden sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
