@@ -21,6 +21,21 @@ import HeaderBar from "./HeaderBar";
 // 로컬 스토리지 키 생성 함수
 const getLocalStorageKey = (roomId: string) => `chatMessages_${roomId}`;
 
+// 날짜 포맷팅 함수 추가
+const formatDate = (dateString?: string | Date): string => {
+  if (!dateString) return "날짜 없음";
+  try {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}년 ${month}월 ${day}일`; // "YYYY년 MM월 DD일" 형식으로 변경
+  } catch (e) {
+    console.error("Invalid date string for formatDate:", dateString, e);
+    return "날짜 형식 오류";
+  }
+};
+
 export default function ChatContainer() {
   // --- State Management (Task 10.2) ---
   const [messages, setMessages] = useState<Message[]>([]);
@@ -1025,13 +1040,19 @@ export default function ChatContainer() {
     <div className="h-full flex flex-col bg-gray-50 relative pt-20">
       {/* 헤더 바 */}
       <HeaderBar
-        title="누리달 AI 챗봇"
+        title={
+          currentRoomId && chatRooms.find((room) => room.id === currentRoomId)
+            ? formatDate(
+                chatRooms.find((room) => room.id === currentRoomId)?.created_at
+              )
+            : "새로운 대화"
+        }
         showBackButton={false}
-        rightButton={
+        leftCustomButton={
           <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="flex items-center justify-center text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
-            aria-label="대화 목록 열기"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            aria-label="채팅 목록 열기"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1044,11 +1065,12 @@ export default function ChatContainer() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
+                d="M4 6h16M4 12h16m-7 6h7"
               />
             </svg>
           </button>
         }
+        rightButton={null}
       />
 
       <div className="flex flex-1 bg-yellow-50 overflow-hidden">

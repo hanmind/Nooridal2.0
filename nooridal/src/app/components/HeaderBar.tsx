@@ -7,7 +7,7 @@ interface HeaderBarProps {
   backUrl?: string;
   onBackClick?: () => void;
   rightButton?: React.ReactNode;
-  leftButton?: React.ReactNode;
+  leftCustomButton?: React.ReactNode;
 }
 
 const HeaderBar: React.FC<HeaderBarProps> = ({
@@ -16,7 +16,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
   backUrl,
   onBackClick,
   rightButton,
-  leftButton,
+  leftCustomButton,
 }) => {
   const router = useRouter();
 
@@ -32,32 +32,33 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
 
   return (
     <div className="w-full h-20 fixed top-0 left-0 flex justify-center items-center bg-white shadow-md rounded-b-2xl px-4 z-10">
-      {leftButton ? (
-        <div className="absolute left-4">{leftButton}</div>
-      ) : (
-        showBackButton && (
-          <button
-            onClick={handleBackClick}
-            className="absolute left-4 flex items-center justify-center text-neutral-700 hover:text-yellow-600 transition-colors"
-            title="뒤로 가기"
-            aria-label="뒤로 가기"
+      {showBackButton && !leftCustomButton && (
+        <button
+          onClick={handleBackClick}
+          className="absolute left-4 flex items-center justify-center text-neutral-700 hover:text-yellow-600 transition-colors"
+          title="뒤로 가기"
+          aria-label="뒤로 가기"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-        )
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      )}
+      {leftCustomButton && (
+        <div className="absolute left-4 flex items-center justify-center">
+          {leftCustomButton}
+        </div>
       )}
 
       <h1 className="text-xl font-normal font-['Do_Hyeon'] text-neutral-700">
