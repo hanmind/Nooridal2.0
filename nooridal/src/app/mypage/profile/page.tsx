@@ -570,7 +570,7 @@ export default function ProfileManagement() {
     <div className="min-h-screen w-full bg-[#FFF4BB] flex flex-col items-center pt-20">
       {/* 헤더 */}
       <HeaderBar title="내 정보 관리" />
-      <main className="w-full max-w-md relative bg-[#FFF4BB] overflow-y-auto flex flex-col items-center px-4 pt-6 sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
+      <main className="w-full max-w-md relative bg-[#FFF4BB] overflow-y-auto flex flex-col items-center px-4 pt-6 mx-auto">
         <div className="w-full max-w-[360px] bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)] p-6">
           {/* 프로필 사진 영역 */}
           <div className="flex flex-col items-center mb-6 relative">
@@ -642,7 +642,7 @@ export default function ProfileManagement() {
           <div className="space-y-4 w-full">
             {/* 이름 입력란 */}
             <div className="flex items-center justify-between">
-              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <div className="text-black text-sm font-normal font-['Do_Hyeon']">
                 이름
               </div>
               <input
@@ -659,7 +659,7 @@ export default function ProfileManagement() {
 
             {/* 초대 코드 */}
             <div className="flex items-center justify-between">
-              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <div className="text-black text-sm font-normal font-['Do_Hyeon']">
                 초대코드
               </div>
               <div className="w-40 h-9 bg-gray-200 rounded-lg border border-zinc-300 flex items-center justify-between px-3">
@@ -703,7 +703,7 @@ export default function ProfileManagement() {
 
             {/* 아이디 */}
             <div className="flex flex-col space-y-2">
-              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <div className="text-black text-sm font-normal font-['Do_Hyeon']">
                 아이디
               </div>
               <div className="flex items-center space-x-2">
@@ -716,7 +716,7 @@ export default function ProfileManagement() {
                     onChange={handleIdChange}
                     onClick={handleIdClick}
                     onBlur={handleIdBlur}
-                    className="w-full h-11 px-4 text-left text-neutral-700 text-sm font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
+                    className="w-full h-11 px-4 text-left text-black text-sm font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
                   />
                 </div>
                 <button
@@ -732,7 +732,7 @@ export default function ProfileManagement() {
 
             {/* 비밀번호 */}
             <div className="flex flex-col space-y-2">
-              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <div className="text-black text-sm font-normal font-['Do_Hyeon']">
                 비밀번호
               </div>
               <div className="flex items-center space-x-2">
@@ -742,7 +742,7 @@ export default function ProfileManagement() {
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="********"
-                    className="w-full h-11 px-4 text-left text-neutral-700 text-sm font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
+                    className="w-full h-11 px-4 text-left text-black text-sm font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 border-zinc-300 rounded-[10px]"
                     readOnly
                   />
                 </div>
@@ -759,20 +759,22 @@ export default function ProfileManagement() {
 
             {/* 이메일 */}
             <div className="flex flex-col space-y-2">
-              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <div className="text-black text-sm font-normal font-['Do_Hyeon']">
                 이메일
               </div>
               <input
                 type="text"
                 value={userInfo.email}
                 readOnly
-                className="w-full h-11 px-4 bg-gray-200 text-stone-500 text-sm font-normal font-['Do_Hyeon'] rounded-[10px] border border-zinc-300"
+                aria-label="이메일"
+                placeholder="이메일"
+                className="w-full h-11 px-4 bg-gray-200 text-black text-sm font-normal font-['Do_Hyeon'] rounded-[10px] border border-zinc-300"
               />
             </div>
 
             {/* 전화번호 */}
             <div className="flex flex-col space-y-2">
-              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <div className="text-black text-sm font-normal font-['Do_Hyeon']">
                 전화번호
               </div>
               <div className="flex items-center space-x-2">
@@ -783,7 +785,7 @@ export default function ProfileManagement() {
                       value={tempPhoneNumber}
                       onChange={handlePhoneChange}
                       onBlur={handlePhoneBlur}
-                      className={`w-full h-11 px-4 text-left text-neutral-700 text-sm font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 rounded-[10px] ${
+                      className={`w-full h-11 px-4 text-left text-black text-sm font-normal font-['Do_Hyeon'] bg-transparent outline-none focus:border-sky-400 border-2 rounded-[10px] ${
                         phoneDuplicate === true
                           ? "bg-red-100 border-red-300"
                           : phoneDuplicate === false
@@ -825,12 +827,12 @@ export default function ProfileManagement() {
 
             {/* 주소 */}
             <div className="flex flex-col space-y-2">
-              <div className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <div className="text-black text-sm font-normal font-['Do_Hyeon']">
                 주소
               </div>
               <div className="flex items-center space-x-2">
                 <div className="flex-1">
-                  <div className="w-full h-11 px-4 flex items-center bg-white text-neutral-900 text-sm font-normal font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 overflow-hidden">
+                  <div className="w-full h-11 px-4 flex items-center bg-white text-black text-sm font-normal font-['Do_Hyeon'] rounded-[10px] border border-zinc-300 overflow-hidden">
                     {address}
                   </div>
                 </div>
@@ -856,7 +858,7 @@ export default function ProfileManagement() {
 
               {/* 탈퇴하기 */}
               <div
-                className="mt-4 text-center text-neutral-400/60 text-sm font-normal font-['Do_Hyeon'] cursor-pointer"
+                className="mt-4 text-center text-neutral-500 text-sm font-normal font-['Do_Hyeon'] cursor-pointer"
                 onClick={() => setShowDeleteModal(true)}
               >
                 탈퇴하기

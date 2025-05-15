@@ -288,26 +288,26 @@ export default function PregnancyInfo() {
             : "엄마의 임신 정보"
         }
       />
-      <main className="w-full max-w-md relative bg-[#FFF4BB] overflow-y-auto flex flex-col items-center px-4 pt-6 sm:w-96 md:w-[420px] lg:w-[480px] xl:w-[520px]">
+      <main className="w-full max-w-md relative bg-[#FFF4BB] overflow-y-auto flex flex-col items-center px-4 pt-6 mx-auto">
         <div className="w-full max-w-[360px] bg-white rounded-3xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.30)] shadow-[0px_1px_3px_1px_rgba(0,0,0,0.15)] p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* 태명 */}
             <div className="flex flex-col space-y-2">
-              <label className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <label className="text-black text-sm font-normal font-['Do_Hyeon']">
                 태명
               </label>
               <input
                 type="text"
                 value={tempBabyName}
                 onChange={(e) => setTempBabyName(e.target.value)}
-                className="w-full h-11 px-4 text-neutral-700 text-sm font-normal font-['Do_Hyeon'] bg-white border-2 rounded-[10px] border-zinc-300 focus:outline-none focus:border-sky-400"
+                className="w-full h-11 px-4 text-black text-sm font-normal font-['Do_Hyeon'] bg-white border-2 rounded-[10px] border-zinc-300 focus:outline-none focus:border-sky-400"
                 placeholder="태명을 입력하세요"
               />
             </div>
 
             {/* 성별 */}
             <div className="flex flex-col space-y-2">
-              <label className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <label className="text-black text-sm font-normal font-['Do_Hyeon']">
                 성별
               </label>
               <div className="flex space-x-2 justify-center">
@@ -317,8 +317,8 @@ export default function PregnancyInfo() {
                   className={`flex-1 py-2 rounded-full font-['Do_Hyeon'] transition-all duration-300 text-sm
                     ${
                       formData.gender === "남자"
-                        ? "bg-sky-200 text-gray-700 border-2 border-sky-200"
-                        : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
+                        ? "bg-sky-200 text-black border-2 border-sky-200"
+                        : "bg-white border-2 border-gray-200 text-black hover:bg-sky-50"
                     }`}
                 >
                   남아
@@ -352,14 +352,14 @@ export default function PregnancyInfo() {
 
             {/* 현재 임신 주차 */}
             <div className="flex flex-col space-y-2">
-              <label className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <label className="text-black text-sm font-normal font-['Do_Hyeon']">
                 현재 임신 주차
               </label>
               <div className="relative w-full">
                 <button
                   type="button"
                   onClick={() => setIsWeekSelectorOpen(!isWeekSelectorOpen)}
-                  className="w-full h-11 px-4 border-2 rounded-[10px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center border-zinc-300 text-sm text-neutral-700"
+                  className="w-full h-11 px-4 border-2 rounded-[10px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center border-zinc-300 text-sm text-black"
                 >
                   <span>
                     {formData.pregnancyWeek !== "*"
@@ -412,13 +412,13 @@ export default function PregnancyInfo() {
 
             {/* 출산 예정일 */}
             <div className="flex flex-col space-y-2">
-              <label className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <label className="text-black text-sm font-normal font-['Do_Hyeon']">
                 출산 예정일
               </label>
               <button
                 type="button"
                 onClick={() => setShowCalendar(true)}
-                className="w-full h-11 px-4 border-2 rounded-[10px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center border-zinc-300 text-sm text-neutral-700"
+                className="w-full h-11 px-4 border-2 rounded-[10px] font-['Do_Hyeon'] bg-white text-left flex justify-between items-center border-zinc-300 text-sm text-black"
               >
                 <span>{formData.dueDate || "선택"}</span>
                 <svg
@@ -439,7 +439,7 @@ export default function PregnancyInfo() {
 
             {/* 고위험 임신 */}
             <div className="flex flex-col space-y-2">
-              <label className="text-neutral-700 text-sm font-normal font-['Do_Hyeon']">
+              <label className="text-black text-sm font-normal font-['Do_Hyeon']">
                 고위험 임신
               </label>
               <div className="flex space-x-2">
