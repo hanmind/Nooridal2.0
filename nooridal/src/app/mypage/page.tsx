@@ -258,7 +258,7 @@ export default function MyPage() {
           {/* 사용자 정보 */}
           <div className="text-center mt-[-74px] ml-9">
             <div className="flex items-center justify-center">
-              <div className="text-neutral-700 text-xl font-normal font-['Do_Hyeon'] ml-6">
+              <div className="text-black text-xl font-normal font-['Do_Hyeon'] ml-6">
                 {name || ""}
               </div>
               {pregnancyInfo?.high_risk && (
@@ -366,7 +366,7 @@ export default function MyPage() {
                     <circle cx="12" cy="8" r="4" strokeWidth="2" />
                     <path d="M4 20c0-4 4-7 8-7s8 3 8 7" strokeWidth="2" />
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                  <span className="text-xs text-black font-['Do_Hyeon'] mt-1">
                     내 정보 관리
                   </span>
                 </div>
@@ -394,7 +394,7 @@ export default function MyPage() {
                       ?
                     </text>
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                  <span className="text-xs text-black font-['Do_Hyeon'] mt-1">
                     자주 찾는 질문
                   </span>
                 </div>
@@ -415,7 +415,7 @@ export default function MyPage() {
                       strokeWidth="2"
                     />
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                  <span className="text-xs text-black font-['Do_Hyeon'] mt-1">
                     앱 정보
                   </span>
                 </div>
@@ -437,7 +437,7 @@ export default function MyPage() {
                     <path d="M21 12H9" strokeWidth="2" />
                     <path d="M18 15l3-3-3-3" strokeWidth="2" />
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                  <span className="text-xs text-black font-['Do_Hyeon'] mt-1">
                     로그아웃
                   </span>
                 </div>
@@ -458,7 +458,7 @@ export default function MyPage() {
                     <circle cx="12" cy="8" r="4" strokeWidth="2" />
                     <path d="M4 20c0-4 4-7 8-7s8 3 8 7" strokeWidth="2" />
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                  <span className="text-xs text-black font-['Do_Hyeon'] mt-1">
                     내 정보 관리
                   </span>
                 </div>
@@ -481,7 +481,7 @@ export default function MyPage() {
                       fill="#FCA5A5"
                     />
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                  <span className="text-xs text-black font-['Do_Hyeon'] mt-1">
                     임신 정보 관리
                   </span>
                 </div>
@@ -509,7 +509,7 @@ export default function MyPage() {
                       ?
                     </text>
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                  <span className="text-xs text-black font-['Do_Hyeon'] mt-1">
                     자주 찾는 질문
                   </span>
                 </div>
@@ -530,7 +530,7 @@ export default function MyPage() {
                       strokeWidth="2"
                     />
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                  <span className="text-xs text-black font-['Do_Hyeon'] mt-1">
                     앱 정보
                   </span>
                 </div>
@@ -552,7 +552,7 @@ export default function MyPage() {
                     <path d="M21 12H9" strokeWidth="2" />
                     <path d="M18 15l3-3-3-3" strokeWidth="2" />
                   </svg>
-                  <span className="text-xs text-neutral-700 font-['Do_Hyeon'] mt-1">
+                  <span className="text-xs text-black font-['Do_Hyeon'] mt-1">
                     로그아웃
                   </span>
                 </div>

@@ -1,26 +1,18 @@
 import React from "react";
+import { formatTimestamp } from "../utils/formatTimestamp";
 
 interface UserMessageProps {
   message: string;
-  timestamp?: string; // Optional timestamp
+  timestamp?: string | Date | null;
 }
 
 const UserMessage: React.FC<UserMessageProps> = ({ message, timestamp }) => {
-  // Basic timestamp formatting (can be improved)
-  const formattedTime = timestamp
-    ? new Date(timestamp).toLocaleTimeString("ko-KR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false, // 24시간 표기
-      })
-    : "";
-
   return (
-    <div className="flex justify-end mb-3">
-      <div className="flex items-end max-w-[75%]">
-        {formattedTime && (
-          <span className="text-xs text-gray-500 dark:text-gray-400 mr-2 self-end mb-0.5">
-            {formattedTime}
+    <div className="flex justify-end mb-4">
+      <div className="flex items-end">
+        {timestamp && (
+          <span className="text-xs text-black dark:text-gray-300 mr-2 self-end mb-0.5">
+            {formatTimestamp(timestamp)}
           </span>
         )}
         <div className="bg-yellow-200 text-yellow-900 p-3 rounded-xl shadow">

@@ -329,8 +329,8 @@ export default function PregnancyInfo() {
                   className={`flex-1 py-2 rounded-full font-['Do_Hyeon'] transition-all duration-300 text-sm
                     ${
                       formData.gender === "여자"
-                        ? "bg-red-200 text-gray-700 border-2 border-red-200"
-                        : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
+                        ? "bg-red-200 text-black border-2 border-red-200"
+                        : "bg-white border-2 border-gray-200 text-black hover:bg-sky-50"
                     }`}
                 >
                   여아
@@ -341,8 +341,8 @@ export default function PregnancyInfo() {
                   className={`flex-1 py-2 rounded-full font-['Do_Hyeon'] transition-all duration-300 text-sm
                     ${
                       formData.gender === "모름"
-                        ? "bg-gray-200 text-gray-700 border-2 border-gray-200"
-                        : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-sky-50"
+                        ? "bg-gray-200 text-black border-2 border-gray-200"
+                        : "bg-white border-2 border-gray-200 text-black hover:bg-sky-50"
                     }`}
                 >
                   모름
@@ -367,7 +367,7 @@ export default function PregnancyInfo() {
                       : "선택"}
                   </span>
                   <svg
-                    className="w-4 h-4 text-gray-400"
+                    className="w-4 h-4 text-black"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -397,7 +397,7 @@ export default function PregnancyInfo() {
                             ${
                               formData.pregnancyWeek === week.toString()
                                 ? "bg-sky-200 text-black"
-                                : "text-gray-700"
+                                : "text-black"
                             }
                           `}
                         >
@@ -422,7 +422,7 @@ export default function PregnancyInfo() {
               >
                 <span>{formData.dueDate || "선택"}</span>
                 <svg
-                  className="w-4 h-4 text-gray-400"
+                  className="w-4 h-4 text-black"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -463,8 +463,8 @@ export default function PregnancyInfo() {
                   className={`flex-1 py-2 rounded-full font-['Do_Hyeon'] transition-all duration-300 text-sm
                     ${
                       !formData.isHighRisk
-                        ? "bg-[#E5E7EB] text-white"
-                        : "bg-white border-2 border-gray-200 text-gray-600 hover:bg-gray-50"
+                        ? "bg-[#E5E7EB] text-black"
+                        : "bg-white border-2 border-gray-200 text-black hover:bg-gray-50"
                     }`}
                 >
                   아니오
@@ -493,7 +493,7 @@ export default function PregnancyInfo() {
             />
             <div className="bg-white p-4 rounded-2xl shadow-lg w-[320px] relative z-10 mx-4">
               <div className="text-center mb-4">
-                <div className="text-lg font-['Do_Hyeon'] text-gray-900">
+                <div className="text-lg font-['Do_Hyeon'] text-black">
                   출산 예정일을 선택해주세요
                 </div>
               </div>
@@ -506,7 +506,7 @@ export default function PregnancyInfo() {
                   className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
                 >
                   <svg
-                    className="w-5 h-5 text-gray-600"
+                    className="w-5 h-5 text-black"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -519,7 +519,7 @@ export default function PregnancyInfo() {
                     />
                   </svg>
                 </button>
-                <div className="text-base font-['Do_Hyeon'] text-gray-900">
+                <div className="text-base font-['Do_Hyeon'] text-black">
                   {formatYearMonth(currentMonth)}
                 </div>
                 <button
@@ -528,7 +528,7 @@ export default function PregnancyInfo() {
                   className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
                 >
                   <svg
-                    className="w-5 h-5 text-gray-600"
+                    className="w-5 h-5 text-black"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -575,8 +575,8 @@ export default function PregnancyInfo() {
                         day.isCurrentMonth
                           ? day.date.toISOString().split("T")[0] ===
                             formData.dueDate
-                            ? "bg-[#FFE999] text-gray-900 font-bold"
-                            : "hover:bg-gray-100 text-gray-900"
+                            ? "bg-[#FFE999] text-black font-bold"
+                            : "hover:bg-gray-100 text-black"
                           : "text-gray-400"
                       }
                       ${day.date.getDay() === 0 ? "text-red-500" : ""}
@@ -593,7 +593,7 @@ export default function PregnancyInfo() {
               <div className="mt-3 flex justify-center">
                 <button
                   onClick={() => setShowCalendar(false)}
-                  className="px-6 py-2 bg-gray-200 text-gray-700 rounded-full font-['Do_Hyeon'] hover:bg-gray-300 transition-colors text-sm"
+                  className="px-6 py-2 bg-gray-200 text-black rounded-full font-['Do_Hyeon'] hover:bg-gray-300 transition-colors text-sm"
                 >
                   취소
                 </button>

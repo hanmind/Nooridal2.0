@@ -101,7 +101,11 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
         {/* Guide Text */}
         <div className="px-4 py-2">
-          <p className="text-xs text-gray-500 text-center">대화 내역을 확인해보세요</p>
+          {chatRooms.length === 0 && !currentRoomId && (
+            <p className="text-xs text-black text-center">
+              대화 내역을 확인해보세요
+            </p>
+          )}
         </div>
 
         {/* Chat Room List */}
