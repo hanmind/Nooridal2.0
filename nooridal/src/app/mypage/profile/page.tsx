@@ -858,7 +858,7 @@ export default function ProfileManagement() {
 
               {/* 탈퇴하기 */}
               <div
-                className="mt-4 text-center text-neutral-500 text-sm font-normal font-['Do_Hyeon'] cursor-pointer"
+                className="mt-4 text-center text-black text-sm font-normal font-['Do_Hyeon'] cursor-pointer"
                 onClick={() => setShowDeleteModal(true)}
               >
                 탈퇴하기
@@ -898,7 +898,7 @@ export default function ProfileManagement() {
               </div>
             )}
             <div
-              className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-gray-100 cursor-pointer text-gray-400"
+              className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-gray-100 cursor-pointer text-gray-600"
               onClick={() => setShowProfileOptions(false)}
             >
               취소
@@ -922,7 +922,7 @@ export default function ProfileManagement() {
               삭제
             </div>
             <div
-              className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-gray-100 cursor-pointer text-gray-400"
+              className="p-2 text-center text-sm font-['Do_Hyeon'] hover:bg-gray-100 cursor-pointer text-gray-600"
               onClick={() => setShowEditOptions(false)}
             >
               취소
@@ -953,7 +953,7 @@ export default function ProfileManagement() {
                 </h3>
                 <button
                   onClick={() => setShowPasswordModal(false)}
-                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                  className="absolute top-4 right-4 text-black hover:text-gray-900"
                 >
                   ✕
                 </button>

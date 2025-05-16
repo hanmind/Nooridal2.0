@@ -1,8 +1,9 @@
 import React from "react";
+import { formatTimestamp } from "../utils/formatTimestamp";
 
 interface AIMessageProps {
   message: string;
-  timestamp?: string; // Optional timestamp
+  timestamp?: string | Date | null; // timestamp 타입 업데이트
   isStreaming?: boolean; // Optional flag for streaming indicator
 }
 
@@ -11,20 +12,13 @@ const AIMessage: React.FC<AIMessageProps> = ({
   timestamp,
   isStreaming,
 }) => {
-  // Basic timestamp formatting
-  const formattedTime = timestamp
-    ? new Date(timestamp).toLocaleTimeString("ko-KR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false, // 24시간 표기
-      })
-    : "";
+  const messageClasses = "flex items-end max-w-[75%]";
 
   return (
     <div className="flex justify-start mb-3">
       {" "}
       {/* 여백 약간 조정 */}
-      <div className="flex items-end max-w-[75%]">
+      <div className={`${messageClasses} ${isStreaming ? "streaming" : ""}`}>
         {" "}
         {/* 최대 너비 약간 증가 */}
         {/* AI 아바타/아이콘이 필요하다면 여기에 추가 */}
@@ -40,11 +34,9 @@ const AIMessage: React.FC<AIMessageProps> = ({
             )}
           </p>
         </div>
-        {formattedTime && (
-          <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 self-end mb-0.5">
-            {" "}
-            {/* 시간 위치 및 색상 조정 */}
-            {formattedTime}
+        {timestamp && (
+          <span className="text-xs text-black dark:text-gray-300 ml-2 self-end mb-0.5">
+            {formatTimestamp(timestamp)}
           </span>
         )}
       </div>

@@ -35,7 +35,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
       {showBackButton && !leftCustomButton && (
         <button
           onClick={handleBackClick}
-          className="absolute left-4 flex items-center justify-center text-neutral-700 hover:text-yellow-600 transition-colors"
+          className="absolute left-4 flex items-center justify-center text-black hover:text-yellow-600 transition-colors"
           title="뒤로 가기"
           aria-label="뒤로 가기"
         >
@@ -61,7 +61,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
         </div>
       )}
 
-      <h1 className="text-xl font-normal font-['Do_Hyeon'] text-neutral-700">
+      <h1 className="text-xl font-normal font-['Do_Hyeon'] text-black">
         {title}
       </h1>
 

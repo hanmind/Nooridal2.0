@@ -1030,7 +1030,7 @@ export default function ChatContainer() {
   if (isLoadingRooms || !currentRoomId) {
     return (
       <div className="h-full flex flex-col justify-center items-center bg-gray-50">
-        <p className="text-gray-500">채팅방을 불러오는 중입니다...</p>
+        <p className="text-black">채팅방을 불러오는 중입니다...</p>
       </div>
     );
   }
